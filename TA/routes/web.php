@@ -8,6 +8,8 @@ use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\TesKemampuanController;
 use App\Http\Controllers\MagangController;
 use App\Http\Controllers\EvaluasiMingguanMagangController;
+use App\Http\Controllers\AHPController;
+use App\Http\Controllers\SMARTController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,6 +47,15 @@ Route::middleware('auth')->group(function () {
 
     // Evaluasi Mingguan routes
     Route::resource('evaluasi', EvaluasiMingguanMagangController::class);
+
+    // Decision Support System (DSS) routes
+    // AHP Routes
+    Route::get('/ahp/{job_id}', [AHPController::class, 'index'])->name('ahp.index');
+    Route::post('/ahp/{job_id}/save-comparisons', [AHPController::class, 'saveComparisons'])->name('ahp.save-comparisons');
+
+    // SMART Routes
+    Route::get('/smart/{job_id}', [SMARTController::class, 'index'])->name('smart.index');
+    Route::post('/smart/{job_id}/apply', [SMARTController::class, 'applyRanking'])->name('smart.apply-ranking');
 });
 
 require __DIR__.'/auth.php';
