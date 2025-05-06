@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .form-input {
+        @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50;
+    }
+
+    .form-group {
+        @apply mb-4;
+    }
+
+    .table-cell {
+        @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+    }
+
+    .table-action {
+        @apply text-indigo-600 hover:text-indigo-900 mx-2;
+    }
+
+    .delete-action {
+        @apply text-red-600 hover:text-red-900;
+    }
+
+    .card-header {
+        @apply px-4 py-5 border-b border-gray-200 sm:px-6;
+    }
+
+    .card-title {
+        @apply text-lg leading-6 font-medium text-gray-900;
+    }
+
+    .card-body {
+        @apply p-6;
+    }
+
+    .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+
+    .badge-success {
+        @apply bg-green-100 text-green-800;
+    }
+
+    .badge-warning {
+        @apply bg-yellow-100 text-yellow-800;
+    }
+
+    .badge-danger {
+        @apply bg-red-100 text-red-800;
+    }
+
+    .pagination {
+        @apply relative z-0 inline-flex rounded-md shadow-sm -space-x-px;
+    }
+
+    .page-link {
+        @apply relative inline-flex items-center px-4 py-2 border text-sm font-medium;
+    }
+
+    .page-item.active .page-link {
+        @apply z-10 bg-indigo-50 border-indigo-500 text-indigo-600;
+    }
+}
