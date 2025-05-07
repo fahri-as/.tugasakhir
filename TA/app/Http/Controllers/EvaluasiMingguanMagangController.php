@@ -4,39 +4,52 @@ namespace App\Http\Controllers;
 
 use App\Models\EvaluasiMingguanMagang;
 use App\Models\Magang;
+use App\Models\RatingScale;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class EvaluasiMingguanMagangController extends Controller
 {
     public function index()
     {
-        $evaluasi = EvaluasiMingguanMagang::with(['magang', 'pelamar'])->get();
+        $evaluasi = EvaluasiMingguanMagang::with(['magang', 'magang.pelamar', 'ratingScale'])->get();
         return view('evaluasi.index', compact('evaluasi'));
     }
 
     public function create()
     {
-        $magang = Magang::where('status_seleksi', 'accepted')->get();
-        return view('evaluasi.create', compact('magang'));
+        $magang = Magang::where('status_seleksi', 'Sedang Berjalan')->with('pelamar')->get();
+        $ratingScales = RatingScale::all();
+        return view('evaluasi.create', compact('magang', 'ratingScales'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'evaluasi_id' => 'required|unique:evaluasi_mingguan_magang',
             'magang_id' => 'required|exists:magang,magang_id',
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+            'rating_id' => 'required|exists:rating_scales,rating_id',
             'minggu_ke' => 'required|integer|min:1',
-            'kriteria1' => 'required|integer|between:1,5',
-            'kriteria2' => 'required|integer|between:1,5',
-            'kriteria3' => 'required|integer|between:1,5',
-            'kriteria4' => 'required|integer|between:1,5',
-            'kriteria5' => 'required|integer|between:1,5'
         ]);
 
-        $evaluasi = new EvaluasiMingguanMagang($request->all());
-        $evaluasi->skor_minggu = ($request->kriteria1 + $request->kriteria2 + $request->kriteria3 +
-                                 $request->kriteria4 + $request->kriteria5) / 5;
+        // Check if evaluation already exists for this magang and week
+        $exists = EvaluasiMingguanMagang::where('magang_id', $request->magang_id)
+            ->where('minggu_ke', $request->minggu_ke)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()->with('error', 'Evaluation for this intern and week already exists');
+        }
+
+        // Get the rating value to calculate score
+        $rating = RatingScale::findOrFail($request->rating_id);
+
+        // Create the evaluation
+        $evaluasi = new EvaluasiMingguanMagang();
+        $evaluasi->evaluasi_id = Str::uuid()->toString();
+        $evaluasi->magang_id = $request->magang_id;
+        $evaluasi->rating_id = $request->rating_id;
+        $evaluasi->minggu_ke = $request->minggu_ke;
+        $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
         $evaluasi->save();
 
         return redirect()->route('evaluasi.index')->with('success', 'Evaluasi created successfully');
@@ -44,32 +57,43 @@ class EvaluasiMingguanMagangController extends Controller
 
     public function show(EvaluasiMingguanMagang $evaluasi)
     {
-        $evaluasi->load(['magang', 'pelamar']);
+        $evaluasi->load(['magang', 'magang.pelamar', 'ratingScale']);
         return view('evaluasi.show', compact('evaluasi'));
     }
 
     public function edit(EvaluasiMingguanMagang $evaluasi)
     {
-        $magang = Magang::where('status_seleksi', 'accepted')->get();
-        return view('evaluasi.edit', compact('evaluasi', 'magang'));
+        $magang = Magang::with('pelamar')->get();
+        $ratingScales = RatingScale::all();
+        return view('evaluasi.edit', compact('evaluasi', 'magang', 'ratingScales'));
     }
 
     public function update(Request $request, EvaluasiMingguanMagang $evaluasi)
     {
         $request->validate([
             'magang_id' => 'required|exists:magang,magang_id',
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+            'rating_id' => 'required|exists:rating_scales,rating_id',
             'minggu_ke' => 'required|integer|min:1',
-            'kriteria1' => 'required|integer|between:1,5',
-            'kriteria2' => 'required|integer|between:1,5',
-            'kriteria3' => 'required|integer|between:1,5',
-            'kriteria4' => 'required|integer|between:1,5',
-            'kriteria5' => 'required|integer|between:1,5'
         ]);
 
-        $evaluasi->fill($request->all());
-        $evaluasi->skor_minggu = ($request->kriteria1 + $request->kriteria2 + $request->kriteria3 +
-                                 $request->kriteria4 + $request->kriteria5) / 5;
+        // Check if evaluation already exists for this magang and week (excluding current record)
+        $exists = EvaluasiMingguanMagang::where('magang_id', $request->magang_id)
+            ->where('minggu_ke', $request->minggu_ke)
+            ->where('evaluasi_id', '!=', $evaluasi->evaluasi_id)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()->with('error', 'Evaluation for this intern and week already exists');
+        }
+
+        // Get the rating value to calculate score
+        $rating = RatingScale::findOrFail($request->rating_id);
+
+        // Update the evaluation
+        $evaluasi->magang_id = $request->magang_id;
+        $evaluasi->rating_id = $request->rating_id;
+        $evaluasi->minggu_ke = $request->minggu_ke;
+        $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
         $evaluasi->save();
 
         return redirect()->route('evaluasi.index')->with('success', 'Evaluasi updated successfully');

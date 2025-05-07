@@ -10,6 +10,7 @@ use App\Models\TesKemampuan;
 use App\Models\Magang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SMARTController extends Controller
 {
@@ -31,10 +32,6 @@ class SMARTController extends Controller
             return $c->weight > 0;
         })->count() > 0;
 
-        if (!$hasCalculatedWeights) {
-            return redirect()->route('ahp.index', $job_id)->with('error', 'Please calculate criteria weights using AHP first.');
-        }
-
         // Get applicants for this job
         $applicants = Pelamar::where('job_id', $job_id)
             ->with(['interview', 'tesKemampuan'])
@@ -42,11 +39,11 @@ class SMARTController extends Controller
 
         // Calculate SMART ranking if we have applicants
         $rankings = [];
-        if ($applicants->count() > 0) {
+        if ($applicants->count() > 0 && $hasCalculatedWeights) {
             $rankings = $this->calculateSMARTRanking($applicants, $criteria, $job_id);
         }
 
-        return view('smart.index', compact('job', 'criteria', 'applicants', 'rankings'));
+        return view('smart.index', compact('job', 'criteria', 'hasCalculatedWeights', 'applicants', 'rankings'));
     }
 
     /**
@@ -223,7 +220,7 @@ class SMARTController extends Controller
                 } else {
                     // Create new record
                     Magang::create([
-                        'magang_id' => 'MAG' . uniqid(),
+                        'magang_id' => 'MAG' . Str::random(8),
                         'pelamar_id' => $applicantId,
                         'user_id' => auth()->id(),
                         'status_seleksi' => $status,

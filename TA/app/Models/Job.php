@@ -19,14 +19,34 @@ class Job extends Model
         'deskripsi'
     ];
 
+    /**
+     * Get all applicants for this job
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function pelamar(): HasMany
     {
         return $this->hasMany(Pelamar::class, 'job_id', 'job_id');
     }
 
-    public function periode(): BelongsToMany
+    /**
+     * Get all periods associated with this job
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function periodes(): BelongsToMany
     {
         return $this->belongsToMany(Periode::class, 'periode_job', 'job_id', 'periode_id')
                     ->withTimestamps();
+    }
+
+    /**
+     * Get all criteria for this job
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function criteria(): HasMany
+    {
+        return $this->hasMany(Criteria::class, 'job_id', 'job_id');
     }
 }

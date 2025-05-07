@@ -28,11 +28,21 @@ class Periode extends Model
         'durasi_minggu_magang' => 'integer'
     ];
 
-    public function pelamar(): HasMany
+    /**
+     * Get all applicants in this period
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function pelamars(): HasMany
     {
         return $this->hasMany(Pelamar::class, 'periode_id', 'periode_id');
     }
 
+    /**
+     * Get all jobs associated with this period
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function jobs(): BelongsToMany
     {
         return $this->belongsToMany(Job::class, 'periode_job', 'periode_id', 'job_id')

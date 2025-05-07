@@ -15,6 +15,7 @@ class Interview extends Model
     protected $fillable = [
         'interview_id',
         'pelamar_id',
+        'user_id',
         'kualifikasi_skor',
         'komunikasi_skor',
         'sikap_skor',
@@ -33,5 +34,10 @@ class Interview extends Model
     public function pelamar(): BelongsTo
     {
         return $this->belongsTo(Pelamar::class, 'pelamar_id', 'pelamar_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Pelamar extends Model
 {
@@ -27,14 +28,13 @@ class Pelamar extends Model
         'lama_pengalaman',
         'tempat_pengalaman',
         'deskripsi_tempat',
-        'cv_gdrive_id',
-        'cv_gdrive_link'
+        'berkas_cv'
     ];
 
     protected $casts = [
         'tgl_lahir' => 'date',
         'lama_pengalaman' => 'integer',
-        'tempat_pengalaman' => 'integer'
+        'tempat_pengalaman' => 'string'  // Changed from integer to string to match DB
     ];
 
     public function periode(): BelongsTo
@@ -62,8 +62,15 @@ class Pelamar extends Model
         return $this->hasOne(TesKemampuan::class, 'pelamar_id', 'pelamar_id');
     }
 
-    public function evaluasiMingguan(): HasMany
+    public function evaluasiMingguan(): HasManyThrough
     {
-        return $this->hasMany(EvaluasiMingguanMagang::class, 'pelamar_id', 'pelamar_id');
+        return $this->hasManyThrough(
+            EvaluasiMingguanMagang::class,
+            Magang::class,
+            'pelamar_id', // Foreign key on magang table
+            'magang_id',  // Foreign key on evaluasi_mingguan_magang table
+            'pelamar_id', // Local key on pelamar table
+            'magang_id'   // Local key on magang table
+        );
     }
 }

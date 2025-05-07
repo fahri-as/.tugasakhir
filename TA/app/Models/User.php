@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -47,5 +48,35 @@ class User extends Authenticatable
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get all interviews conducted by this user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function interviews(): HasMany
+    {
+        return $this->hasMany(Interview::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get all skill tests conducted by this user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tesKemampuan(): HasMany
+    {
+        return $this->hasMany(TesKemampuan::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get all internships managed by this user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function magang(): HasMany
+    {
+        return $this->hasMany(Magang::class, 'user_id', 'user_id');
     }
 }
