@@ -32,9 +32,14 @@
                             <div class="flex justify-between items-center">
                                 <h3 class="text-lg font-medium text-gray-900">Criteria for: {{ $job->nama_job }}</h3>
 
-                                <a href="{{ route('criteria.create', ['job_id' => $job->job_id]) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                    Add Criteria
-                                </a>
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('ahp.index', $job->job_id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        AHP Criteria Weighting
+                                    </a>
+                                    <a href="{{ route('criteria.create', ['job_id' => $job->job_id]) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        Add Criteria
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
