@@ -10,6 +10,7 @@ use App\Http\Controllers\MagangController;
 use App\Http\Controllers\EvaluasiMingguanMagangController;
 use App\Http\Controllers\AHPController;
 use App\Http\Controllers\SMARTController;
+use App\Http\Controllers\CriteriaController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Periode;
 
@@ -54,6 +55,11 @@ Route::middleware('auth')->group(function () {
 
     // Evaluasi Mingguan routes
     Route::resource('evaluasi', EvaluasiMingguanMagangController::class);
+
+    // Criteria routes
+    Route::resource('criteria', CriteriaController::class);
+    Route::post('criteria/update-weights', [CriteriaController::class, 'updateWeights'])
+        ->name('criteria.update-weights');
 
     // Decision Support System (DSS) routes
     // AHP Routes

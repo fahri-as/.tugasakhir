@@ -35,6 +35,9 @@
                     <x-nav-link :href="route('evaluasi.index')" :active="request()->routeIs('evaluasi.*')">
                         Evaluations
                     </x-nav-link>
+                    <x-nav-link :href="route('criteria.index')" :active="request()->routeIs('evaluasi.*')">
+                        Criteria
+                    </x-nav-link>
                 </div>
             </div>
 

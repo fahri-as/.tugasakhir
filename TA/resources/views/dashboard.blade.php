@@ -29,6 +29,13 @@
                     </div>
                 </a>
 
+                <a href="{{ route('criteria.index') }}" class="bg-white  overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow">
+                    <div class="p-6 border-b border-gray-200 ">
+                        <h3 class="text-lg font-medium text-gray-900 ">Criteria</h3>
+                        <p class="mt-2 text-sm text-gray-600 ">Define and manage selection criteria for job positions.</p>
+                    </div>
+                </a>
+
                 <a href="{{ route('interview.index') }}" class="bg-white  overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow">
                     <div class="p-6 border-b border-gray-200 ">
                         <h3 class="text-lg font-medium text-gray-900 ">Interviews</h3>
@@ -70,6 +77,9 @@
                             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
                                 <h4 class="font-medium text-gray-800 dark:text-gray-200">Cook Position (JOB001)</h4>
                                 <div class="mt-4 space-y-2">
+                                    <a href="{{ route('criteria.index', ['job_id' => 'JOB001']) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                                        Manage Criteria
+                                    </a>
                                     <a href="{{ route('ahp.index', 'JOB001') }}" class="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                                         AHP Criteria Weighting
                                     </a>
@@ -82,6 +92,9 @@
                             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
                                 <h4 class="font-medium text-gray-800 dark:text-gray-200">Pastry Chef Position (JOB004)</h4>
                                 <div class="mt-4 space-y-2">
+                                    <a href="{{ route('criteria.index', ['job_id' => 'JOB004']) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                                        Manage Criteria
+                                    </a>
                                     <a href="{{ route('ahp.index', 'JOB004') }}" class="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                                         AHP Criteria Weighting
                                     </a>
