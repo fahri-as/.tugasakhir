@@ -11,10 +11,15 @@ use App\Http\Controllers\EvaluasiMingguanMagangController;
 use App\Http\Controllers\AHPController;
 use App\Http\Controllers\SMARTController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Periode;
 
 Route::get('/', function () {
-    return view('welcome');
+    $periodes = Periode::with('jobs')->get();
+    return view('welcome', compact('periodes'));
 });
+
+// This route is accessible to everyone (public)
+Route::post('/apply', [PelamarController::class, 'store'])->name('pelamar.public.store');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -28,11 +33,13 @@ Route::middleware('auth')->group(function () {
     // Job routes
     Route::resource('jobs', JobController::class);
     Route::resource('job', JobController::class);
+
     // Periode routes
     Route::resource('periode', PeriodeController::class);
 
-    // Pelamar routes
-    Route::resource('pelamar', PelamarController::class);
+    // Pelamar routes - add all methods except store which has a public route
+    Route::resource('pelamar', PelamarController::class)->except(['store']);
+    Route::post('pelamar', [PelamarController::class, 'store'])->name('pelamar.store');
 
     // Interview routes
     Route::resource('interview', InterviewController::class);

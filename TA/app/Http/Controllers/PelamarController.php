@@ -7,10 +7,14 @@ use App\Models\Periode;
 use App\Models\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\File;
+
 class PelamarController extends Controller
 {
+    // No middleware in constructor - we handle this in routes
+
     public function index()
     {
         $pelamar = Pelamar::with(['periode', 'job', 'magang', 'interview', 'tesKemampuan'])->get();
@@ -81,6 +85,13 @@ class PelamarController extends Controller
         }
 
         $pelamar = Pelamar::create($data);
+
+        // Check if request is coming from public route or admin area
+        if ($request->route()->getName() === 'pelamar.public.store' || !Auth::check()) {
+            return redirect('/')->with('success', 'Application submitted successfully! Your application ID is: ' . $newId);
+        }
+
+        // Otherwise, redirect to admin area
         return redirect()->route('pelamar.index')->with('success', 'Pelamar created successfully with ID: ' . $newId);
     }
 
@@ -140,35 +151,35 @@ class PelamarController extends Controller
         // Prepare data for update
         $data = $request->except(['berkas_cv', '_token', '_method']);
 
-    // Handle CV file upload if present
-    if ($request->hasFile('berkas_cv')) {
-        // Delete old file if exists
-        if ($pelamar->berkas_cv) {
-            $oldFilePath = public_path($pelamar->berkas_cv);
-            if (File::exists($oldFilePath)) {
-                File::delete($oldFilePath);
+        // Handle CV file upload if present
+        if ($request->hasFile('berkas_cv')) {
+            // Delete old file if exists
+            if ($pelamar->berkas_cv) {
+                $oldFilePath = public_path($pelamar->berkas_cv);
+                if (File::exists($oldFilePath)) {
+                    File::delete($oldFilePath);
+                }
             }
+
+            $file = $request->file('berkas_cv');
+            $fileName = $pelamar->pelamar_id . '_CV.' . $file->getClientOriginalExtension();
+
+            // Make sure the directory exists
+            $directory = public_path('cv_files');
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+
+            // Move the file directly to the public directory
+            $file->move($directory, $fileName);
+
+            // Store the relative path
+            $data['berkas_cv'] = 'cv_files/' . $fileName;
         }
 
-        $file = $request->file('berkas_cv');
-        $fileName = $pelamar->pelamar_id . '_CV.' . $file->getClientOriginalExtension();
-
-        // Make sure the directory exists
-        $directory = public_path('cv_files');
-        if (!File::exists($directory)) {
-            File::makeDirectory($directory, 0755, true);
-        }
-
-        // Move the file directly to the public directory
-        $file->move($directory, $fileName);
-
-        // Store the relative path
-        $data['berkas_cv'] = 'cv_files/' . $fileName;
+        $pelamar->update($data);
+        return redirect()->route('pelamar.index')->with('success', 'Pelamar updated successfully');
     }
-
-    $pelamar->update($data);
-    return redirect()->route('pelamar.index')->with('success', 'Pelamar updated successfully');
-}
 
     public function destroy(Pelamar $pelamar)
     {
