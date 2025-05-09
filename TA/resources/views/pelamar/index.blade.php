@@ -33,9 +33,14 @@
                                 <label for="periode_filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Period</label>
                                 <select id="periode_filter" name="periode_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     <option value="">All Periods</option>
-                                    @foreach(App\Models\Periode::all() as $periode)
-                                        <option value="{{ $periode->periode_id }}" {{ request('periode_id') == $periode->periode_id ? 'selected' : '' }}>
-                                            {{ $periode->nama_periode }}
+                                    @php
+                                        $latestPeriode = App\Models\Periode::orderBy('tanggal_mulai', 'desc')->first();
+                                        $latestPeriodeId = $latestPeriode ? $latestPeriode->periode_id : '';
+                                        $selectedPeriodeId = request('periode_id') !== null ? request('periode_id') : $latestPeriodeId;
+                                    @endphp
+                                    @foreach(App\Models\Periode::orderBy('tanggal_mulai', 'desc')->get() as $periode)
+                                        <option value="{{ $periode->periode_id }}" {{ $selectedPeriodeId == $periode->periode_id ? 'selected' : '' }}>
+                                            {{ $periode->nama_periode }} ({{ $periode->tanggal_mulai->format('d M Y') }} - {{ $periode->tanggal_selesai->format('d M Y') }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -159,7 +164,7 @@
                                         <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <a href="{{ route('pelamar.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'lama_pengalaman', 'sort_dir' => request('sort_by') == 'lama_pengalaman' && request('sort_dir') == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
                                                 Experience
-                                                @if(request('sort_by') == 'lama_pengalaman')
+                                                @if(request('sort_by') == 'lama_pengalaman' || (!request('sort_by') && !request('sort_dir')))
                                                     @if(request('sort_dir') == 'asc')
                                                         <svg class="ml-1 h-3 w-3 text-gray-400 group-hover:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                                                             <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />

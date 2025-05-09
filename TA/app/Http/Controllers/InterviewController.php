@@ -25,35 +25,44 @@ class InterviewController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-            'user_id' => 'required|exists:user,user_id',
-            'kualifikasi_skor' => 'required|integer|between:1,5',
-            'komunikasi_skor' => 'required|integer|between:1,5',
-            'sikap_skor' => 'required|integer|between:1,5',
-            'jadwal' => 'required|date'
-        ]);
+{
+    $request->validate([
+        'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+        'user_id' => 'required|exists:user,user_id',
+        'kualifikasi_skor' => 'required|integer|between:1,5',
+        'komunikasi_skor' => 'required|integer|between:1,5',
+        'sikap_skor' => 'required|integer|between:1,5',
+        'jadwal' => 'required|date',
+        'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
+    ]);
 
-        // Generate a unique ID
-        $interviewId = 'INT' . str_pad(Interview::count() + 1, 3, '0', STR_PAD_LEFT);
+    // Generate a unique ID
+    $interviewId = 'INT' . str_pad(Interview::count() + 1, 3, '0', STR_PAD_LEFT);
 
-        $interview = new Interview();
-        $interview->interview_id = $interviewId;
-        $interview->pelamar_id = $request->pelamar_id;
-        $interview->user_id = $request->user_id;
-        $interview->kualifikasi_skor = $request->kualifikasi_skor;
-        $interview->komunikasi_skor = $request->komunikasi_skor;
-        $interview->sikap_skor = $request->sikap_skor;
-        $interview->jadwal = $request->jadwal;
+    $interview = new Interview();
+    $interview->interview_id = $interviewId;
+    $interview->pelamar_id = $request->pelamar_id;
+    $interview->user_id = $request->user_id;
+    $interview->kualifikasi_skor = $request->kualifikasi_skor;
+    $interview->komunikasi_skor = $request->komunikasi_skor;
+    $interview->sikap_skor = $request->sikap_skor;
+    $interview->jadwal = $request->jadwal;
+    $interview->status_seleksi = $request->status_seleksi;
 
-        // Calculate total score as average of the three scores
-        $interview->total_skor = ($request->kualifikasi_skor + $request->komunikasi_skor + $request->sikap_skor) / 3;
+    // Calculate total score as average of the three scores
+    $interview->total_skor = ($request->kualifikasi_skor + $request->komunikasi_skor + $request->sikap_skor) / 3;
 
-        $interview->save();
+    $interview->save();
 
-        return redirect()->route('interview.index')->with('success', 'Interview created successfully');
+    // Update the user status if they pass the interview
+    if ($request->status_seleksi == 'Tes Kemampuan') {
+        $user = User::findOrFail($request->user_id);
+        $user->status_seleksi = 'Interview';
+        $user->save();
     }
+
+    return redirect()->route('interview.index')->with('success', 'Interview created successfully');
+}
 
     public function show(Interview $interview)
     {
@@ -69,30 +78,39 @@ class InterviewController extends Controller
     }
 
     public function update(Request $request, Interview $interview)
-    {
-        $request->validate([
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-            'user_id' => 'required|exists:user,user_id',
-            'kualifikasi_skor' => 'required|integer|between:1,5',
-            'komunikasi_skor' => 'required|integer|between:1,5',
-            'sikap_skor' => 'required|integer|between:1,5',
-            'jadwal' => 'required|date'
-        ]);
+{
+    $request->validate([
+        'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+        'user_id' => 'required|exists:user,user_id',
+        'kualifikasi_skor' => 'required|integer|between:1,5',
+        'komunikasi_skor' => 'required|integer|between:1,5',
+        'sikap_skor' => 'required|integer|between:1,5',
+        'jadwal' => 'required|date',
+        'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
+    ]);
 
-        $interview->pelamar_id = $request->pelamar_id;
-        $interview->user_id = $request->user_id;
-        $interview->kualifikasi_skor = $request->kualifikasi_skor;
-        $interview->komunikasi_skor = $request->komunikasi_skor;
-        $interview->sikap_skor = $request->sikap_skor;
-        $interview->jadwal = $request->jadwal;
+    $interview->pelamar_id = $request->pelamar_id;
+    $interview->user_id = $request->user_id;
+    $interview->kualifikasi_skor = $request->kualifikasi_skor;
+    $interview->komunikasi_skor = $request->komunikasi_skor;
+    $interview->sikap_skor = $request->sikap_skor;
+    $interview->jadwal = $request->jadwal;
+    $interview->status_seleksi = $request->status_seleksi;
 
-        // Calculate total score as average of the three scores
-        $interview->total_skor = ($request->kualifikasi_skor + $request->komunikasi_skor + $request->sikap_skor) / 3;
+    // Calculate total score as average of the three scores
+    $interview->total_skor = ($request->kualifikasi_skor + $request->komunikasi_skor + $request->sikap_skor) / 3;
 
-        $interview->save();
+    $interview->save();
 
-        return redirect()->route('interview.index')->with('success', 'Interview updated successfully');
+    // Update the user status if they pass the interview
+    if ($request->status_seleksi == 'Tes Kemampuan') {
+        $user = User::findOrFail($request->user_id);
+        $user->status_seleksi = 'Interview';
+        $user->save();
     }
+
+    return redirect()->route('interview.index')->with('success', 'Interview updated successfully');
+}
 
     public function destroy(Interview $interview)
     {

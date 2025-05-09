@@ -20,14 +20,22 @@ class PelamarController extends Controller
         // Start with base query
         $query = Pelamar::with(['periode', 'job', 'magang', 'interview', 'tesKemampuan']);
 
-        // Apply period filter if requested
-        if ($request->has('periode_id') && !empty($request->periode_id)) {
+        // Check if we need to filter by period or show all
+        if ($request->filled('periode_id')) {
+            // If a specific period is selected, filter by it
             $query->where('periode_id', $request->periode_id);
+        } else if (!$request->has('periode_id') && !$request->has('sort_by')) {
+            // First page load or no filters applied yet - default to most recent period
+            $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
+            if ($latestPeriode) {
+                $query->where('periode_id', $latestPeriode->periode_id);
+            }
         }
+        // If request has periode_id but it's empty, show all periods (don't apply any filter)
 
-        // Apply sorting if requested
-        $sortBy = $request->input('sort_by', 'pelamar_id'); // Default sort by ID
-        $sortDir = $request->input('sort_dir', 'asc'); // Default sort direction
+        // Apply sorting if requested, or default to experience descending
+        $sortBy = $request->input('sort_by', 'lama_pengalaman'); // Default sort by experience
+        $sortDir = $request->input('sort_dir', 'desc'); // Default sort direction to descending
 
         // Only allow specific columns to be sortable
         $allowedSortColumns = [
@@ -44,6 +52,178 @@ class PelamarController extends Controller
 
         return view('pelamar.index', compact('pelamar'));
     }
+    public function create()
+    {
+        // Eager load jobs to have them available for the dropdown
+        $periodes = Periode::with('jobs')->get();
+        return view('pelamar.create', compact('periodes'));
+    }
 
-    // The rest of the controller remains the same...
+    public function store(Request $request)
+    {
+        $request->validate([
+            'periode_id' => 'required|exists:periode,periode_id',
+            'job_id' => [
+                'required',
+                Rule::exists('periode_job', 'job_id')->where(function ($query) use ($request) {
+                    return $query->where('periode_id', $request->periode_id);
+                }),
+            ],
+            'nama' => 'required',
+            'email' => 'required|email', // Removed unique constraint
+            'nomor_wa' => 'required',
+            'tgl_lahir' => 'required|date',
+            'alamat' => 'required',
+            'pendidikan' => 'required',
+            'lama_pengalaman' => 'required|integer|min:0',
+            'tempat_pengalaman' => 'required|string',
+            'deskripsi_tempat' => 'required',
+            'berkas_cv' => 'required|file|mimes:pdf,doc,docx|max:500'
+        ]);
+
+        // Get the last applicant ID to generate the new one
+        $lastApplicant = Pelamar::orderBy('pelamar_id', 'desc')->first();
+
+        if ($lastApplicant) {
+            // Extract the numeric part and increment
+            $lastId = intval(substr($lastApplicant->pelamar_id, 2));
+            $newId = 'PL' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            // If no existing applicants, start with PL001
+            $newId = 'PL001';
+        }
+
+        // Prepare data for creation
+        $data = $request->except('berkas_cv');
+        $data['pelamar_id'] = $newId;
+
+        // Handle CV file upload
+        if ($request->hasFile('berkas_cv')) {
+            $file = $request->file('berkas_cv');
+            $fileName = $newId . '_CV.' . $file->getClientOriginalExtension();
+
+            // Make sure the directory exists
+            $directory = public_path('cv_files');
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+
+            // Move the file directly to the public directory
+            $file->move($directory, $fileName);
+
+            // Store the relative path
+            $data['berkas_cv'] = 'cv_files/' . $fileName;
+        }
+
+        $pelamar = Pelamar::create($data);
+
+        // Check if request is coming from public route or admin area
+        if ($request->route()->getName() === 'pelamar.public.store' || !Auth::check()) {
+            return redirect('/')->with('success', 'Application submitted successfully! Your application ID is: ' . $newId);
+        }
+
+        // Otherwise, redirect to admin area
+        return redirect()->route('pelamar.index')->with('success', 'Pelamar created successfully with ID: ' . $newId);
+    }
+
+    public function show(Pelamar $pelamar)
+    {
+        $pelamar->load(['periode', 'job', 'magang', 'interview', 'tesKemampuan']);
+        return view('pelamar.show', compact('pelamar'));
+    }
+
+    public function edit(Pelamar $pelamar)
+    {
+        $periodes = Periode::with('jobs')->get();
+
+        // Get the specific jobs for the current period
+        $currentPeriodeJobs = [];
+        if ($pelamar->periode_id) {
+            $currentPeriode = $periodes->firstWhere('periode_id', $pelamar->periode_id);
+            if ($currentPeriode) {
+                $currentPeriodeJobs = $currentPeriode->jobs;
+            }
+        }
+
+        return view('pelamar.edit', compact('pelamar', 'periodes', 'currentPeriodeJobs'));
+    }
+
+    public function update(Request $request, Pelamar $pelamar)
+    {
+        $validationRules = [
+            'periode_id' => 'required|exists:periode,periode_id',
+            'job_id' => [
+                'required',
+                Rule::exists('periode_job', 'job_id')->where(function ($query) use ($request) {
+                    return $query->where('periode_id', $request->periode_id);
+                }),
+            ],
+            'nama' => 'required',
+            'email' => 'required|email', // Removed unique constraint
+            'nomor_wa' => 'required',
+            'tgl_lahir' => 'required|date',
+            'alamat' => 'required',
+            'pendidikan' => 'required',
+            'lama_pengalaman' => 'required|integer|min:0',
+            'tempat_pengalaman' => 'required|string',
+            'deskripsi_tempat' => 'required'
+        ];
+
+        // Only validate file if a new one is being uploaded
+        if ($request->hasFile('berkas_cv')) {
+            $validationRules['berkas_cv'] = 'file|mimes:pdf,doc,docx|max:500';
+        } else if (!$pelamar->berkas_cv) {
+            // If no existing file and no new file uploaded, make it required
+            $validationRules['berkas_cv'] = 'required|file|mimes:pdf,doc,docx|max:500';
+        }
+
+        $request->validate($validationRules);
+
+        // Prepare data for update
+        $data = $request->except(['berkas_cv', '_token', '_method']);
+
+        // Handle CV file upload if present
+        if ($request->hasFile('berkas_cv')) {
+            // Delete old file if exists
+            if ($pelamar->berkas_cv) {
+                $oldFilePath = public_path($pelamar->berkas_cv);
+                if (File::exists($oldFilePath)) {
+                    File::delete($oldFilePath);
+                }
+            }
+
+            $file = $request->file('berkas_cv');
+            $fileName = $pelamar->pelamar_id . '_CV.' . $file->getClientOriginalExtension();
+
+            // Make sure the directory exists
+            $directory = public_path('cv_files');
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+
+            // Move the file directly to the public directory
+            $file->move($directory, $fileName);
+
+            // Store the relative path
+            $data['berkas_cv'] = 'cv_files/' . $fileName;
+        }
+
+        $pelamar->update($data);
+        return redirect()->route('pelamar.index')->with('success', 'Pelamar updated successfully');
+    }
+
+    public function destroy(Pelamar $pelamar)
+    {
+    // Delete CV file if exists
+    if ($pelamar->berkas_cv) {
+        // Use the same file path structure as in store/update methods
+        $filePath = public_path($pelamar->berkas_cv);
+        if (File::exists($filePath)) {
+            File::delete($filePath);
+        }
+    }
+
+    $pelamar->delete();
+    return redirect()->route('pelamar.index')->with('success', 'Pelamar deleted successfully');
+    }
 }

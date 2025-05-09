@@ -18,12 +18,14 @@ class TesKemampuan extends Model
         'pelamar_id',
         'catatan',
         'jadwal',
-        'skor'
+        'skor',
+        'status_seleksi', // Added status_seleksi field
     ];
 
     protected $casts = [
         'skor' => 'integer',
-        'jadwal' => 'date'
+        'jadwal' => 'date',
+        'status_seleksi' => 'string', // Added status_seleksi cast
     ];
 
     public function pelamar(): BelongsTo

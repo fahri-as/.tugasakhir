@@ -25,29 +25,29 @@ class MagangController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-            'user_id' => 'required|exists:user,user_id',
-            'total_skor' => 'nullable|numeric|between:0,5',
-            'rank' => 'nullable|integer|min:1',
-            'status_seleksi' => 'required|in:Pending,Lulus,Tidak Lulus,Sedang Berjalan,Selesai'
-        ]);
+{
+    $request->validate([
+        'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+        'user_id' => 'required|exists:user,user_id',
+        'total_skor' => 'nullable|numeric|between:0,5',
+        'rank' => 'nullable|integer|min:1',
+        'status_seleksi' => 'required|in:Pending,Lulus,Tidak Lulus,Sedang Berjalan'
+    ]);
 
-        // Generate a unique ID
-        $magangId = 'MAG' . str_pad(Magang::count() + 1, 3, '0', STR_PAD_LEFT);
+    // Generate a unique ID
+    $magangId = 'MAG' . str_pad(Magang::count() + 1, 3, '0', STR_PAD_LEFT);
 
-        $magang = new Magang();
-        $magang->magang_id = $magangId;
-        $magang->pelamar_id = $request->pelamar_id;
-        $magang->user_id = $request->user_id;
-        $magang->total_skor = $request->total_skor ?? 0;
-        $magang->rank = $request->rank;
-        $magang->status_seleksi = $request->status_seleksi;
-        $magang->save();
+    $magang = new Magang();
+    $magang->magang_id = $magangId;
+    $magang->pelamar_id = $request->pelamar_id;
+    $magang->user_id = $request->user_id;
+    $magang->total_skor = $request->total_skor ?? 0;
+    $magang->rank = $request->rank;
+    $magang->status_seleksi = $request->status_seleksi;
+    $magang->save();
 
-        return redirect()->route('magang.index')->with('success', 'Magang created successfully');
-    }
+    return redirect()->route('magang.index')->with('success', 'Magang created successfully');
+}
 
     public function show(Magang $magang)
     {
@@ -63,24 +63,24 @@ class MagangController extends Controller
     }
 
     public function update(Request $request, Magang $magang)
-    {
-        $request->validate([
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-            'user_id' => 'required|exists:user,user_id',
-            'total_skor' => 'nullable|numeric|between:0,5',
-            'rank' => 'nullable|integer|min:1',
-            'status_seleksi' => 'required|in:Pending,Lulus,Tidak Lulus,Sedang Berjalan,Selesai'
-        ]);
+{
+    $request->validate([
+        'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+        'user_id' => 'required|exists:user,user_id',
+        'total_skor' => 'nullable|numeric|between:0,5',
+        'rank' => 'nullable|integer|min:1',
+        'status_seleksi' => 'required|in:Pending,Lulus,Tidak Lulus,Sedang Berjalan'
+    ]);
 
-        $magang->pelamar_id = $request->pelamar_id;
-        $magang->user_id = $request->user_id;
-        $magang->total_skor = $request->total_skor ?? $magang->total_skor;
-        $magang->rank = $request->rank;
-        $magang->status_seleksi = $request->status_seleksi;
-        $magang->save();
+    $magang->pelamar_id = $request->pelamar_id;
+    $magang->user_id = $request->user_id;
+    $magang->total_skor = $request->total_skor ?? $magang->total_skor;
+    $magang->rank = $request->rank;
+    $magang->status_seleksi = $request->status_seleksi;
+    $magang->save();
 
-        return redirect()->route('magang.index')->with('success', 'Magang updated successfully');
-    }
+    return redirect()->route('magang.index')->with('success', 'Magang updated successfully');
+}
 
     public function destroy(Magang $magang)
     {

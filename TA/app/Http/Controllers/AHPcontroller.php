@@ -106,7 +106,7 @@ class AHPController extends Controller
                                 'comparisons_id' => Str::uuid()->toString(),
                                 'criteria_row_id' => $colId,
                                 'criteria_column_id' => $rowId,
-                                'value' => 1 / (float)$value,
+                                'value' => 1 / (int)$value,
                                 'created_at' => now()->format('Y-m-d H:i:s'),
                                 'updated_at' => now(),
                             ]);

@@ -20,7 +20,8 @@ class Interview extends Model
         'komunikasi_skor',
         'sikap_skor',
         'total_skor',
-        'jadwal'
+        'jadwal',
+        'status_seleksi', // Added status_seleksi field
     ];
 
     protected $casts = [
@@ -28,7 +29,8 @@ class Interview extends Model
         'komunikasi_skor' => 'integer',
         'sikap_skor' => 'integer',
         'total_skor' => 'decimal:2',
-        'jadwal' => 'date'
+        'jadwal' => 'date',
+        'status_seleksi' => 'string', // Added status_seleksi cast
     ];
 
     public function pelamar(): BelongsTo

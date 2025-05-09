@@ -25,7 +25,7 @@ class Magang extends Model
     protected $casts = [
         'total_skor' => 'decimal:2',
         'rank' => 'integer',
-        'status_seleksi' => 'string'
+        'status_seleksi' => 'string' // Updated cast (enum values changed in DB)
     ];
 
     public function pelamar(): BelongsTo
