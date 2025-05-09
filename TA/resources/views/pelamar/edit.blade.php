@@ -170,7 +170,18 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
-
+                        <!-- Status Seleksi dropdown -->
+                        <div>
+                            <label for="status_seleksi" class="block text-sm font-medium text-gray-700">Selection Status</label>
+                            <select name="status_seleksi" id="status_seleksi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="Pending" {{ old('status_seleksi', $pelamar->status_seleksi) == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="Interview" {{ old('status_seleksi', $pelamar->status_seleksi) == 'Interview' ? 'selected' : '' }}>Interview</option>
+                                <option value="Sedang Berjalan" {{ old('status_seleksi', $pelamar->status_seleksi) == 'Sedang Berjalan' ? 'selected' : '' }}>Sedang Berjalan</option>
+                            </select>
+                            @error('status_seleksi')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
                         <div class="flex items-center justify-end mt-6">
                             <a href="{{ route('pelamar.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-800 uppercase tracking-widest hover:bg-gray-400 active:bg-gray-500 focus:outline-none focus:border-gray-500 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150 mr-3">
                                 Cancel

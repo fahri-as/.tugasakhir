@@ -221,20 +221,15 @@
                                                     <span class="text-gray-500">No experience</span>
                                                 @endif
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                @if($applicant->magang)
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                        @if($applicant->magang->status_seleksi === 'Lulus') bg-green-100 text-green-800 @endif
-                                                        @if($applicant->magang->status_seleksi === 'Tidak Lulus') bg-red-100 text-red-800 @endif
-                                                        @if($applicant->magang->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
-                                                        @if($applicant->magang->status_seleksi === 'Sedang Berjalan') bg-blue-100 text-blue-800 @endif
-                                                        @if($applicant->magang->status_seleksi === 'Selesai') bg-gray-100 text-gray-800 @endif">
-                                                        {{ $applicant->magang->status_seleksi }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-gray-500">Not processed</span>
-                                                @endif
-                                            </td>
+                                            <!-- In the table row display for status_seleksi -->
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+        @if($applicant->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
+        @if($applicant->status_seleksi === 'Interview') bg-blue-100 text-blue-800 @endif
+        @if($applicant->status_seleksi === 'Sedang Berjalan') bg-green-100 text-green-800 @endif">
+        {{ $applicant->status_seleksi ?? 'Pending' }}
+    </span>
+</td>   
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <a href="{{ route('pelamar.show', $applicant) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
                                                 <a href="{{ route('pelamar.edit', $applicant) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>

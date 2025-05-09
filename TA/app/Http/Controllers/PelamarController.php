@@ -40,7 +40,7 @@ class PelamarController extends Controller
         // Only allow specific columns to be sortable
         $allowedSortColumns = [
             'pelamar_id', 'nama', 'job_id', 'periode_id',
-            'pendidikan', 'tgl_lahir', 'lama_pengalaman'
+            'pendidikan', 'tgl_lahir', 'lama_pengalaman', 'status_seleksi'
         ];
 
         if (in_array($sortBy, $allowedSortColumns)) {
@@ -78,7 +78,8 @@ class PelamarController extends Controller
             'lama_pengalaman' => 'required|integer|min:0',
             'tempat_pengalaman' => 'required|string',
             'deskripsi_tempat' => 'required',
-            'berkas_cv' => 'required|file|mimes:pdf,doc,docx|max:500'
+            'berkas_cv' => 'required|file|mimes:pdf,doc,docx|max:500',
+            'status_seleksi' => 'nullable|in:Pending,Interview,Sedang Berjalan' // Added validation for status_seleksi
         ]);
 
         // Get the last applicant ID to generate the new one
@@ -96,6 +97,11 @@ class PelamarController extends Controller
         // Prepare data for creation
         $data = $request->except('berkas_cv');
         $data['pelamar_id'] = $newId;
+
+        // Set default status_seleksi if not provided
+        if (!isset($data['status_seleksi'])) {
+            $data['status_seleksi'] = 'Pending';
+        }
 
         // Handle CV file upload
         if ($request->hasFile('berkas_cv')) {
@@ -166,7 +172,8 @@ class PelamarController extends Controller
             'pendidikan' => 'required',
             'lama_pengalaman' => 'required|integer|min:0',
             'tempat_pengalaman' => 'required|string',
-            'deskripsi_tempat' => 'required'
+            'deskripsi_tempat' => 'required',
+            'status_seleksi' => 'nullable|in:Pending,Interview,Sedang Berjalan' // Added validation for status_seleksi
         ];
 
         // Only validate file if a new one is being uploaded
@@ -214,16 +221,16 @@ class PelamarController extends Controller
 
     public function destroy(Pelamar $pelamar)
     {
-    // Delete CV file if exists
-    if ($pelamar->berkas_cv) {
-        // Use the same file path structure as in store/update methods
-        $filePath = public_path($pelamar->berkas_cv);
-        if (File::exists($filePath)) {
-            File::delete($filePath);
+        // Delete CV file if exists
+        if ($pelamar->berkas_cv) {
+            // Use the same file path structure as in store/update methods
+            $filePath = public_path($pelamar->berkas_cv);
+            if (File::exists($filePath)) {
+                File::delete($filePath);
+            }
         }
-    }
 
-    $pelamar->delete();
-    return redirect()->route('pelamar.index')->with('success', 'Pelamar deleted successfully');
+        $pelamar->delete();
+        return redirect()->route('pelamar.index')->with('success', 'Pelamar deleted successfully');
     }
 }

@@ -100,26 +100,18 @@
                                     @endif
                                 </p>
                             </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Status</p>
-                                <p class="mt-1 text-sm">
-                                    @if($pelamar->magang)
-                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                            @if($pelamar->magang->status_seleksi === 'Lulus') bg-green-100 text-green-800 @endif
-                                            @if($pelamar->magang->status_seleksi === 'Tidak Lulus') bg-red-100 text-red-800 @endif
-                                            @if($pelamar->magang->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
-                                            @if($pelamar->magang->status_seleksi === 'Sedang Berjalan') bg-blue-100 text-blue-800 @endif
-                                            @if($pelamar->magang->status_seleksi === 'Selesai') bg-gray-100 text-gray-800 @endif">
-                                            {{ $pelamar->magang->status_seleksi }}
-                                        </span>
-                                        @if($pelamar->magang->rank)
-                                            <span class="ml-2 text-gray-500">Rank: {{ $pelamar->magang->rank }}</span>
-                                        @endif
-                                    @else
-                                        <span class="text-gray-500">Not processed</span>
-                                    @endif
-                                </p>
-                            </div>
+                            <!-- In the Application Details section -->
+<div>
+    <p class="text-sm font-medium text-gray-500">Selection Status</p>
+    <p class="mt-1 text-sm">
+        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+            @if($pelamar->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
+            @if($pelamar->status_seleksi === 'Interview') bg-blue-100 text-blue-800 @endif
+            @if($pelamar->status_seleksi === 'Sedang Berjalan') bg-green-100 text-green-800 @endif">
+            {{ $pelamar->status_seleksi ?? 'Pending' }}
+        </span>
+    </p>
+</div>
                         </div>
                     </div>
 

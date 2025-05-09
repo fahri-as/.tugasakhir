@@ -28,13 +28,15 @@ class Pelamar extends Model
         'lama_pengalaman',
         'tempat_pengalaman',
         'deskripsi_tempat',
-        'berkas_cv'
+        'berkas_cv',
+        'status_seleksi'
     ];
 
     protected $casts = [
         'tgl_lahir' => 'date',
         'lama_pengalaman' => 'integer',
-        'tempat_pengalaman' => 'string'  // Changed from integer to string to match DB
+        'tempat_pengalaman' => 'string',  // Changed from integer to string to match DB
+        'status_seleksi' => 'string'      // Added cast for status_seleksi
     ];
 
     public function periode(): BelongsTo
