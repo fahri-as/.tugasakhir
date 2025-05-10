@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
 
     // Interview routes
     Route::resource('interview', InterviewController::class);
+    // Add the new simplified interview scheduling route
+    Route::post('/interview/schedule', [InterviewController::class, 'schedule'])->name('interview.schedule');
 
     // Tes Kemampuan routes
     Route::resource('tes-kemampuan', TesKemampuanController::class);

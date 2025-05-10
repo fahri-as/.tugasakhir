@@ -29,7 +29,7 @@ class Interview extends Model
         'komunikasi_skor' => 'integer',
         'sikap_skor' => 'integer',
         'total_skor' => 'decimal:2',
-        'jadwal' => 'date',
+        'jadwal' => 'datetime',
         'status_seleksi' => 'string', // Added status_seleksi cast
     ];
 

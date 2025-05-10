@@ -24,7 +24,7 @@ class TesKemampuan extends Model
 
     protected $casts = [
         'skor' => 'integer',
-        'jadwal' => 'date',
+        'jadwal' => 'datetime',
         'status_seleksi' => 'string', // Added status_seleksi cast
     ];
 
