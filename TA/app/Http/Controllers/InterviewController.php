@@ -9,16 +9,71 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log; // Tambahkan import Log Facade
+use Illuminate\Support\Facades\Log;
 use App\Mail\InterviewScheduled;
 
 class InterviewController extends Controller
 {
-    public function index()
-    {
-        $interviews = Interview::with(['pelamar', 'user'])->get();
-        return view('interview.index', compact('interviews'));
+    public function index(Request $request)
+{
+    // Start with base query
+    $query = Interview::with(['pelamar', 'pelamar.job', 'pelamar.periode', 'user']);
+
+    // Check if we need to filter by period
+    if ($request->filled('periode_id')) {
+        // If a specific period is selected, filter by it
+        $query->whereHas('pelamar', function($q) use ($request) {
+            $q->where('periode_id', $request->periode_id);
+        });
+    } else if (!$request->has('periode_id')) {
+        // First page load - default to most recent period
+        $latestPeriode = \App\Models\Periode::orderBy('tanggal_mulai', 'desc')->first();
+        if ($latestPeriode) {
+            $query->whereHas('pelamar', function($q) use ($latestPeriode) {
+                $q->where('periode_id', $latestPeriode->periode_id);
+            });
+        }
     }
+
+    // Handle sorting
+    $sortBy = $request->input('sort_by', 'total_skor');
+    $sortDir = $request->input('sort_dir', 'desc');
+
+    // Allowed sort columns
+    $allowedSortColumns = [
+        'interview_id', 'jadwal', 'total_skor', 'status_seleksi'
+    ];
+
+    // Sort by direct columns
+    if (in_array($sortBy, $allowedSortColumns)) {
+        $query->orderBy($sortBy, $sortDir);
+    }
+    // Sort by relationships
+    else if ($sortBy === 'pelamar_nama') {
+        $query->join('pelamar', 'interview.pelamar_id', '=', 'pelamar.pelamar_id')
+              ->orderBy('pelamar.nama', $sortDir)
+              ->select('interview.*');
+    }
+    else if ($sortBy === 'job_nama') {
+        $query->join('pelamar', 'interview.pelamar_id', '=', 'pelamar.pelamar_id')
+              ->join('job', 'pelamar.job_id', '=', 'job.job_id')
+              ->orderBy('job.nama_job', $sortDir)
+              ->select('interview.*');
+    }
+    else if ($sortBy === 'periode_nama') {
+        $query->join('pelamar', 'interview.pelamar_id', '=', 'pelamar.pelamar_id')
+              ->join('periode', 'pelamar.periode_id', '=', 'periode.periode_id')
+              ->orderBy('periode.nama_periode', $sortDir)
+              ->select('interview.*');
+    }
+    // Default sort by total_skor descending if none specified
+    else {
+        $query->orderBy('total_skor', 'desc');
+    }
+
+    $interviews = $query->get();
+    return view('interview.index', compact('interviews'));
+}
 
     public function create()
     {
@@ -30,13 +85,9 @@ class InterviewController extends Controller
     /**
      * Schedule an interview for an applicant with date and time.
      * This method combines date and time inputs into a single datetime value.
+     * Includes validation that the datetime is in the future.
      */
-  /**
- * Schedule an interview for an applicant with date and time.
- * This method combines date and time inputs into a single datetime value.
- * Includes validation that the datetime is in the future.
- */
-public function schedule(Request $request)
+    public function schedule(Request $request)
     {
         $request->validate([
             'pelamar_id' => 'required|exists:pelamar,pelamar_id',
@@ -75,7 +126,7 @@ public function schedule(Request $request)
         $interview->save();
 
         // Update the pelamar status to Interview
-        // Gunakan findOrFail untuk mendapatkan single model, bukan collection
+        // Use findOrFail to get a single model, not a collection
         $pelamar = Pelamar::findOrFail($request->pelamar_id);
         $pelamar->status_seleksi = 'Interview';
         $pelamar->save();
@@ -85,7 +136,6 @@ public function schedule(Request $request)
         try {
             Mail::to($pelamar->email)->send(new InterviewScheduled($pelamar, $interview));
         } catch (\Exception $e) {
-            // Gunakan Log::error dengan namespace Facade yang benar
             Log::error('Failed to send interview email: ' . $e->getMessage());
             $emailSent = false;
         }
@@ -112,9 +162,13 @@ public function schedule(Request $request)
             'kualifikasi_skor' => 'required|integer|between:1,5',
             'komunikasi_skor' => 'required|integer|between:1,5',
             'sikap_skor' => 'required|integer|between:1,5',
-            'jadwal' => 'required|date',
+            'jadwal_tanggal' => 'required|date',
+            'jadwal_waktu' => 'required',
             'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
         ]);
+
+        // Combine date and time
+        $jadwalDateTime = $request->jadwal_tanggal . ' ' . $request->jadwal_waktu . ':00';
 
         // Generate a unique ID
         $interviewId = 'INT' . str_pad(Interview::count() + 1, 3, '0', STR_PAD_LEFT);
@@ -126,7 +180,7 @@ public function schedule(Request $request)
         $interview->kualifikasi_skor = $request->kualifikasi_skor;
         $interview->komunikasi_skor = $request->komunikasi_skor;
         $interview->sikap_skor = $request->sikap_skor;
-        $interview->jadwal = $request->jadwal;
+        $interview->jadwal = $jadwalDateTime;
         $interview->status_seleksi = $request->status_seleksi;
 
         // Calculate total score as average of the three scores
@@ -134,7 +188,7 @@ public function schedule(Request $request)
 
         $interview->save();
 
-        // Update the pelamar status to Interview
+        // Update the pelamar status
         $pelamar = Pelamar::findOrFail($request->pelamar_id);
         $pelamar->status_seleksi = 'Interview';
         $pelamar->save();
@@ -144,7 +198,7 @@ public function schedule(Request $request)
 
     public function show(Interview $interview)
     {
-        $interview->load(['pelamar', 'user']);
+        $interview->load(['pelamar', 'pelamar.job', 'pelamar.periode', 'user']);
         return view('interview.show', compact('interview'));
     }
 

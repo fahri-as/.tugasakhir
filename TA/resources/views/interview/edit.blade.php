@@ -4,16 +4,11 @@
         @method('PUT')
 
         <div>
-            <label for="interview_id" class="block text-sm font-medium text-gray-700">Interview ID</label>
-            <input type="text" id="interview_id" value="{{ $interview->interview_id }}" disabled class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm">
-        </div>
-
-        <div>
             <label for="pelamar_id" class="block text-sm font-medium text-gray-700">Applicant</label>
             <select name="pelamar_id" id="pelamar_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                 @foreach($pelamar as $p)
                     <option value="{{ $p->pelamar_id }}" @selected($p->pelamar_id == $interview->pelamar_id)>
-                        {{ $p->nama }} ({{ $p->job->nama_job }})
+                        {{ $p->nama }} - {{ $p->job->nama_job }} ({{ $p->periode->nama_periode }})
                     </option>
                 @endforeach
             </select>
@@ -23,8 +18,27 @@
         </div>
 
         <div>
+            <label for="user_id" class="block text-sm font-medium text-gray-700">Interviewer</label>
+            <select name="user_id" id="user_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                @php
+                    $hrUser = $users->firstWhere('role', 'hr');
+                    $defaultUserId = $hrUser ? $hrUser->user_id : null;
+                @endphp
+                @foreach($users as $user)
+                    <option value="{{ $user->user_id }}"
+                        @selected(($user->role == 'hr' && !old('user_id')) || old('user_id') == $user->user_id || ($defaultUserId == $user->user_id))>
+                        {{ $user->username }} @if($user->role == 'hr')(HR)@endif
+                    </option>
+                @endforeach
+            </select>
+            @error('user_id')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
             <label for="jadwal" class="block text-sm font-medium text-gray-700">Schedule Date</label>
-            <input type="date" name="jadwal" id="jadwal" value="{{ old('jadwal', $interview->jadwal->format('Y-m-d')) }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <input type="datetime-local" name="jadwal" id="jadwal" value="{{ old('jadwal', $interview->jadwal->format('Y-m-d\TH:i')) }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             @error('jadwal')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
@@ -55,6 +69,9 @@
                 @enderror
             </div>
         </div>
+
+        <!-- Hidden field for status_seleksi to maintain the current value -->
+        <input type="hidden" name="status_seleksi" value="{{ $interview->status_seleksi }}">
 
         <div class="flex items-center gap-4">
             <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
