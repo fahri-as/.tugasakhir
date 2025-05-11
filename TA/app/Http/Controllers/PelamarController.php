@@ -15,43 +15,49 @@ class PelamarController extends Controller
 {
     // No middleware in constructor - we handle this in routes
 
-    public function index(Request $request)
-    {
-        // Start with base query
-        $query = Pelamar::with(['periode', 'job', 'magang', 'interview', 'tesKemampuan']);
+    // Update the index method in PelamarController.php
+public function index(Request $request)
+{
+    // Start with base query
+    $query = Pelamar::with(['periode', 'job', 'magang', 'interview', 'tesKemampuan']);
 
-        // Check if we need to filter by period or show all
-        if ($request->filled('periode_id')) {
-            // If a specific period is selected, filter by it
-            $query->where('periode_id', $request->periode_id);
-        } else if (!$request->has('periode_id') && !$request->has('sort_by')) {
-            // First page load or no filters applied yet - default to most recent period
-            $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
-            if ($latestPeriode) {
-                $query->where('periode_id', $latestPeriode->periode_id);
-            }
+    // Check if we need to filter by period or show all
+    if ($request->filled('periode_id')) {
+        // If a specific period is selected, filter by it
+        $query->where('periode_id', $request->periode_id);
+    } else if (!$request->has('periode_id') && !$request->has('sort_by')) {
+        // First page load or no filters applied yet - default to most recent period
+        $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
+        if ($latestPeriode) {
+            $query->where('periode_id', $latestPeriode->periode_id);
         }
-        // If request has periode_id but it's empty, show all periods (don't apply any filter)
-
-        // Apply sorting if requested, or default to experience descending
-        $sortBy = $request->input('sort_by', 'lama_pengalaman'); // Default sort by experience
-        $sortDir = $request->input('sort_dir', 'desc'); // Default sort direction to descending
-
-        // Only allow specific columns to be sortable
-        $allowedSortColumns = [
-            'pelamar_id', 'nama', 'job_id', 'periode_id',
-            'pendidikan', 'tgl_lahir', 'lama_pengalaman', 'status_seleksi'
-        ];
-
-        if (in_array($sortBy, $allowedSortColumns)) {
-            $query->orderBy($sortBy, $sortDir);
-        }
-
-        // Get the filtered and sorted results
-        $pelamar = $query->get();
-
-        return view('pelamar.index', compact('pelamar'));
     }
+    // If request has periode_id but it's empty, show all periods (don't apply any filter)
+
+    // Filter by selected jobs if jobs filter is applied
+    if ($request->filled('jobs') && is_array($request->jobs)) {
+        $query->whereIn('job_id', $request->jobs);
+    }
+
+    // Apply sorting if requested, or default to experience descending
+    $sortBy = $request->input('sort_by', 'lama_pengalaman'); // Default sort by experience
+    $sortDir = $request->input('sort_dir', 'desc'); // Default sort direction to descending
+
+    // Only allow specific columns to be sortable
+    $allowedSortColumns = [
+        'pelamar_id', 'nama', 'job_id', 'periode_id',
+        'pendidikan', 'tgl_lahir', 'lama_pengalaman', 'status_seleksi'
+    ];
+
+    if (in_array($sortBy, $allowedSortColumns)) {
+        $query->orderBy($sortBy, $sortDir);
+    }
+
+    // Get the filtered and sorted results
+    $pelamar = $query->get();
+
+    return view('pelamar.index', compact('pelamar'));
+}
     public function create()
     {
         // Eager load jobs to have them available for the dropdown

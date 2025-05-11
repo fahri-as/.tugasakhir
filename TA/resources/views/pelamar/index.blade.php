@@ -26,34 +26,93 @@
                         </div>
                     @endif
 
-                    <!-- Period Filter -->
-                    <div class="mb-6">
-                        <form action="{{ route('pelamar.index') }}" method="GET" class="flex items-end space-x-4">
-                            <div>
+                    <!-- Period & Job Filter -->
+                    <div class="mb-6 bg-white p-4 rounded-lg shadow-sm">
+                        <form action="{{ route('pelamar.index') }}" method="GET" id="filter-form">
+                            <div class="mb-4">
                                 <label for="periode_filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Period</label>
-                                <select id="periode_filter" name="periode_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                    <option value="">All Periods</option>
-                                    @php
-                                        $latestPeriode = App\Models\Periode::orderBy('tanggal_mulai', 'desc')->first();
-                                        $latestPeriodeId = $latestPeriode ? $latestPeriode->periode_id : '';
-                                        $selectedPeriodeId = request('periode_id') !== null ? request('periode_id') : $latestPeriodeId;
-                                    @endphp
-                                    @foreach(App\Models\Periode::orderBy('tanggal_mulai', 'desc')->get() as $periode)
-                                        <option value="{{ $periode->periode_id }}" {{ $selectedPeriodeId == $periode->periode_id ? 'selected' : '' }}>
-                                            {{ $periode->nama_periode }} ({{ $periode->tanggal_mulai->format('d M Y') }} - {{ $periode->tanggal_selesai->format('d M Y') }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="flex items-end space-x-4">
+                                    <div class="flex-grow">
+                                        <select id="periode_filter" name="periode_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                            @php
+                                                $latestPeriode = App\Models\Periode::orderBy('tanggal_mulai', 'desc')->first();
+                                                $latestPeriodeId = $latestPeriode ? $latestPeriode->periode_id : '';
+
+                                                // Important fix: Handle "All Periods" correctly
+                                                $selectedPeriodeId = $latestPeriodeId; // Default to latest
+
+                                                if (request()->has('periode_id')) {
+                                                    // When 'All Periods' is selected, request('periode_id') will be empty string
+                                                    $selectedPeriodeId = request('periode_id');
+                                                }
+
+                                                $sortBy = request('sort_by', 'lama_pengalaman');
+                                                $sortDir = request('sort_dir', 'desc');
+                                                $selectedJobs = request('jobs', []);
+                                            @endphp
+                                            <option value="" {{ $selectedPeriodeId === '' ? 'selected' : '' }}>All Periods</option>
+                                            @foreach(App\Models\Periode::orderBy('tanggal_mulai', 'desc')->get() as $periode)
+                                                <option value="{{ $periode->periode_id }}" {{ $selectedPeriodeId == $periode->periode_id ? 'selected' : '' }}>
+                                                    {{ $periode->nama_periode }} ({{ $periode->tanggal_mulai->format('d M Y') }} - {{ $periode->tanggal_selesai->format('d M Y') }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div>
+                            <!-- Job Filter -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Job Position</label>
+                                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-3 bg-gray-50 rounded-md max-h-40 overflow-y-auto">
+                                    @php
+                        // Debug the selected period ID to understand what value we're working with
+                        // dd($selectedPeriodeId); // Uncomment to check value if needed
+
+                        // Modified logic to get jobs for selected period or ALL jobs if no period selected
+                        if ($selectedPeriodeId !== '' && $selectedPeriodeId !== null) {
+                            // Get jobs for a specific period
+                            $jobs = App\Models\Job::whereHas('periodes', function($query) use ($selectedPeriodeId) {
+                                $query->where('periode.periode_id', $selectedPeriodeId);
+                            })->orderBy('nama_job')->get();
+                        } else {
+                            // Get ALL jobs from all periods when "All Periods" is selected
+                            $jobs = App\Models\Job::whereHas('periodes')->orderBy('nama_job')->get();
+                        }
+
+                        // Make sure we have results
+                        // dd($jobs->count()); // Uncomment to check if jobs are returned
+                    @endphp
+
+                                    @foreach($jobs as $job)
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="job_{{ $job->job_id }}" name="jobs[]" type="checkbox" value="{{ $job->job_id }}"
+                                                    class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                    {{ in_array($job->job_id, (array)$selectedJobs) ? 'checked' : '' }}>
+                                            </div>
+                                            <div class="ml-2 text-sm">
+                                                <label for="job_{{ $job->job_id }}" class="font-medium text-gray-700">{{ $job->nama_job }}</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+
+                                    @if(count($jobs) == 0)
+                                        <div class="text-sm text-gray-500 italic col-span-full">
+                                            No jobs available for this period.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="flex items-center">
                                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                    Filter
+                                    Apply Filters
                                 </button>
 
-                                @if(request()->has('periode_id') || request()->has('sort_by'))
+                                @if(request()->has('periode_id') || request()->has('sort_by') || !empty($selectedJobs))
                                     <a href="{{ route('pelamar.index') }}" class="ml-2 inline-flex items-center px-4 py-2 bg-gray-200 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                        Reset
+                                        Reset Filters
                                     </a>
                                 @endif
                             </div>
@@ -222,14 +281,14 @@
                                                 @endif
                                             </td>
                                             <!-- In the table row display for status_seleksi -->
-<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-        @if($applicant->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
-        @if($applicant->status_seleksi === 'Interview') bg-blue-100 text-blue-800 @endif
-        @if($applicant->status_seleksi === 'Sedang Berjalan') bg-green-100 text-green-800 @endif">
-        {{ $applicant->status_seleksi ?? 'Pending' }}
-    </span>
-</td>   
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                    @if($applicant->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
+                                                    @if($applicant->status_seleksi === 'Interview') bg-blue-100 text-blue-800 @endif
+                                                    @if($applicant->status_seleksi === 'Sedang Berjalan') bg-green-100 text-green-800 @endif">
+                                                    {{ $applicant->status_seleksi ?? 'Pending' }}
+                                                </span>
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <a href="{{ route('pelamar.show', $applicant) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
                                                 <a href="{{ route('pelamar.edit', $applicant) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
@@ -256,4 +315,18 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript for dynamic period/job filtering -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get references to the period dropdown and form
+            const periodeFilter = document.getElementById('periode_filter');
+
+            // Add event listener to period dropdown
+            periodeFilter.addEventListener('change', function() {
+                // Submit the form when period changes
+                document.getElementById('filter-form').submit();
+            });
+        });
+    </script>
 </x-app-layout>

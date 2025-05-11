@@ -14,7 +14,8 @@ use App\Mail\InterviewScheduled;
 
 class InterviewController extends Controller
 {
-    public function index(Request $request)
+// Update the index method in InterviewController.php
+public function index(Request $request)
 {
     // Start with base query
     $query = Interview::with(['pelamar', 'pelamar.job', 'pelamar.periode', 'user']);
@@ -33,6 +34,13 @@ class InterviewController extends Controller
                 $q->where('periode_id', $latestPeriode->periode_id);
             });
         }
+    }
+
+    // Filter by selected jobs if jobs filter is applied
+    if ($request->filled('jobs') && is_array($request->jobs)) {
+        $query->whereHas('pelamar', function($q) use ($request) {
+            $q->whereIn('job_id', $request->jobs);
+        });
     }
 
     // Handle sorting

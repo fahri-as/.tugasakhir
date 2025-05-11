@@ -11,11 +11,74 @@ use Illuminate\Support\Facades\Auth;
 
 class MagangController extends Controller
 {
-    public function index()
-    {
-        $magang = Magang::with(['pelamar', 'user', 'evaluasiMingguan'])->get();
-        return view('magang.index', compact('magang'));
+    // Update the index method in MagangController.php
+public function index(Request $request)
+{
+    // Start with base query
+    $query = Magang::with(['pelamar', 'pelamar.job', 'pelamar.periode', 'user', 'evaluasiMingguan']);
+
+    // Check if we need to filter by period
+    if ($request->filled('periode_id')) {
+        // If a specific period is selected, filter by it
+        $query->whereHas('pelamar', function($q) use ($request) {
+            $q->where('periode_id', $request->periode_id);
+        });
+    } else if (!$request->has('periode_id')) {
+        // First page load - default to most recent period
+        $latestPeriode = \App\Models\Periode::orderBy('tanggal_mulai', 'desc')->first();
+        if ($latestPeriode) {
+            $query->whereHas('pelamar', function($q) use ($latestPeriode) {
+                $q->where('periode_id', $latestPeriode->periode_id);
+            });
+        }
     }
+
+    // Filter by selected jobs if jobs filter is applied
+    if ($request->filled('jobs') && is_array($request->jobs)) {
+        $query->whereHas('pelamar', function($q) use ($request) {
+            $q->whereIn('job_id', $request->jobs);
+        });
+    }
+
+    // Handle sorting
+    $sortBy = $request->input('sort_by', 'total_skor');
+    $sortDir = $request->input('sort_dir', 'desc');
+
+    // Allowed sort columns
+    $allowedSortColumns = [
+        'magang_id', 'total_skor', 'rank', 'status_seleksi'
+    ];
+
+    // Sort by direct columns
+    if (in_array($sortBy, $allowedSortColumns)) {
+        $query->orderBy($sortBy, $sortDir);
+    }
+    // Sort by relationships
+    else if ($sortBy === 'pelamar_nama') {
+        $query->join('pelamar', 'magang.pelamar_id', '=', 'pelamar.pelamar_id')
+              ->orderBy('pelamar.nama', $sortDir)
+              ->select('magang.*');
+    }
+    else if ($sortBy === 'job_nama') {
+        $query->join('pelamar', 'magang.pelamar_id', '=', 'pelamar.pelamar_id')
+              ->join('job', 'pelamar.job_id', '=', 'job.job_id')
+              ->orderBy('job.nama_job', $sortDir)
+              ->select('magang.*');
+    }
+    else if ($sortBy === 'periode_nama') {
+        $query->join('pelamar', 'magang.pelamar_id', '=', 'pelamar.pelamar_id')
+              ->join('periode', 'pelamar.periode_id', '=', 'periode.periode_id')
+              ->orderBy('periode.nama_periode', $sortDir)
+              ->select('magang.*');
+    }
+    // Default sort by total_skor descending if none specified
+    else {
+        $query->orderBy('total_skor', 'desc');
+    }
+
+    $magang = $query->get();
+    return view('magang.index', compact('magang'));
+}
 
     public function create()
     {
