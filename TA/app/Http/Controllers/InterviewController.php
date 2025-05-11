@@ -212,15 +212,14 @@ class InterviewController extends Controller
     public function update(Request $request, Interview $interview)
     {
         $request->validate([
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-            'user_id' => 'required|exists:user,user_id',
-            'kualifikasi_skor' => 'required|integer|between:1,5',
-            'komunikasi_skor' => 'required|integer|between:1,5',
-            'sikap_skor' => 'required|integer|between:1,5',
-            'jadwal' => 'required|date',
-            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
-        ]);
-
+    'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+    'user_id' => 'required|exists:user,user_id',
+    'kualifikasi_skor' => 'required|integer|between:0,5', // Changed to allow 0
+    'komunikasi_skor' => 'required|integer|between:0,5', // Changed to allow 0
+    'sikap_skor' => 'required|integer|between:0,5',     // Changed to allow 0
+    'jadwal' => 'required|date',
+    'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
+]);
         $interview->pelamar_id = $request->pelamar_id;
         $interview->user_id = $request->user_id;
         $interview->kualifikasi_skor = $request->kualifikasi_skor;
