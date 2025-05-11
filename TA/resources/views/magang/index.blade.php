@@ -39,21 +39,22 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Job Position</label>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-3 bg-gray-50 rounded-md max-h-40 overflow-y-auto">
                     @php
-                        // When "All Periods" is selected, we need to get ALL jobs that have associated periods
-                        if ($selectedPeriodeId === '') {
-                            // "All Periods" is selected
-                            // Get jobs that have at least one period assigned
-                            $jobs = App\Models\Job::whereHas('periodes')
-                                    ->select('job.*')
-                                    ->distinct()
-                                    ->orderBy('nama_job')
-                                    ->get();
-                        } else {
-                            // A specific period is selected
+                        // Debug the selected period ID to understand what value we're working with
+                        // dd($selectedPeriodeId); // Uncomment to check value if needed
+
+                        // Modified logic to get jobs for selected period or ALL jobs if no period selected
+                        if ($selectedPeriodeId !== '' && $selectedPeriodeId !== null) {
+                            // Get jobs for a specific period
                             $jobs = App\Models\Job::whereHas('periodes', function($query) use ($selectedPeriodeId) {
                                 $query->where('periode.periode_id', $selectedPeriodeId);
                             })->orderBy('nama_job')->get();
+                        } else {
+                            // Get ALL jobs from all periods when "All Periods" is selected
+                            $jobs = App\Models\Job::whereHas('periodes')->orderBy('nama_job')->get();
                         }
+
+                        // Make sure we have results
+                        // dd($jobs->count()); // Uncomment to check if jobs are returned
                     @endphp
 
                     @foreach($jobs as $job)
