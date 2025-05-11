@@ -58,6 +58,10 @@ Route::middleware('auth')->group(function () {
     // Evaluasi Mingguan routes
     Route::resource('evaluasi', EvaluasiMingguanMagangController::class);
 
+    // API route for getting evaluations by week (for AJAX calls)
+    Route::get('/api/evaluations', [EvaluasiMingguanMagangController::class, 'getByWeek'])
+        ->name('api.evaluations');
+
     // Criteria routes
     Route::resource('criteria', CriteriaController::class);
     Route::post('criteria/update-weights', [CriteriaController::class, 'updateWeights'])
