@@ -41,7 +41,7 @@
                         </form>
                     @endif
                 @endif
-            
+                
                 <a href="{{ route('interview.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                     Back to List
                 </a>
@@ -65,183 +65,95 @@
                         </div>
                     @endif
 
-                    <!-- Interview Basic Information -->
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Interview Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Interview ID</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->interview_id }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Schedule Date and Time</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->jadwal->format('d F Y H:i') }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Interviewer</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->user->username }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Selection Status</p>
-                                <p class="mt-1 text-sm">
-                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                        @if($interview->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
-                                        @if($interview->status_seleksi === 'Tidak Lulus') bg-red-100 text-red-800 @endif
-                                        @if($interview->status_seleksi === 'Tes Kemampuan') bg-green-100 text-green-800 @endif">
-                                        {{ $interview->status_seleksi }}
-                                    </span>
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Created At</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->created_at->format('d M Y H:i:s') }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Last Updated</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->updated_at->format('d M Y H:i:s') }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Applicant Information -->
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Applicant Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Applicant Name</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->pelamar->nama }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Email</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->pelamar->email }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">WhatsApp Number</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->pelamar->nomor_wa }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Position Applied</p>
-                                <p class="mt-1 text-sm text-gray-900">
-                                    @if($interview->pelamar->job)
-                                        {{ $interview->pelamar->job->nama_job }}
-                                    @else
-                                        Not assigned
-                                    @endif
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Period</p>
-                                <p class="mt-1 text-sm text-gray-900">
-                                    @if($interview->pelamar->periode)
-                                        {{ $interview->pelamar->periode->nama_periode }}
-                                    @else
-                                        Not assigned
-                                    @endif
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Education</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->pelamar->pendidikan ?? '-' }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Interview Scores -->
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Interview Assessment</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Qualification Score</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->kualifikasi_skor }}/5</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Communication Score</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->komunikasi_skor }}/5</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Attitude Score</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $interview->sikap_skor }}/5</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Score</p>
-                                <p class="mt-1 text-sm font-medium text-gray-900">{{ number_format($interview->total_skor, 2) }}/5</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Selection Process -->
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Selection Process</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Skill Test -->
-                            <div class="border rounded-lg p-4">
-                                <h4 class="font-medium text-gray-700 mb-2">Skill Test</h4>
-                                @if($interview->pelamar->tesKemampuan)
-                                    <div class="space-y-2">
-                                        <p class="text-sm">
-                                            <span class="text-gray-500">Date:</span>
-                                            {{ $interview->pelamar->tesKemampuan->jadwal ? $interview->pelamar->tesKemampuan->jadwal->format('d M Y') : 'Not scheduled' }}
-                                        </p>
-                                        <p class="text-sm">
-                                            <span class="text-gray-500">Time:</span>
-                                            {{ $interview->pelamar->tesKemampuan->jadwal ? $interview->pelamar->tesKemampuan->jadwal->format('H:i') : 'Not scheduled' }}
-                                        </p>
-                                        <p class="text-sm">
-                                            <span class="text-gray-500">Score:</span>
-                                            {{ $interview->pelamar->tesKemampuan->skor }}/100
-                                        </p>
-                                        @if($interview->pelamar->tesKemampuan->catatan)
-                                            <p class="text-sm">
-                                                <span class="text-gray-500">Notes:</span>
-                                                {{ $interview->pelamar->tesKemampuan->catatan }}
-                                            </p>
-                                        @endif
-                                    </div>
-                                @else
-                                    <p class="text-sm text-gray-500 italic">No skill test conducted yet</p>
-                                @endif
-                            </div>
-
-                            <!-- Applicant Experience -->
-                            <div class="border rounded-lg p-4">
-                                <h4 class="font-medium text-gray-700 mb-2">Work Experience</h4>
-                                <div class="space-y-2">
-                                    <p class="text-sm">
-                                        <span class="text-gray-500">Experience Duration:</span>
-                                        @if($interview->pelamar->lama_pengalaman)
-                                            {{ $interview->pelamar->lama_pengalaman }} {{ Str::plural('year', $interview->pelamar->lama_pengalaman) }}
-                                        @else
-                                            No experience
-                                        @endif
-                                    </p>
-                                    <p class="text-sm">
-                                        <span class="text-gray-500">Previous Workplace:</span>
-                                        {{ $interview->pelamar->tempat_pengalaman ?? '-' }}
-                                    </p>
-                                    <p class="text-sm">
-                                        <span class="text-gray-500">Workplace Description:</span>
-                                        {{ $interview->pelamar->deskripsi_tempat ?? '-' }}
-                                    </p>
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900">Interview Information</h3>
+                            <dl class="mt-4 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Interview ID</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $interview->interview_id }}</dd>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Action Buttons -->
-                    <div class="mt-8 flex items-center gap-4">
-                        <a href="{{ route('interview.edit', $interview) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
-                            Edit Interview
-                        </a>
-                        <form action="{{ route('interview.destroy', $interview) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500" onclick="return confirm('Are you sure you want to delete this interview?')">
-                                Delete Interview
-                            </button>
-                        </form>
-                        <a href="{{ route('interview.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50">
-                            Back to List
-                        </a>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Schedule Date and Time</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $interview->jadwal->format('d M Y H:i') }}</dd>
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <dt class="text-sm font-medium text-gray-500">Applicant Information</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        <div>Name: {{ $interview->pelamar->nama }}</div>
+                                        <div>Position: {{ $interview->pelamar->job->nama_job }}</div>
+                                        <div>Period: {{ $interview->pelamar->periode->nama_periode }}</div>
+                                        <div>Email: {{ $interview->pelamar->email }}</div>
+                                        <div>Phone: {{ $interview->pelamar->nomor_wa }}</div>
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Interviewer</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $interview->user->username }}</dd>
+                                </div>
+
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Selection Status</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                            @if($interview->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
+                                            @if($interview->status_seleksi === 'Tidak Lulus') bg-red-100 text-red-800 @endif
+                                            @if($interview->status_seleksi === 'Tes Kemampuan') bg-green-100 text-green-800 @endif">
+                                            {{ $interview->status_seleksi }}
+                                        </span>
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Qualification Score</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $interview->kualifikasi_skor }}/5</dd>
+                                </div>
+
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Communication Score</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $interview->komunikasi_skor }}/5</dd>
+                                </div>
+
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Attitude Score</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $interview->sikap_skor }}/5</dd>
+                                </div>
+
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Total Score</dt>
+                                    <dd class="mt-1 text-sm font-medium text-gray-900">{{ number_format($interview->total_skor, 2) }}/5</dd>
+                                </div>
+
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Created At</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $interview->created_at->format('d M Y H:i:s') }}</dd>
+                                </div>
+
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $interview->updated_at->format('d M Y H:i:s') }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <a href="{{ route('interview.edit', $interview) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                                Edit Interview
+                            </a>
+                            <form action="{{ route('interview.destroy', $interview) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500" onclick="return confirm('Are you sure you want to delete this interview?')">
+                                    Delete Interview
+                                </button>
+                            </form>
+                            <a href="{{ route('interview.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50">
+                                Back to List
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
