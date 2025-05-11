@@ -23,8 +23,22 @@
         </div>
 
         <div>
-            <label for="jadwal" class="block text-sm font-medium text-gray-700">Schedule Date</label>
-            <input type="date" name="jadwal" id="jadwal" value="{{ old('jadwal', $tesKemampuan->jadwal->format('Y-m-d')) }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <label for="user_id" class="block text-sm font-medium text-gray-700">Assigned To</label>
+            <select name="user_id" id="user_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                @foreach($users as $user)
+                    <option value="{{ $user->user_id }}" @selected($user->user_id == $tesKemampuan->user_id)>
+                        {{ $user->username }}
+                    </option>
+                @endforeach
+            </select>
+            @error('user_id')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
+            <label for="jadwal" class="block text-sm font-medium text-gray-700">Schedule Date and Time</label>
+            <input type="datetime-local" name="jadwal" id="jadwal" value="{{ old('jadwal', $tesKemampuan->jadwal->format('Y-m-d\TH:i')) }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             @error('jadwal')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
@@ -34,6 +48,19 @@
             <label for="skor" class="block text-sm font-medium text-gray-700">Score (0-100)</label>
             <input type="number" name="skor" id="skor" value="{{ old('skor', $tesKemampuan->skor) }}" min="0" max="100" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             @error('skor')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
+            <label for="status_seleksi" class="block text-sm font-medium text-gray-700">Selection Status</label>
+            <select name="status_seleksi" id="status_seleksi" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                <option value="Pending" @selected($tesKemampuan->status_seleksi == 'Pending')>Pending</option>
+                <option value="Tidak Lulus" @selected($tesKemampuan->status_seleksi == 'Tidak Lulus')>Tidak Lulus</option>
+                <option value="Lulus" @selected($tesKemampuan->status_seleksi == 'Lulus')>Lulus</option>
+                <option value="Magang" @selected($tesKemampuan->status_seleksi == 'Magang')>Magang</option>
+            </select>
+            @error('status_seleksi')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>

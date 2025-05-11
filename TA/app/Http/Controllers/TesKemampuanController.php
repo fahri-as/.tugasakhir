@@ -7,20 +7,93 @@ use App\Models\Pelamar;
 use App\Models\User;
 use App\Models\Magang;
 use App\Models\Interview;
+use App\Models\Periode;
+use App\Models\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class TesKemampuanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tesKemampuan = TesKemampuan::with(['pelamar', 'user'])->get();
+        // Start with base query
+        $query = TesKemampuan::with(['pelamar', 'pelamar.job', 'pelamar.periode', 'user']);
+
+        // Check if we need to filter by period
+        if ($request->filled('periode_id')) {
+            // If a specific period is selected, filter by it
+            $query->whereHas('pelamar', function($q) use ($request) {
+                $q->where('periode_id', $request->periode_id);
+            });
+        } else if (!$request->has('periode_id')) {
+            // First page load - default to most recent period
+            $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
+            if ($latestPeriode) {
+                $query->whereHas('pelamar', function($q) use ($latestPeriode) {
+                    $q->where('periode_id', $latestPeriode->periode_id);
+                });
+            }
+        }
+
+        // Check if we need to filter by job positions
+        if ($request->filled('jobs')) {
+            $jobIds = (array) $request->jobs;
+            if (count($jobIds) > 0) {
+                $query->whereHas('pelamar', function($q) use ($jobIds) {
+                    $q->whereIn('job_id', $jobIds);
+                });
+            }
+        }
+
+        // Handle sorting
+        $sortBy = $request->input('sort_by', 'skor');
+        $sortDir = $request->input('sort_dir', 'desc');
+
+        // Allowed sort columns
+        $allowedSortColumns = [
+            'tes_id', 'jadwal', 'skor', 'status_seleksi'
+        ];
+
+        // Sort by direct columns
+        if (in_array($sortBy, $allowedSortColumns)) {
+            $query->orderBy($sortBy, $sortDir);
+        }
+        // Sort by relationships
+        else if ($sortBy === 'pelamar_nama') {
+            $query->join('pelamar', 'tes_kemampuan.pelamar_id', '=', 'pelamar.pelamar_id')
+                  ->orderBy('pelamar.nama', $sortDir)
+                  ->select('tes_kemampuan.*');
+        }
+        else if ($sortBy === 'job_nama') {
+            $query->join('pelamar', 'tes_kemampuan.pelamar_id', '=', 'pelamar.pelamar_id')
+                  ->join('job', 'pelamar.job_id', '=', 'job.job_id')
+                  ->orderBy('job.nama_job', $sortDir)
+                  ->select('tes_kemampuan.*');
+        }
+        else if ($sortBy === 'periode_nama') {
+            $query->join('pelamar', 'tes_kemampuan.pelamar_id', '=', 'pelamar.pelamar_id')
+                  ->join('periode', 'pelamar.periode_id', '=', 'periode.periode_id')
+                  ->orderBy('periode.nama_periode', $sortDir)
+                  ->select('tes_kemampuan.*');
+        }
+        // Default sort by score descending if none specified
+        else {
+            $query->orderBy('skor', 'desc');
+        }
+
+        $tesKemampuan = $query->get();
         return view('tes-kemampuan.index', compact('tesKemampuan'));
     }
 
     public function create()
     {
-        $pelamar = Pelamar::doesntHave('tesKemampuan')->get();
+        $pelamar = Pelamar::whereHas('interview', function($query) {
+            $query->where('status_seleksi', 'Tes Kemampuan');
+        })->orWhere(function($query) {
+            $query->whereDoesntHave('tesKemampuan')
+                  ->whereHas('interview');
+        })->get();
+
         $users = User::all();
         return view('tes-kemampuan.create', compact('pelamar', 'users'));
     }
@@ -81,13 +154,13 @@ class TesKemampuanController extends Controller
             }
         }
 
-        return redirect()->route('interview.show', Interview::where('pelamar_id', $request->pelamar_id)->first())
+        return redirect()->route('tes-kemampuan.index')
             ->with('success', 'Skill test scheduled successfully');
     }
 
     public function show(TesKemampuan $tesKemampuan)
     {
-        $tesKemampuan->load(['pelamar', 'user']);
+        $tesKemampuan->load(['pelamar', 'pelamar.job', 'pelamar.periode', 'user']);
         return view('tes-kemampuan.show', compact('tesKemampuan'));
     }
 
@@ -133,6 +206,11 @@ class TesKemampuanController extends Controller
                     'status_seleksi' => 'Pending' // Default to Pending in Magang
                 ]);
             }
+        }
+
+        // Check if we were redirected from the show page
+        if ($request->has('redirect') && $request->redirect === 'show') {
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)->with('success', 'Test status updated successfully');
         }
 
         return redirect()->route('tes-kemampuan.index')->with('success', 'Tes Kemampuan updated successfully');
