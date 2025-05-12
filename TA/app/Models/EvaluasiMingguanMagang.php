@@ -16,6 +16,7 @@ class EvaluasiMingguanMagang extends Model
         'evaluasi_id',
         'magang_id',
         'rating_id',
+        'criteria_id', // Added criteria_id
         'minggu_ke',
         'skor_minggu'
     ];
@@ -33,5 +34,13 @@ class EvaluasiMingguanMagang extends Model
     public function ratingScale(): BelongsTo
     {
         return $this->belongsTo(RatingScale::class, 'rating_id', 'rating_id');
+    }
+
+    /**
+     * Get the criteria that this evaluation is associated with.
+     */
+    public function criteria(): BelongsTo
+    {
+        return $this->belongsTo(Criteria::class, 'criteria_id', 'criteria_id');
     }
 }

@@ -36,6 +36,22 @@
                                 @enderror
                             </div>
 
+                            <!-- Criteria Selection -->
+                            <div>
+                                <label for="criteria_id" class="block text-sm font-medium text-gray-700">Criteria (Optional)</label>
+                                <select id="criteria_id" name="criteria_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('criteria_id') border-red-500 @enderror">
+                                    <option value="">No specific criteria</option>
+                                    @foreach($criteria as $criteriaItem)
+                                        <option value="{{ $criteriaItem->criteria_id }}" @if(old('criteria_id', $evaluasi->criteria_id) == $criteriaItem->criteria_id) selected @endif>
+                                            {{ $criteriaItem->name }} ({{ $criteriaItem->code }}) - {{ $criteriaItem->job->nama_job }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('criteria_id')
+                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Rating Selection -->
                             <div>
                                 <label for="rating_id" class="block text-sm font-medium text-gray-700">Rating</label>
@@ -82,4 +98,44 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const magangSelect = document.getElementById('magang_id');
+            const criteriaSelect = document.getElementById('criteria_id');
+
+            // Function to filter criteria based on selected intern's job
+            function filterCriteria() {
+                // Get selected intern's option
+                const selectedOption = magangSelect.options[magangSelect.selectedIndex];
+
+                if (selectedOption && selectedOption.value) {
+                    // Extract job ID from the text (assuming format: "Name - Job")
+                    const text = selectedOption.text;
+                    const jobPart = text.split('-')[1]?.trim();
+
+                    if (jobPart) {
+                        // Hide criteria that don't match the job
+                        Array.from(criteriaSelect.options).forEach(option => {
+                            if (option.value === '') return; // Skip "No specific criteria" option
+
+                            const criteriaJob = option.text.split('-')[1]?.trim();
+
+                            if (criteriaJob && criteriaJob !== jobPart) {
+                                option.style.display = 'none';
+                            } else {
+                                option.style.display = '';
+                            }
+                        });
+                    }
+                }
+            }
+
+            // Filter criteria on load
+            filterCriteria();
+
+            // Filter criteria when intern selection changes
+            magangSelect.addEventListener('change', filterCriteria);
+        });
+    </script>
 </x-app-layout>

@@ -48,6 +48,18 @@
                                 </div>
 
                                 <div>
+                                    <p class="text-sm font-medium text-gray-500">Criteria</p>
+                                    <p class="mt-1 text-sm text-gray-900">
+                                        @if($evaluasi->criteria)
+                                            {{ $evaluasi->criteria->name }} ({{ $evaluasi->criteria->code }})
+                                            <span class="text-gray-500">{{ $evaluasi->criteria->description }}</span>
+                                        @else
+                                            <span class="text-gray-500 italic">No specific criteria</span>
+                                        @endif
+                                    </p>
+                                </div>
+
+                                <div>
                                     <p class="text-sm font-medium text-gray-500">Created At</p>
                                     <p class="mt-1 text-sm text-gray-900">{{ $evaluasi->created_at->format('d M Y, H:i') }}</p>
                                 </div>

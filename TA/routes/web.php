@@ -54,6 +54,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('magang', MagangController::class);
     Route::patch('magang/{magang}/status', [MagangController::class, 'updateStatus'])
         ->name('magang.update-status');
+    // Add the new route for scheduling internship start and creating evaluations
+    Route::post('magang/schedule-start/{tesKemampuan}', [MagangController::class, 'scheduleStart'])
+        ->name('magang.schedule-start');
 
     // Evaluasi Mingguan routes
     Route::resource('evaluasi', EvaluasiMingguanMagangController::class);

@@ -115,8 +115,25 @@ public function index(Request $request)
             return redirect()->back()->with('error', 'Interview time must be in the future.');
         }
 
-        // Generate a unique ID
-        $interviewId = 'INT' . str_pad(Interview::count() + 1, 3, '0', STR_PAD_LEFT);
+        // Get the max interview ID number with more robust error handling
+        try {
+            // Find the highest ID numerically by extracting the number part
+            $maxId = Interview::selectRaw('CAST(SUBSTRING(interview_id, 4) AS UNSIGNED) as id_num')
+                ->orderBy('id_num', 'desc')
+                ->first();
+
+            $nextId = $maxId ? $maxId->id_num + 1 : 1;
+            $interviewId = 'INT' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+
+            // Double-check that this ID doesn't already exist
+            while (Interview::where('interview_id', $interviewId)->exists()) {
+                $nextId++;
+                $interviewId = 'INT' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+            }
+        } catch (\Exception $e) {
+            // Fallback to UUID if there's any issue with the sequence
+            $interviewId = 'INT' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+        }
 
         $interview = new Interview();
         $interview->interview_id = $interviewId;
@@ -163,46 +180,63 @@ public function index(Request $request)
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-            'user_id' => 'required|exists:user,user_id',
-            'kualifikasi_skor' => 'required|integer|between:1,5',
-            'komunikasi_skor' => 'required|integer|between:1,5',
-            'sikap_skor' => 'required|integer|between:1,5',
-            'jadwal_tanggal' => 'required|date',
-            'jadwal_waktu' => 'required',
-            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
-        ]);
+{
+    $request->validate([
+        'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+        'user_id' => 'required|exists:user,user_id',
+        'kualifikasi_skor' => 'required|integer|between:1,5',
+        'komunikasi_skor' => 'required|integer|between:1,5',
+        'sikap_skor' => 'required|integer|between:1,5',
+        'jadwal_tanggal' => 'required|date',
+        'jadwal_waktu' => 'required',
+        'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
+    ]);
 
-        // Combine date and time
-        $jadwalDateTime = $request->jadwal_tanggal . ' ' . $request->jadwal_waktu . ':00';
+    // Combine date and time
+    $jadwalDateTime = $request->jadwal_tanggal . ' ' . $request->jadwal_waktu . ':00';
 
-        // Generate a unique ID
-        $interviewId = 'INT' . str_pad(Interview::count() + 1, 3, '0', STR_PAD_LEFT);
+    // Get the max interview ID number with more robust error handling
+    try {
+        // Find the highest ID numerically by extracting the number part
+        $maxId = Interview::selectRaw('CAST(SUBSTRING(interview_id, 4) AS UNSIGNED) as id_num')
+            ->orderBy('id_num', 'desc')
+            ->first();
 
-        $interview = new Interview();
-        $interview->interview_id = $interviewId;
-        $interview->pelamar_id = $request->pelamar_id;
-        $interview->user_id = $request->user_id;
-        $interview->kualifikasi_skor = $request->kualifikasi_skor;
-        $interview->komunikasi_skor = $request->komunikasi_skor;
-        $interview->sikap_skor = $request->sikap_skor;
-        $interview->jadwal = $jadwalDateTime;
-        $interview->status_seleksi = $request->status_seleksi;
+        $nextId = $maxId ? $maxId->id_num + 1 : 1;
+        $interviewId = 'INT' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
 
-        // Calculate total score as average of the three scores
-        $interview->total_skor = ($request->kualifikasi_skor + $request->komunikasi_skor + $request->sikap_skor) / 3;
-
-        $interview->save();
-
-        // Update the pelamar status
-        $pelamar = Pelamar::findOrFail($request->pelamar_id);
-        $pelamar->status_seleksi = 'Interview';
-        $pelamar->save();
-
-        return redirect()->route('interview.index')->with('success', 'Interview created successfully');
+        // Double-check that this ID doesn't already exist
+        while (Interview::where('interview_id', $interviewId)->exists()) {
+            $nextId++;
+            $interviewId = 'INT' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        }
+    } catch (\Exception $e) {
+        // Fallback to UUID if there's any issue with the sequence
+        $interviewId = 'INT' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
     }
+
+    $interview = new Interview();
+    $interview->interview_id = $interviewId;
+    $interview->pelamar_id = $request->pelamar_id;
+    $interview->user_id = $request->user_id;
+    $interview->kualifikasi_skor = $request->kualifikasi_skor;
+    $interview->komunikasi_skor = $request->komunikasi_skor;
+    $interview->sikap_skor = $request->sikap_skor;
+    $interview->jadwal = $jadwalDateTime;
+    $interview->status_seleksi = $request->status_seleksi;
+
+    // Calculate total score as average of the three scores
+    $interview->total_skor = ($request->kualifikasi_skor + $request->komunikasi_skor + $request->sikap_skor) / 3;
+
+    $interview->save();
+
+    // Update the pelamar status
+    $pelamar = Pelamar::findOrFail($request->pelamar_id);
+    $pelamar->status_seleksi = 'Interview';
+    $pelamar->save();
+
+    return redirect()->route('interview.index')->with('success', 'Interview created successfully');
+}
 
     public function show(Interview $interview)
     {

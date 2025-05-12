@@ -113,8 +113,30 @@ class TesKemampuanController extends Controller
         // Combine date and time into a single datetime field
         $jadwalDateTime = $request->jadwal_tanggal . ' ' . $request->jadwal_waktu . ':00';
 
-        // Generate a unique ID
-        $tesId = 'TES' . str_pad(TesKemampuan::count() + 1, 3, '0', STR_PAD_LEFT);
+        // Generate a unique ID using a more robust approach
+        try {
+            // Find the highest ID numerically by extracting the number part
+            $maxId = TesKemampuan::selectRaw('CAST(SUBSTRING(tes_id, 4) AS UNSIGNED) as id_num')
+                ->orderBy('id_num', 'desc')
+                ->first();
+
+            $nextId = $maxId ? $maxId->id_num + 1 : 1;
+            $tesId = 'TES' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+
+            // Double-check that this ID doesn't already exist
+            while (TesKemampuan::where('tes_id', $tesId)->exists()) {
+                $nextId++;
+                $tesId = 'TES' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+            }
+        } catch (\Exception $e) {
+            // Fallback to a UUID-based approach if there's an issue
+            $tesId = 'TES' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+
+            // Ensure this UUID-based ID is unique
+            while (TesKemampuan::where('tes_id', $tesId)->exists()) {
+                $tesId = 'TES' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+            }
+        }
 
         $tesKemampuan = new TesKemampuan();
         $tesKemampuan->tes_id = $tesId;
@@ -132,14 +154,32 @@ class TesKemampuanController extends Controller
             $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
 
             if (!$magang) {
-                // Create new magang record
-                $magangId = 'MAG' . str_pad(Magang::count() + 1, 3, '0', STR_PAD_LEFT);
+                // Generate a unique ID for the new magang record
+                try {
+                    // Find the highest ID numerically by extracting the number part
+                    $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
+                        ->orderBy('id_num', 'desc')
+                        ->first();
+
+                    $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
+                    $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+
+                    // Double-check that this ID doesn't already exist
+                    while (Magang::where('magang_id', $magangId)->exists()) {
+                        $nextMagangId++;
+                        $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+                    }
+                } catch (\Exception $e) {
+                    // Fallback if there's an issue
+                    $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+                }
 
                 Magang::create([
                     'magang_id' => $magangId,
                     'pelamar_id' => $request->pelamar_id,
                     'user_id' => $request->user_id,
-                    'status_seleksi' => 'Pending' // Default to Pending in Magang
+                    'status_seleksi' => 'Pending', // Default to Pending in Magang
+                    'jadwal_mulai' => null // Include the new column
                 ]);
             }
         }
@@ -172,49 +212,67 @@ class TesKemampuanController extends Controller
     }
 
     public function update(Request $request, TesKemampuan $tesKemampuan)
-    {
-        $request->validate([
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-            'user_id' => 'required|exists:user,user_id',
-            'skor' => 'required|integer|between:0,100',
-            'catatan' => 'nullable',
-            'jadwal' => 'required|date',
-            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang'
-        ]);
+{
+    $request->validate([
+        'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+        'user_id' => 'required|exists:user,user_id',
+        'skor' => 'required|integer|between:0,100',
+        'catatan' => 'nullable',
+        'jadwal' => 'required|date',
+        'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang'
+    ]);
 
-        $tesKemampuan->pelamar_id = $request->pelamar_id;
-        $tesKemampuan->user_id = $request->user_id;
-        $tesKemampuan->skor = $request->skor;
-        $tesKemampuan->catatan = $request->catatan;
-        $tesKemampuan->jadwal = $request->jadwal;
-        $tesKemampuan->status_seleksi = $request->status_seleksi;
-        $tesKemampuan->save();
+    $tesKemampuan->pelamar_id = $request->pelamar_id;
+    $tesKemampuan->user_id = $request->user_id;
+    $tesKemampuan->skor = $request->skor;
+    $tesKemampuan->catatan = $request->catatan;
+    $tesKemampuan->jadwal = $request->jadwal;
+    $tesKemampuan->status_seleksi = $request->status_seleksi;
+    $tesKemampuan->save();
 
-        // If status is changed to Magang, create/update Magang record
-        if ($request->status_seleksi == 'Magang') {
-            // Check if magang record already exists
-            $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
+    // If status is changed to Magang, create/update Magang record
+    if ($request->status_seleksi == 'Magang') {
+        // Check if magang record already exists
+        $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
 
-            if (!$magang) {
-                // Create new magang record
-                $magangId = 'MAG' . str_pad(Magang::count() + 1, 3, '0', STR_PAD_LEFT);
+        if (!$magang) {
+            // Generate a unique ID for the new magang record
+            try {
+                // Find the highest ID numerically by extracting the number part
+                $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
+                    ->orderBy('id_num', 'desc')
+                    ->first();
 
-                Magang::create([
-                    'magang_id' => $magangId,
-                    'pelamar_id' => $request->pelamar_id,
-                    'user_id' => $request->user_id,
-                    'status_seleksi' => 'Pending' // Default to Pending in Magang
-                ]);
+                $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
+                $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+
+                // Double-check that this ID doesn't already exist
+                while (Magang::where('magang_id', $magangId)->exists()) {
+                    $nextMagangId++;
+                    $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+                }
+            } catch (\Exception $e) {
+                // Fallback if there's an issue
+                $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
             }
-        }
 
-        // Check if we were redirected from the show page
-        if ($request->has('redirect') && $request->redirect === 'show') {
-            return redirect()->route('tes-kemampuan.show', $tesKemampuan)->with('success', 'Test status updated successfully');
+            Magang::create([
+                'magang_id' => $magangId,
+                'pelamar_id' => $request->pelamar_id,
+                'user_id' => $request->user_id,
+                'status_seleksi' => 'Pending', // Default to Pending in Magang
+                'jadwal_mulai' => null // Include the new column
+            ]);
         }
-
-        return redirect()->route('tes-kemampuan.index')->with('success', 'Tes Kemampuan updated successfully');
     }
+
+    // Check if we were redirected from the show page
+    if ($request->has('redirect') && $request->redirect === 'show') {
+        return redirect()->route('tes-kemampuan.show', $tesKemampuan)->with('success', 'Test status updated successfully');
+    }
+
+    return redirect()->route('tes-kemampuan.index')->with('success', 'Tes Kemampuan updated successfully');
+}
 
     public function destroy(TesKemampuan $tesKemampuan)
     {

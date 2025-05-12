@@ -49,4 +49,12 @@ class Criteria extends Model
     {
         return $this->hasMany(CriteriaComparison::class, 'criteria_column_id', 'criteria_id');
     }
+
+    /**
+     * Get all weekly evaluations for this criteria.
+     */
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(EvaluasiMingguanMagang::class, 'criteria_id', 'criteria_id');
+    }
 }
