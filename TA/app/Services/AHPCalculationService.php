@@ -80,13 +80,14 @@ class AHPCalculationService
             }
 
             // Normalize the matrix
-            $normalizedMatrix = [];
-            foreach ($criteria as $row) {
-                foreach ($criteria as $col) {
-                    $normalizedMatrix[$row->criteria_id][$col->criteria_id] =
-                        $matrix[$row->criteria_id][$col->criteria_id] / $colSums[$col->criteria_id];
-                }
-            }
+            // When calculating the normalized matrix, make sure we're normalizing each cell separately
+$normalizedMatrix = [];
+foreach ($criteria as $row) {
+    foreach ($criteria as $col) {
+        $normalizedMatrix[$row->criteria_id][$col->criteria_id] =
+            $matrix[$row->criteria_id][$col->criteria_id] / $colSums[$col->criteria_id];
+    }
+}
 
             // Calculate the weights (row averages of normalized matrix)
             $weights = [];

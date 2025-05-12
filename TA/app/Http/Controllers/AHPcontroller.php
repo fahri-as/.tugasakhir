@@ -6,6 +6,7 @@ use App\Models\Criteria;
 use App\Models\CriteriaComparison;
 use App\Models\Job;
 use App\Models\User;
+use App\Services\AHPCalculationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +27,18 @@ class AHPController extends Controller
         8 => 'Very, very strong importance',
         9 => 'Extreme importance',
     ];
+
+    protected $ahpService;
+
+    /**
+     * Create a new controller instance
+     *
+     * @param AHPCalculationService $ahpService
+     */
+    public function __construct(AHPCalculationService $ahpService)
+    {
+        $this->ahpService = $ahpService;
+    }
 
     /**
      * Display the AHP weighting form.
@@ -126,17 +139,15 @@ class AHPController extends Controller
                 }
             }
 
-            // Calculate weights using AHP
-            $weights = $this->calculateAHPWeights($criteria, $job_id);
+            // Calculate weights using AHP service
+            $weights = $this->ahpService->calculateWeights($job_id);
 
-            // Update criteria weights
-            foreach ($weights as $criteriaId => $weight) {
-                Criteria::where('criteria_id', $criteriaId)
-                    ->update(['weight' => $weight]);
+            if (!$weights) {
+                throw new \Exception('Failed to calculate weights');
             }
 
             DB::commit();
-            return redirect()->route('ahp.index', $job_id)->with('success', 'Criteria comparisons and weights have been updated');
+            return redirect()->route('ahp.results', $job_id)->with('success', 'Criteria comparisons and weights have been updated');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -146,37 +157,47 @@ class AHPController extends Controller
     }
 
     /**
-     * Calculate criteria weights using AHP method.
+     * Display the AHP results and calculation details.
      */
-    private function calculateAHPWeights($criteria, $job_id)
+    public function results($job_id)
     {
-        // Create the pairwise comparison matrix
-        $matrix = [];
-        $n = count($criteria);
+        // Only allow Cook (JOB001) or Pastry Chef (JOB004) jobs
+        if (!in_array($job_id, ['JOB001', 'JOB004'])) {
+            return redirect()->route('dashboard')->with('error', 'Decision support system is only available for Cook and Pastry Chef positions.');
+        }
 
-        // Initialize matrix with 1s on diagonal
+        $job = Job::findOrFail($job_id);
+        $criteria = Criteria::where('job_id', $job_id)->get();
+
+        // Check if weights have been calculated
+        $hasCalculatedWeights = $criteria->filter(function($c) {
+            return $c->weight > 0;
+        })->count() > 0;
+
+        if (!$hasCalculatedWeights) {
+            return redirect()->route('ahp.index', $job_id)->with('error', 'Please calculate weights first.');
+        }
+
+        // Get all comparisons for the job
+        $comparisons = CriteriaComparison::whereIn('criteria_row_id', $criteria->pluck('criteria_id'))
+            ->whereIn('criteria_column_id', $criteria->pluck('criteria_id'))
+            ->get();
+
+        // Build the comparison matrix
+        $matrix = [];
         foreach ($criteria as $row) {
             foreach ($criteria as $col) {
                 if ($row->criteria_id === $col->criteria_id) {
                     $matrix[$row->criteria_id][$col->criteria_id] = 1;
                 } else {
-                    $matrix[$row->criteria_id][$col->criteria_id] = null;
+                    $comparison = $comparisons->where('criteria_row_id', $row->criteria_id)
+                                              ->where('criteria_column_id', $col->criteria_id)
+                                              ->first();
+
+                    $matrix[$row->criteria_id][$col->criteria_id] = $comparison ? $comparison->value : null;
                 }
             }
         }
-
-        // Fill the matrix with comparison values
-        $comparisons = DB::table('criteria_comparisons')
-            ->whereIn('criteria_column_id', $criteria->pluck('criteria_id'))
-            ->whereIn('criteria_row_id', $criteria->pluck('criteria_id'))
-            ->get();
-
-        foreach ($comparisons as $comparison) {
-            $matrix[$comparison->criteria_row_id][$comparison->criteria_column_id] = $comparison->value;
-        }
-
-        // Log matrix for debugging
-        Log::info('AHP comparison matrix: ', $matrix);
 
         // Calculate column sums
         $colSums = [];
@@ -188,7 +209,7 @@ class AHPController extends Controller
             $colSums[$col->criteria_id] = $sum;
         }
 
-        // Normalize the matrix
+        // Calculate normalized matrix
         $normalizedMatrix = [];
         foreach ($criteria as $row) {
             foreach ($criteria as $col) {
@@ -197,20 +218,56 @@ class AHPController extends Controller
             }
         }
 
-        // Calculate the weights (row averages of normalized matrix)
-        $weights = [];
-        foreach ($criteria as $row) {
-            $sum = 0;
-            foreach ($criteria as $col) {
-                $sum += $normalizedMatrix[$row->criteria_id][$col->criteria_id];
+        // Calculate consistency measures
+        $n = $criteria->count();
+        $lambdaMax = $this->calculateLambdaMax($matrix, $criteria->pluck('weight', 'criteria_id')->toArray());
+        $ci = ($n > 1) ? ($lambdaMax - $n) / ($n - 1) : 0;
+
+        // Get Random Index (RI) value for n criteria
+        $riValues = [0, 0, 0.58, 0.9, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49];
+        $ri = $n <= count($riValues) ? $riValues[$n - 1] : 1.49;
+
+        // Calculate Consistency Ratio
+        $cr = ($n > 1 && $ri > 0) ? $ci / $ri : 0;
+
+        return view('ahp.results', compact(
+            'job',
+            'criteria',
+            'matrix',
+            'colSums',
+            'normalizedMatrix',
+            'lambdaMax',
+            'ci',
+            'ri',
+            'cr'
+        ));
+    }
+
+    /**
+     * Helper method to calculate λmax for consistency check
+     */
+    private function calculateLambdaMax($matrix, $weights)
+    {
+        $weightedSums = [];
+        $lambdas = [];
+
+        // For each row in the matrix
+        foreach ($matrix as $rowId => $row) {
+            $weightedSum = 0;
+
+            // Multiply each value by the corresponding weight
+            foreach ($row as $colId => $value) {
+                $weightedSum += $value * $weights[$colId];
             }
-            $weights[$row->criteria_id] = $sum / $n;
+
+            $weightedSums[$rowId] = $weightedSum;
+
+            // Calculate lambda for this row
+            $lambdas[$rowId] = $weightedSum / $weights[$rowId];
         }
 
-        // Log weights for debugging
-        Log::info('AHP calculated weights: ', $weights);
-
-        return $weights;
+        // Lambda max is the average of all lambdas
+        return array_sum($lambdas) / count($lambdas);
     }
 
     /**

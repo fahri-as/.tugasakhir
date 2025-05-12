@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
     // AHP Routes
     Route::get('/ahp/{job_id}', [AHPController::class, 'index'])->name('ahp.index');
     Route::post('/ahp/{job_id}/save-comparisons', [AHPController::class, 'saveComparisons'])->name('ahp.save-comparisons');
+    Route::get('/ahp/{job_id}/results', [AHPController::class, 'results'])->name('ahp.results');
 
     // SMART Routes (original implementation)
     Route::get('/smart/{job_id}', [SMARTController::class, 'index'])->name('smart.index');
