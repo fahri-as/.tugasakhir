@@ -10,6 +10,7 @@ use App\Http\Controllers\MagangController;
 use App\Http\Controllers\EvaluasiMingguanMagangController;
 use App\Http\Controllers\AHPController;
 use App\Http\Controllers\SMARTController;
+use App\Http\Controllers\SMARTEvaluasiController;
 use App\Http\Controllers\CriteriaController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Periode;
@@ -75,9 +76,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/ahp/{job_id}', [AHPController::class, 'index'])->name('ahp.index');
     Route::post('/ahp/{job_id}/save-comparisons', [AHPController::class, 'saveComparisons'])->name('ahp.save-comparisons');
 
-    // SMART Routes
+    // SMART Routes (original implementation)
     Route::get('/smart/{job_id}', [SMARTController::class, 'index'])->name('smart.index');
     Route::post('/smart/{job_id}/apply', [SMARTController::class, 'applyRanking'])->name('smart.apply-ranking');
+
+    // New SMART Weekly Evaluation Routes
+    Route::get('/smart/evaluasi', [SMARTEvaluasiController::class, 'index'])
+        ->name('smart.evaluasi');
+
+    // Criteria Weights Routes
+    Route::get('/smart/criteria/{jobId}', [SMARTEvaluasiController::class, 'showCriteriaWeights'])
+        ->name('smart.criteria');
+    Route::post('/smart/criteria/{jobId}/calculate', [SMARTEvaluasiController::class, 'calculateWeights'])
+        ->name('smart.calculate-weights');
+
+    // SMART Rankings Routes
+    Route::get('/smart/rankings/{jobId}', [SMARTEvaluasiController::class, 'showRankings'])
+        ->name('smart.rankings');
+    Route::get('/smart/intern/{jobId}/{magangId}', [SMARTEvaluasiController::class, 'showInternDetail'])
+        ->name('smart.intern.detail');
 });
 
 require __DIR__.'/auth.php';

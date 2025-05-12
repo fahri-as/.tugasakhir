@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AHPController extends Controller
@@ -56,6 +57,9 @@ class AHPController extends Controller
                 return $item->criteria_row_id . '_' . $item->criteria_column_id;
             });
 
+        // Log comparisons for debugging if needed
+        Log::info('AHP comparisons loaded: ' . $comparisons->count());
+
         return view('ahp.index', compact('job', 'criteria', 'hasCalculatedWeights', 'comparisons'));
     }
 
@@ -80,6 +84,9 @@ class AHPController extends Controller
         DB::beginTransaction();
 
         try {
+            // Log input comparisons for debugging
+            Log::info('AHP input comparisons: ', $request->comparison);
+
             // Clear existing comparisons
             DB::table('criteria_comparisons')
                 ->whereIn('criteria_column_id', $criteria->pluck('criteria_id'))
@@ -91,8 +98,10 @@ class AHPController extends Controller
                 foreach ($columns as $colId => $value) {
                     // Only insert if we have a value (not comparing criteria with itself)
                     if (!empty($value)) {
+                        $comparisonId = Str::uuid()->toString();
+
                         DB::table('criteria_comparisons')->insert([
-                            'comparisons_id' => Str::uuid()->toString(),
+                            'comparisons_id' => $comparisonId,
                             'criteria_row_id' => $rowId,
                             'criteria_column_id' => $colId,
                             'value' => $value,
@@ -102,8 +111,10 @@ class AHPController extends Controller
 
                         // Insert the reciprocal value
                         if ($rowId != $colId) {
+                            $reciprocalId = Str::uuid()->toString();
+
                             DB::table('criteria_comparisons')->insert([
-                                'comparisons_id' => Str::uuid()->toString(),
+                                'comparisons_id' => $reciprocalId,
                                 'criteria_row_id' => $colId,
                                 'criteria_column_id' => $rowId,
                                 'value' => 1 / (int)$value,
@@ -129,6 +140,7 @@ class AHPController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('AHP save comparisons error: ' . $e->getMessage(), ['exception' => $e]);
             return redirect()->back()->with('error', 'Error updating weights: ' . $e->getMessage());
         }
     }
@@ -163,6 +175,9 @@ class AHPController extends Controller
             $matrix[$comparison->criteria_row_id][$comparison->criteria_column_id] = $comparison->value;
         }
 
+        // Log matrix for debugging
+        Log::info('AHP comparison matrix: ', $matrix);
+
         // Calculate column sums
         $colSums = [];
         foreach ($criteria as $col) {
@@ -192,8 +207,8 @@ class AHPController extends Controller
             $weights[$row->criteria_id] = $sum / $n;
         }
 
-        // Calculate consistency measures if needed
-        // (This is a simplified implementation that doesn't check for consistency ratio)
+        // Log weights for debugging
+        Log::info('AHP calculated weights: ', $weights);
 
         return $weights;
     }

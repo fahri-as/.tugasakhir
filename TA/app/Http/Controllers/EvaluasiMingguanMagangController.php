@@ -7,12 +7,21 @@ use App\Models\Magang;
 use App\Models\RatingScale;
 use App\Models\Periode;
 use App\Models\Criteria;
+use App\Services\SMARTCalculationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
 class EvaluasiMingguanMagangController extends Controller
 {
+    protected $smartService;
+
+    public function __construct(SMARTCalculationService $smartService)
+    {
+        $this->smartService = $smartService;
+    }
+
     public function index(Request $request)
     {
         // Get the selected period or default to the latest period
@@ -26,96 +35,135 @@ class EvaluasiMingguanMagangController extends Controller
         return view('evaluasi.index', compact('evaluasi'));
     }
 
-
     private function updateMagangScore($magangId)
-{
-    // Get all evaluations for this magang
-    $evaluations = EvaluasiMingguanMagang::where('magang_id', $magangId)->get();
+    {
+        // Get the magang record
+        $magang = Magang::with('pelamar')->find($magangId);
 
-    if ($evaluations->isEmpty()) {
-        // No evaluations, set score to 0
-        Magang::where('magang_id', $magangId)->update(['total_skor' => 0]);
-        Log::info("No evaluations found for magang_id: $magangId, setting total_skor to 0");
-        return;
+        if (!$magang || !$magang->pelamar) {
+            Log::warning("Cannot update score for magang_id: $magangId - Record or pelamar not found");
+            return;
+        }
+
+        $jobId = $magang->pelamar->job_id;
+        $periodeId = $magang->pelamar->periode_id;
+
+        // Use SMART method to calculate scores if job exists
+        if ($jobId) {
+            // Get the interns with the same job
+            $interns = Magang::whereHas('pelamar', function($query) use ($jobId, $periodeId) {
+                $query->where('job_id', $jobId);
+                if ($periodeId) {
+                    $query->where('periode_id', $periodeId);
+                }
+            })->get();
+
+            // If this is the only intern, just calculate basic score
+            if ($interns->count() <= 1) {
+                $this->updateBasicScore($magangId);
+                return;
+            }
+
+            // Update all interns' scores using SMART method
+            try {
+                $this->smartService->updateTotalScores($jobId, $periodeId);
+                Log::info("Updated scores using SMART method for job: $jobId, period: $periodeId");
+            } catch (\Exception $e) {
+                Log::error("Error updating scores using SMART method: " . $e->getMessage());
+                // Fallback to basic score calculation
+                $this->updateBasicScore($magangId);
+            }
+        } else {
+            // If no job is assigned, use basic score calculation
+            $this->updateBasicScore($magangId);
+        }
     }
 
-    // Group evaluations by week
-    $weeklyEvaluations = $evaluations->groupBy('minggu_ke');
+    /**
+     * Basic score calculation method as fallback
+     */
+    private function updateBasicScore($magangId)
+    {
+        // Get all evaluations for this magang
+        $evaluations = EvaluasiMingguanMagang::where('magang_id', $magangId)->get();
 
-    // Calculate average score for each week
-    $weeklyScores = [];
-    foreach ($weeklyEvaluations as $week => $evals) {
-        $weekScore = $evals->sum('skor_minggu');
-        $weeklyScores[$week] = $weekScore;
+        if ($evaluations->isEmpty()) {
+            // No evaluations, set score to 0
+            Magang::where('magang_id', $magangId)->update(['total_skor' => 0]);
+            Log::info("No evaluations found for magang_id: $magangId, setting total_skor to 0");
+            return;
+        }
+
+        // Group evaluations by week
+        $weeklyEvaluations = $evaluations->groupBy('minggu_ke');
+
+        // Calculate average score for each week
+        $weeklyScores = [];
+        foreach ($weeklyEvaluations as $week => $evals) {
+            $weekScore = $evals->sum('skor_minggu');
+            $weeklyScores[$week] = $weekScore;
+        }
+
+        // Calculate the overall total score (sum of weekly scores)
+        $totalScore = array_sum($weeklyScores);
+
+        // Update the magang record
+        $updated = Magang::where('magang_id', $magangId)->update(['total_skor' => $totalScore]);
+
+        Log::info("Update result for magang_id: $magangId: " . ($updated ? 'success' : 'failed'));
     }
-
-    // Calculate the overall total score (sum of weekly scores)
-    $totalScore = array_sum($weeklyScores);
-
-    // Log the calculation
-    Log::info("Updating magang_id: $magangId score", [
-        'evaluation_count' => $evaluations->count(),
-        'weeks' => count($weeklyScores),
-        'weekly_scores' => $weeklyScores,
-        'total_score' => $totalScore
-    ]);
-
-    // Update the magang record
-    $updated = Magang::where('magang_id', $magangId)->update(['total_skor' => $totalScore]);
-
-    Log::info("Update result for magang_id: $magangId: " . ($updated ? 'success' : 'failed'));
-}
 
     /**
      * API endpoint to get evaluations by week
      * This is called via AJAX from the frontend
      */
     public function getByWeek(Request $request)
-{
-    $request->validate([
-        'periode_id' => 'required|exists:periode,periode_id',
-        'week' => 'required|integer|min:1',
-    ]);
-
-    $periodeId = $request->periode_id;
-    $week = $request->week;
-
-    try {
-        // Get all evaluations for this week in the selected period
-        $evaluations = EvaluasiMingguanMagang::with([
-                'magang',
-                'magang.pelamar',
-                'magang.pelamar.job',
-                'ratingScale',
-                'criteria'
-            ])
-            ->whereHas('magang', function($query) use ($periodeId) {
-                $query->whereHas('pelamar', function($q) use ($periodeId) {
-                    $q->where('periode_id', $periodeId);
-                });
-            })
-            ->where('minggu_ke', $week)
-            ->get();
-
-        // Log the query result for debugging
-        Log::info('Evaluations query result:', [
-            'period_id' => $periodeId,
-            'week' => $week,
-            'count' => $evaluations->count()
+    {
+        $request->validate([
+            'periode_id' => 'required|exists:periode,periode_id',
+            'week' => 'required|integer|min:1',
         ]);
 
-        return response()->json($evaluations);
-    } catch (\Exception $e) {
-        Log::error('Error in getByWeek method: ' . $e->getMessage(), [
-            'trace' => $e->getTraceAsString()
-        ]);
+        $periodeId = $request->periode_id;
+        $week = $request->week;
 
-        return response()->json([
-            'error' => 'Failed to fetch evaluations',
-            'message' => $e->getMessage()
-        ], 500);
+        try {
+            // Get all evaluations for this week in the selected period
+            $evaluations = EvaluasiMingguanMagang::with([
+                    'magang',
+                    'magang.pelamar',
+                    'magang.pelamar.job',
+                    'ratingScale',
+                    'criteria'
+                ])
+                ->whereHas('magang', function($query) use ($periodeId) {
+                    $query->whereHas('pelamar', function($q) use ($periodeId) {
+                        $q->where('periode_id', $periodeId);
+                    });
+                })
+                ->where('minggu_ke', $week)
+                ->get();
+
+            // Log the query result for debugging
+            Log::info('Evaluations query result:', [
+                'period_id' => $periodeId,
+                'week' => $week,
+                'count' => $evaluations->count()
+            ]);
+
+            return response()->json($evaluations);
+        } catch (\Exception $e) {
+            Log::error('Error in getByWeek method: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to fetch evaluations',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
-}
+
     public function create(Request $request)
     {
         // Pre-select period and week if provided in the query parameters
@@ -141,56 +189,72 @@ class EvaluasiMingguanMagangController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'magang_id' => 'required|exists:magang,magang_id',
-        'rating_id' => 'required|exists:rating_scales,rating_id',
-        'criteria_id' => 'nullable|exists:criteria,criteria_id', // Make criteria optional
-        'minggu_ke' => 'required|integer|min:1',
-    ]);
+    {
+        $request->validate([
+            'magang_id' => 'required|exists:magang,magang_id',
+            'rating_id' => 'required|exists:rating_scales,rating_id',
+            'criteria_id' => 'nullable|exists:criteria,criteria_id', // Make criteria optional
+            'minggu_ke' => 'required|integer|min:1',
+        ]);
 
-    // Check if evaluation already exists for this magang, criteria and week
-    $exists = EvaluasiMingguanMagang::where('magang_id', $request->magang_id)
-        ->where('minggu_ke', $request->minggu_ke)
-        ->where('criteria_id', $request->criteria_id)
-        ->exists();
+        // Check if evaluation already exists for this magang, criteria and week
+        $exists = EvaluasiMingguanMagang::where('magang_id', $request->magang_id)
+            ->where('minggu_ke', $request->minggu_ke)
+            ->where('criteria_id', $request->criteria_id)
+            ->exists();
 
-    if ($exists) {
-        return redirect()->back()->with('error', 'Evaluation for this intern, criteria and week already exists');
+        if ($exists) {
+            return redirect()->back()->with('error', 'Evaluation for this intern, criteria and week already exists');
+        }
+
+        // Start a database transaction
+        DB::beginTransaction();
+
+        try {
+            // Get the rating value to calculate score
+            $rating = RatingScale::findOrFail($request->rating_id);
+
+            // Create the evaluation
+            $evaluasi = new EvaluasiMingguanMagang();
+            $evaluasi->evaluasi_id = Str::uuid()->toString();
+            $evaluasi->magang_id = $request->magang_id;
+            $evaluasi->rating_id = $request->rating_id;
+            $evaluasi->criteria_id = $request->criteria_id; // Set criteria_id if provided
+            $evaluasi->minggu_ke = $request->minggu_ke;
+            $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
+            $evaluasi->save();
+
+            // Get the magang to determine the job
+            $magang = Magang::with('pelamar')->findOrFail($request->magang_id);
+            $jobId = $magang->pelamar->job_id ?? null;
+            $periodeId = $magang->pelamar->periode_id ?? null;
+
+            // Update scores using SMART method if job exists
+            if ($jobId) {
+                try {
+                    $this->smartService->updateTotalScores($jobId, $periodeId);
+                } catch (\Exception $e) {
+                    Log::error("Error using SMART method: " . $e->getMessage());
+                    // Fallback to basic score calculation
+                    $this->updateMagangScore($request->magang_id);
+                }
+            } else {
+                // Use basic score calculation
+                $this->updateMagangScore($request->magang_id);
+            }
+
+            DB::commit();
+
+            // Get the period ID to redirect back to the same period view
+            $periodeId = $magang->pelamar->periode_id ?? null;
+            $redirectParams = $periodeId ? ['periode_id' => $periodeId] : [];
+
+            return redirect()->route('evaluasi.index', $redirectParams)->with('success', 'Evaluation created successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error creating evaluation: ' . $e->getMessage());
+        }
     }
-
-    // Start a database transaction
-    DB::beginTransaction();
-
-    try {
-        // Get the rating value to calculate score
-        $rating = RatingScale::findOrFail($request->rating_id);
-
-        // Create the evaluation
-        $evaluasi = new EvaluasiMingguanMagang();
-        $evaluasi->evaluasi_id = Str::uuid()->toString();
-        $evaluasi->magang_id = $request->magang_id;
-        $evaluasi->rating_id = $request->rating_id;
-        $evaluasi->criteria_id = $request->criteria_id; // Set criteria_id if provided
-        $evaluasi->minggu_ke = $request->minggu_ke;
-        $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
-        $evaluasi->save();
-
-        // Update the magang total_skor with the new average
-        $this->updateMagangScore($request->magang_id);
-
-        DB::commit();
-
-        // Get the period ID to redirect back to the same period view
-        $periodeId = Magang::with('pelamar')->findOrFail($request->magang_id)->pelamar->periode_id ?? null;
-        $redirectParams = $periodeId ? ['periode_id' => $periodeId] : [];
-
-        return redirect()->route('evaluasi.index', $redirectParams)->with('success', 'Evaluation created successfully');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()->with('error', 'Error creating evaluation: ' . $e->getMessage());
-    }
-}
 
     public function show(EvaluasiMingguanMagang $evaluasi)
     {
@@ -208,88 +272,141 @@ class EvaluasiMingguanMagangController extends Controller
     }
 
     public function update(Request $request, EvaluasiMingguanMagang $evaluasi)
-{
-    $request->validate([
-        'magang_id' => 'required|exists:magang,magang_id',
-        'rating_id' => 'required|exists:rating_scales,rating_id',
-        'criteria_id' => 'nullable|exists:criteria,criteria_id', // Make criteria optional
-        'minggu_ke' => 'required|integer|min:1',
-    ]);
+    {
+        $request->validate([
+            'magang_id' => 'required|exists:magang,magang_id',
+            'rating_id' => 'required|exists:rating_scales,rating_id',
+            'criteria_id' => 'nullable|exists:criteria,criteria_id', // Make criteria optional
+            'minggu_ke' => 'required|integer|min:1',
+        ]);
 
-    // Check if evaluation already exists for this magang, criteria and week (excluding current record)
-    $exists = EvaluasiMingguanMagang::where('magang_id', $request->magang_id)
-        ->where('minggu_ke', $request->minggu_ke)
-        ->where('criteria_id', $request->criteria_id)
-        ->where('evaluasi_id', '!=', $evaluasi->evaluasi_id)
-        ->exists();
+        // Check if evaluation already exists for this magang, criteria and week (excluding current record)
+        $exists = EvaluasiMingguanMagang::where('magang_id', $request->magang_id)
+            ->where('minggu_ke', $request->minggu_ke)
+            ->where('criteria_id', $request->criteria_id)
+            ->where('evaluasi_id', '!=', $evaluasi->evaluasi_id)
+            ->exists();
 
-    if ($exists) {
-        return redirect()->back()->with('error', 'Evaluation for this intern, criteria and week already exists');
-    }
-
-    // Start a database transaction
-    DB::beginTransaction();
-
-    try {
-        // Get the rating value to calculate score
-        $rating = RatingScale::findOrFail($request->rating_id);
-
-        // Store the original magang_id for updating scores
-        $originalMagangId = $evaluasi->magang_id;
-
-        // Update the evaluation
-        $evaluasi->magang_id = $request->magang_id;
-        $evaluasi->rating_id = $request->rating_id;
-        $evaluasi->criteria_id = $request->criteria_id; // Update criteria_id
-        $evaluasi->minggu_ke = $request->minggu_ke;
-        $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
-        $evaluasi->save();
-
-        // Update the magang total_skor with the new average
-        $this->updateMagangScore($request->magang_id);
-
-        // If magang_id changed, update the old magang's score too
-        if ($originalMagangId !== $request->magang_id) {
-            $this->updateMagangScore($originalMagangId);
+        if ($exists) {
+            return redirect()->back()->with('error', 'Evaluation for this intern, criteria and week already exists');
         }
 
-        DB::commit();
+        // Start a database transaction
+        DB::beginTransaction();
 
-        // Get the period ID to redirect back to the same period view
-        $periodeId = Magang::with('pelamar')->findOrFail($request->magang_id)->pelamar->periode_id ?? null;
-        $redirectParams = $periodeId ? ['periode_id' => $periodeId] : [];
+        try {
+            // Get the rating value to calculate score
+            $rating = RatingScale::findOrFail($request->rating_id);
 
-        return redirect()->route('evaluasi.index', $redirectParams)->with('success', 'Evaluation updated successfully');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()->with('error', 'Error updating evaluation: ' . $e->getMessage());
+            // Store the original magang_id for updating scores
+            $originalMagangId = $evaluasi->magang_id;
+
+            // Update the evaluation
+            $evaluasi->magang_id = $request->magang_id;
+            $evaluasi->rating_id = $request->rating_id;
+            $evaluasi->criteria_id = $request->criteria_id; // Update criteria_id
+            $evaluasi->minggu_ke = $request->minggu_ke;
+            $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
+            $evaluasi->save();
+
+            // Get the magang to determine the job
+            $magang = Magang::with('pelamar')->findOrFail($request->magang_id);
+            $jobId = $magang->pelamar->job_id ?? null;
+            $periodeId = $magang->pelamar->periode_id ?? null;
+
+            // Update scores using SMART method if job exists
+            if ($jobId) {
+                try {
+                    $this->smartService->updateTotalScores($jobId, $periodeId);
+                } catch (\Exception $e) {
+                    Log::error("Error using SMART method: " . $e->getMessage());
+                    // Fallback to basic score calculation
+                    $this->updateMagangScore($request->magang_id);
+                }
+            } else {
+                // Use basic score calculation
+                $this->updateMagangScore($request->magang_id);
+            }
+
+            // If magang_id changed, update the old magang's score too
+            if ($originalMagangId !== $request->magang_id) {
+                // Get the original magang to determine its job
+                $originalMagang = Magang::with('pelamar')->find($originalMagangId);
+                if ($originalMagang) {
+                    $originalJobId = $originalMagang->pelamar->job_id ?? null;
+                    $originalPeriodeId = $originalMagang->pelamar->periode_id ?? null;
+
+                    // Update scores for original job if exists
+                    if ($originalJobId) {
+                        try {
+                            $this->smartService->updateTotalScores($originalJobId, $originalPeriodeId);
+                        } catch (\Exception $e) {
+                            Log::error("Error using SMART method for original job: " . $e->getMessage());
+                            // Fallback to basic score calculation
+                            $this->updateMagangScore($originalMagangId);
+                        }
+                    } else {
+                        // Use basic score calculation for original magang
+                        $this->updateMagangScore($originalMagangId);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            // Get the period ID to redirect back to the same period view
+            $periodeId = $magang->pelamar->periode_id ?? null;
+            $redirectParams = $periodeId ? ['periode_id' => $periodeId] : [];
+
+            return redirect()->route('evaluasi.index', $redirectParams)->with('success', 'Evaluation updated successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error updating evaluation: ' . $e->getMessage());
+        }
     }
-}
 
     public function destroy(EvaluasiMingguanMagang $evaluasi)
-{
-    // Get the period ID before deletion for redirecting back to the same period view
-    $periodeId = $evaluasi->magang->pelamar->periode_id ?? null;
-    $magangId = $evaluasi->magang_id;
+    {
+        // Get the period ID before deletion for redirecting back to the same period view
+        $periodeId = $evaluasi->magang->pelamar->periode_id ?? null;
+        $magangId = $evaluasi->magang_id;
 
-    // Start a database transaction
-    DB::beginTransaction();
+        // Get job information for SMART calculations
+        $jobId = null;
+        $magang = Magang::with('pelamar')->find($magangId);
+        if ($magang && $magang->pelamar) {
+            $jobId = $magang->pelamar->job_id;
+        }
 
-    try {
-        $evaluasi->delete();
+        // Start a database transaction
+        DB::beginTransaction();
 
-        // Update the magang total_skor after deletion
-        $this->updateMagangScore($magangId);
+        try {
+            $evaluasi->delete();
 
-        DB::commit();
+            // If job exists, update using SMART method
+            if ($jobId) {
+                try {
+                    $this->smartService->updateTotalScores($jobId, $periodeId);
+                } catch (\Exception $e) {
+                    Log::error("Error using SMART method after deletion: " . $e->getMessage());
+                    // Fallback to basic score calculation
+                    $this->updateMagangScore($magangId);
+                }
+            } else {
+                // Use basic score calculation
+                $this->updateMagangScore($magangId);
+            }
 
-        $redirectParams = $periodeId ? ['periode_id' => $periodeId] : [];
-        return redirect()->route('evaluasi.index', $redirectParams)->with('success', 'Evaluation deleted successfully');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()->with('error', 'Error deleting evaluation: ' . $e->getMessage());
+            DB::commit();
+
+            $redirectParams = $periodeId ? ['periode_id' => $periodeId] : [];
+            return redirect()->route('evaluasi.index', $redirectParams)->with('success', 'Evaluation deleted successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error deleting evaluation: ' . $e->getMessage());
+        }
     }
-}
 
 
     /**
@@ -342,10 +459,23 @@ class EvaluasiMingguanMagangController extends Controller
             }
 
             DB::commit();
+
+            // Update scores using SMART if job exists
+            if ($jobId) {
+                try {
+                    $smartService = app(SMARTCalculationService::class);
+                    $periodeId = $magang->pelamar->periode_id ?? null;
+                    $smartService->updateTotalScores($jobId, $periodeId);
+                } catch (\Exception $e) {
+                    Log::error("Error using SMART method after creating evaluations: " . $e->getMessage());
+                }
+            }
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
             // Log error or handle it as needed
+            Log::error("Error creating weekly evaluations: " . $e->getMessage());
             return false;
         }
     }

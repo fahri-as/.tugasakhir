@@ -80,7 +80,8 @@
                                                 @elseif($rowCriterion->code < $colCriterion->code)
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                         @php
-                                                            $key = $rowCriterion->criteria_id . '-' . $colCriterion->criteria_id;
+                                                            // Use underscore key format to match the database key format
+                                                            $key = $rowCriterion->criteria_id . '_' . $colCriterion->criteria_id;
                                                             $value = isset($comparisons[$key]) ? $comparisons[$key]->value : '';
                                                         @endphp
                                                         <select name="comparison[{{ $rowCriterion->criteria_id }}][{{ $colCriterion->criteria_id }}]" class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm appearance-none bg-white">
@@ -93,7 +94,8 @@
                                                 @else
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                                                         @php
-                                                            $key = $colCriterion->criteria_id . '-' . $rowCriterion->criteria_id;
+                                                            // Use underscore key format to match the database key format
+                                                            $key = $colCriterion->criteria_id . '_' . $rowCriterion->criteria_id;
                                                         @endphp
                                                         @if(isset($comparisons[$key]))
                                                             1/{{ $comparisons[$key]->value }}
