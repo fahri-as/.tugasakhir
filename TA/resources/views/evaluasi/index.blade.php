@@ -63,31 +63,33 @@
 
                     <!-- Week Selection Cards -->
                     @if($selectedPeriode && $durasiMinggu > 0)
-                        <div id="week-cards" class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-6">
-                            @for($week = 1; $week <= $durasiMinggu; $week++)
-                                <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-                                     onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }})">
-                                    <div class="p-6">
-                                        <h3 class="text-lg font-medium text-gray-900">Week {{ $week }}</h3>
-                                        <p class="mt-2 text-sm text-gray-600">
-                                            @php
-                                                // Count distinct interns with evaluations for this week
-                                                $internCount = App\Models\EvaluasiMingguanMagang::whereHas('magang', function($query) use ($selectedPeriodeId) {
-                                                    $query->whereHas('pelamar', function($q) use ($selectedPeriodeId) {
-                                                        $q->where('periode_id', $selectedPeriodeId);
-                                                    });
-                                                })
-                                                ->where('minggu_ke', $week)
-                                                ->select('magang_id')
-                                                ->distinct()
-                                                ->count();
-                                            @endphp
-                                            {{ $internCount }} {{ Str::plural('intern', $internCount) }} evaluated
-                                        </p>
-                                    </div>
-                                </div>
-                            @endfor
-                        </div>
+                        <!-- Replace this section in your index.blade.php file around line 55-67 -->
+<div id="week-cards" class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-6">
+    @for($week = 1; $week <= $durasiMinggu; $week++)
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+             onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }})">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900">Week {{ $week }}</h3>
+                <p class="mt-2 text-sm text-gray-600">
+                    @php
+                        // Count DISTINCT interns with evaluations for this week
+                        $internCount = App\Models\EvaluasiMingguanMagang::whereHas('magang', function($query) use ($selectedPeriodeId) {
+                            $query->whereHas('pelamar', function($q) use ($selectedPeriodeId) {
+                                $q->where('periode_id', $selectedPeriodeId);
+                            });
+                        })
+                        ->where('minggu_ke', $week)
+                        ->select('magang_id')
+                        ->groupBy('magang_id')  // Group by magang_id to ensure we count distinct interns
+                        ->get()
+                        ->count();
+                    @endphp
+                    {{ $internCount }} {{ Str::plural('intern', $internCount) }} evaluated
+                </p>
+            </div>
+        </div>
+    @endfor
+</div>
                     @elseif(!$selectedPeriode)
                         <div class="text-center py-4 bg-yellow-50 rounded-lg">
                             <p class="text-yellow-700">No period selected. Please select a period to view evaluations.</p>

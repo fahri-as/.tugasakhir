@@ -23,7 +23,7 @@ class Criteria extends Model
     ];
 
     protected $casts = [
-        'weight' => 'decimal:2'
+        'weight' => 'decimal:4'
     ];
 
     /**
