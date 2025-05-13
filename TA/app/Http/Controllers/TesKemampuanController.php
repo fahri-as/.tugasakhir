@@ -300,7 +300,17 @@ class TesKemampuanController extends Controller
 
             try {
                 if ($request->status_seleksi == 'Lulus') {
-                    Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan));
+                    // Create a datetime object from the contract discussion date and time if provided
+                    $kontrakJadwal = null;
+                    if ($request->has('kontrak_tanggal') && $request->has('kontrak_waktu')) {
+                        $kontrakDateTime = $request->kontrak_tanggal . ' ' . $request->kontrak_waktu . ':00';
+                        $kontrakJadwal = \Carbon\Carbon::parse($kontrakDateTime);
+
+                        // Pass the datetime to the template
+                        Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan, $kontrakJadwal));
+                    } else {
+                        Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan));
+                    }
                     $emailType = 'lulus';
                 } elseif ($request->status_seleksi == 'Tidak Lulus') {
                     Mail::to($pelamar->email)->send(new SkillTestFailed($pelamar, $tesKemampuan));

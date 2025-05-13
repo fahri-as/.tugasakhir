@@ -10,6 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Pelamar;
 use App\Models\TesKemampuan;
+use Carbon\Carbon;
 
 class SkillTestPassed extends Mailable
 {
@@ -30,16 +31,25 @@ class SkillTestPassed extends Mailable
     public $tesKemampuan;
 
     /**
+     * The contract discussion schedule.
+     *
+     * @var \Carbon\Carbon|null
+     */
+    public $kontrak_jadwal;
+
+    /**
      * Create a new message instance.
      *
      * @param  \App\Models\Pelamar  $pelamar
      * @param  \App\Models\TesKemampuan  $tesKemampuan
+     * @param  \Carbon\Carbon|null  $kontrak_jadwal
      * @return void
      */
-    public function __construct(Pelamar $pelamar, TesKemampuan $tesKemampuan)
+    public function __construct(Pelamar $pelamar, TesKemampuan $tesKemampuan, Carbon $kontrak_jadwal = null)
     {
         $this->pelamar = $pelamar;
         $this->tesKemampuan = $tesKemampuan;
+        $this->kontrak_jadwal = $kontrak_jadwal;
     }
 
     /**

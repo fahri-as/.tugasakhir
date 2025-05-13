@@ -21,22 +21,10 @@
                             Move to Internship
                         </button>
                     @else
-                        {{-- For other positions, show Mark as Passed --}}
-                        <form action="{{ route('tes-kemampuan.update', $tesKemampuan) }}" method="POST" class="inline">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="pelamar_id" value="{{ $tesKemampuan->pelamar_id }}">
-                            <input type="hidden" name="user_id" value="{{ $tesKemampuan->user_id }}">
-                            <input type="hidden" name="skor" value="{{ $tesKemampuan->skor }}">
-                            <input type="hidden" name="catatan" value="{{ $tesKemampuan->catatan }}">
-                            <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
-                            <input type="hidden" name="status_seleksi" value="Lulus">
-                            <input type="hidden" name="redirect" value="show">
-                            <input type="hidden" name="send_email" value="1">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2">
-                                Mark as Passed
-                            </button>
-                        </form>
+                        {{-- For other positions, show Mark as Passed with modal --}}
+                        <button id="markAsPassedBtn" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2">
+                            Mark as Passed
+                        </button>
                     @endif
 
                     {{-- Show Mark as Failed for all positions --}}
@@ -239,58 +227,111 @@
         </div>
     </div>
 
+    <!-- Contract Discussion Modal -->
+    <div id="contractDiscussionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Schedule Contract Discussion</h3>
+                <div class="mt-2 px-7 py-3">
+                    <form id="contractDiscussionForm" action="{{ route('tes-kemampuan.update', $tesKemampuan) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <!-- Hidden fields for applicant data -->
+                        <input type="hidden" name="pelamar_id" value="{{ $tesKemampuan->pelamar_id }}">
+                        <input type="hidden" name="user_id" value="{{ $tesKemampuan->user_id }}">
+                        <input type="hidden" name="skor" value="{{ $tesKemampuan->skor }}">
+                        <input type="hidden" name="catatan" value="{{ $tesKemampuan->catatan }}">
+                        <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
+                        <input type="hidden" name="status_seleksi" value="Lulus">
+                        <input type="hidden" name="redirect" value="show">
+                        <input type="hidden" name="send_email" value="1">
+
+                        <!-- Contract Discussion Date and Time -->
+                        <div class="mb-4">
+                            <label for="kontrak_tanggal" class="block text-sm font-medium text-gray-700 text-left mb-1">Discussion Date</label>
+                            <input type="date" name="kontrak_tanggal" id="kontrak_tanggal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                            <p id="kontrak_date_error" class="mt-1 text-xs text-red-600 hidden">Please select a future date</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="kontrak_waktu" class="block text-sm font-medium text-gray-700 text-left mb-1">Discussion Time</label>
+                            <input type="time" name="kontrak_waktu" id="kontrak_waktu" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                            <p id="kontrak_time_error" class="mt-1 text-xs text-red-600 hidden">Please select a future time</p>
+                        </div>
+
+                        <div class="flex justify-end mt-4">
+                            <button type="button" id="cancelContractBtn" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2">
+                                Cancel
+                            </button>
+                            <button type="submit" id="scheduleContractBtn" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                Schedule & Approve
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript for Modal Control with Time Validation -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get modal elements
-            const modal = document.getElementById('internshipModal');
-            const openModalBtn = document.getElementById('moveToInternshipBtn');
-            const closeModalBtn = document.getElementById('cancelInternshipBtn');
-            const scheduleBtn = document.getElementById('scheduleBtn');
+            // Internship Modal elements
+            const internshipModal = document.getElementById('internshipModal');
+            const openInternshipModalBtn = document.getElementById('moveToInternshipBtn');
+            const closeInternshipModalBtn = document.getElementById('cancelInternshipBtn');
             const internshipForm = document.getElementById('internshipForm');
-
-            // Get date and time inputs
             const jadwalDateInput = document.getElementById('jadwal_tanggal');
             const jadwalTimeInput = document.getElementById('jadwal_waktu');
-
-            // Get error messages
             const dateError = document.getElementById('date_error');
             const timeError = document.getElementById('time_error');
 
-            // Set min date for internship to today
-            const today = new Date();
-            const formattedToday = today.toISOString().split('T')[0];
-            jadwalDateInput.min = formattedToday;
-            jadwalDateInput.value = formattedToday;
+            // Contract Discussion Modal elements
+            const contractModal = document.getElementById('contractDiscussionModal');
+            const openContractModalBtn = document.getElementById('markAsPassedBtn');
+            const closeContractModalBtn = document.getElementById('cancelContractBtn');
+            const contractForm = document.getElementById('contractDiscussionForm');
+            const kontrakDateInput = document.getElementById('kontrak_tanggal');
+            const kontrakTimeInput = document.getElementById('kontrak_waktu');
+            const kontrakDateError = document.getElementById('kontrak_date_error');
+            const kontrakTimeError = document.getElementById('kontrak_time_error');
 
-            // Set default time (current time + 1 hour, rounded to next 30 minute slot)
-            let defaultHour = today.getHours() + 1;
-            let defaultMinutes = today.getMinutes() < 30 ? 30 : 0;
+            // Helper function to set default date and time values
+            function setDefaultDateTime(dateInput, timeInput) {
+                const today = new Date();
+                const formattedToday = today.toISOString().split('T')[0];
+                dateInput.min = formattedToday;
+                dateInput.value = formattedToday;
 
-            // If we're past 30 minutes and we added an hour
-            if (today.getMinutes() >= 30) {
-                defaultHour += 1;
+                // Set default time (current time + 1 hour, rounded to next 30 minute slot)
+                let defaultHour = today.getHours() + 1;
+                let defaultMinutes = today.getMinutes() < 30 ? 30 : 0;
+
+                // If we're past 30 minutes and we added an hour
+                if (today.getMinutes() >= 30) {
+                    defaultHour += 1;
+                }
+
+                // Adjust for next day if it's late in the day
+                if (defaultHour >= 24) {
+                    defaultHour = 9; // Default to 9 AM next day
+                    defaultMinutes = 0;
+
+                    // Set date to tomorrow
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    dateInput.value = tomorrow.toISOString().split('T')[0];
+                }
+
+                // Format the time as HH:MM
+                const formattedHour = String(defaultHour).padStart(2, '0');
+                const formattedMinutes = String(defaultMinutes).padStart(2, '0');
+                timeInput.value = `${formattedHour}:${formattedMinutes}`;
             }
-
-            // Adjust for next day if it's late in the day
-            if (defaultHour >= 24) {
-                defaultHour = 9; // Default to 9 AM next day
-                defaultMinutes = 0;
-
-                // Set date to tomorrow
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                jadwalDateInput.value = tomorrow.toISOString().split('T')[0];
-            }
-
-            // Format the time as HH:MM
-            const formattedHour = String(defaultHour).padStart(2, '0');
-            const formattedMinutes = String(defaultMinutes).padStart(2, '0');
-            jadwalTimeInput.value = `${formattedHour}:${formattedMinutes}`;
 
             // Function to validate the datetime is in the future
-            function validateDatetime() {
-                const selectedDate = new Date(jadwalDateInput.value);
+            function validateDatetime(dateInput, timeInput, dateError, timeError) {
+                const selectedDate = new Date(dateInput.value);
                 const now = new Date();
 
                 // Reset error messages
@@ -302,7 +343,7 @@
                 // Check if date is today
                 if (selectedDate.toDateString() === now.toDateString()) {
                     // If today, check if time is in the future
-                    const [hours, minutes] = jadwalTimeInput.value.split(':').map(Number);
+                    const [hours, minutes] = timeInput.value.split(':').map(Number);
                     const selectedTime = new Date();
                     selectedTime.setHours(hours, minutes, 0, 0);
 
@@ -319,41 +360,101 @@
                 return isValid;
             }
 
-            // Validate on initial load
-            validateDatetime();
+            // Setup Internship Modal
+            if (jadwalDateInput && jadwalTimeInput) {
+                setDefaultDateTime(jadwalDateInput, jadwalTimeInput);
 
-            // Add event listeners for date and time changes
-            jadwalDateInput.addEventListener('change', validateDatetime);
-            jadwalTimeInput.addEventListener('change', validateDatetime);
+                // Validate on initial load
+                validateDatetime(jadwalDateInput, jadwalTimeInput, dateError, timeError);
 
-            // Prevent form submission if validation fails
-            internshipForm.addEventListener('submit', function(event) {
-                if (!validateDatetime()) {
-                    event.preventDefault();
+                // Add event listeners for date and time changes
+                jadwalDateInput.addEventListener('change', function() {
+                    validateDatetime(jadwalDateInput, jadwalTimeInput, dateError, timeError);
+                });
+
+                jadwalTimeInput.addEventListener('change', function() {
+                    validateDatetime(jadwalDateInput, jadwalTimeInput, dateError, timeError);
+                });
+
+                // Prevent form submission if validation fails
+                if (internshipForm) {
+                    internshipForm.addEventListener('submit', function(event) {
+                        if (!validateDatetime(jadwalDateInput, jadwalTimeInput, dateError, timeError)) {
+                            event.preventDefault();
+                        }
+                    });
                 }
-            });
 
-            // Modal open function
-            if (openModalBtn) {
-                openModalBtn.addEventListener('click', function() {
-                    modal.classList.remove('hidden');
-                    validateDatetime(); // Re-validate when opening modal
+                // Modal open function
+                if (openInternshipModalBtn) {
+                    openInternshipModalBtn.addEventListener('click', function() {
+                        internshipModal.classList.remove('hidden');
+                        validateDatetime(jadwalDateInput, jadwalTimeInput, dateError, timeError);
+                    });
+                }
+
+                // Modal close function
+                if (closeInternshipModalBtn) {
+                    closeInternshipModalBtn.addEventListener('click', function() {
+                        internshipModal.classList.add('hidden');
+                    });
+                }
+
+                // Close modal if clicked outside
+                window.addEventListener('click', function(event) {
+                    if (event.target === internshipModal) {
+                        internshipModal.classList.add('hidden');
+                    }
                 });
             }
 
-            // Modal close function
-            if (closeModalBtn) {
-                closeModalBtn.addEventListener('click', function() {
-                    modal.classList.add('hidden');
+            // Setup Contract Discussion Modal
+            if (kontrakDateInput && kontrakTimeInput) {
+                setDefaultDateTime(kontrakDateInput, kontrakTimeInput);
+
+                // Validate on initial load
+                validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError);
+
+                // Add event listeners for date and time changes
+                kontrakDateInput.addEventListener('change', function() {
+                    validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError);
+                });
+
+                kontrakTimeInput.addEventListener('change', function() {
+                    validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError);
+                });
+
+                // Prevent form submission if validation fails
+                if (contractForm) {
+                    contractForm.addEventListener('submit', function(event) {
+                        if (!validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError)) {
+                            event.preventDefault();
+                        }
+                    });
+                }
+
+                // Modal open function
+                if (openContractModalBtn) {
+                    openContractModalBtn.addEventListener('click', function() {
+                        contractModal.classList.remove('hidden');
+                        validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError);
+                    });
+                }
+
+                // Modal close function
+                if (closeContractModalBtn) {
+                    closeContractModalBtn.addEventListener('click', function() {
+                        contractModal.classList.add('hidden');
+                    });
+                }
+
+                // Close modal if clicked outside
+                window.addEventListener('click', function(event) {
+                    if (event.target === contractModal) {
+                        contractModal.classList.add('hidden');
+                    }
                 });
             }
-
-            // Close modal if clicked outside
-            window.addEventListener('click', function(event) {
-                if (event.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
         });
     </script>
 </x-app-layout>

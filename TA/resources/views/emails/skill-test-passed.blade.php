@@ -58,7 +58,19 @@
             </p>
         </div>
 
-        <p>Kami akan segera menghubungi Anda untuk langkah selanjutnya dalam proses penerimaan magang. Mohon untuk tetap memperhatikan email dan telepon Anda.</p>
+        @if(isset($kontrak_jadwal))
+        <div class="details" style="border-left: 4px solid #4caf50;">
+            <h2>Diskusi Kontrak Kerja:</h2>
+            <p>
+                <strong>Tanggal:</strong> {{ $kontrak_jadwal->format('d F Y') }}<br>
+                <strong>Waktu:</strong> {{ $kontrak_jadwal->format('H:i') }} WIB<br>
+            </p>
+        </div>
+
+        <p>Anda dijadwalkan untuk diskusi kontrak magang pada waktu tersebut. Mohon kehadiran dan ketepatan waktu Anda untuk membahas hal-hal terkait kontrak magang.</p>
+        @endif
+
+        <p>Mohon untuk tetap memperhatikan email dan telepon Anda untuk informasi selanjutnya.</p>
 
         <p>Selamat atas keberhasilan Anda dalam tahap ini dan kami berharap dapat segera bekerjasama dengan Anda.</p>
 
