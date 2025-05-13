@@ -83,11 +83,18 @@
                                                             // Use underscore key format to match the database key format
                                                             $key = $rowCriterion->criteria_id . '_' . $colCriterion->criteria_id;
                                                             $value = isset($comparisons[$key]) ? $comparisons[$key]->value : '';
+
+                                                            // Round the value to handle potential floating point differences
+                                                            if (!empty($value)) {
+                                                                $intValue = round(floatval($value));
+                                                            } else {
+                                                                $intValue = '';
+                                                            }
                                                         @endphp
                                                         <select name="comparison[{{ $rowCriterion->criteria_id }}][{{ $colCriterion->criteria_id }}]" class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm appearance-none bg-white">
                                                             <option value="">Select</option>
                                                             @for($i = 1; $i <= 9; $i++)
-                                                                <option value="{{ $i }}" {{ (string)$value === (string)$i ? 'selected' : '' }}>{{ $i }}</option>
+                                                                <option value="{{ $i }}" {{ $intValue == $i ? 'selected' : '' }}>{{ $i }}</option>
                                                             @endfor
                                                         </select>
                                                     </td>
@@ -98,7 +105,7 @@
                                                             $key = $colCriterion->criteria_id . '_' . $rowCriterion->criteria_id;
                                                         @endphp
                                                         @if(isset($comparisons[$key]) && $comparisons[$key]->value > 0)
-                                                            1/{{ $comparisons[$key]->value }}
+                                                            1/{{ round(floatval($comparisons[$key]->value)) }}
                                                         @else
                                                             -
                                                         @endif

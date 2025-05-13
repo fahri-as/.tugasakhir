@@ -101,7 +101,7 @@
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $rowCriterion->code }}</td>
                                                     @foreach($criteria as $colCriterion)
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
-                                                            {{ number_format($matrix[$rowCriterion->criteria_id][$colCriterion->criteria_id], 3) }}
+                                                            {{ number_format($matrix[$rowCriterion->criteria_id][$colCriterion->criteria_id], 4) }}
                                                         </td>
                                                     @endforeach
                                                 </tr>
@@ -110,7 +110,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sum</td>
                                                 @foreach($criteria as $colCriterion)
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900 font-medium">
-                                                        {{ number_format($colSums[$colCriterion->criteria_id], 3) }}
+                                                        {{ number_format($colSums[$colCriterion->criteria_id], 4) }}
                                                     </td>
                                                 @endforeach
                                             </tr>
