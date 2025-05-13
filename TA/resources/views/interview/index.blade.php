@@ -98,7 +98,7 @@
                 <tr>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <a href="{{ route('interview.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'interview_id', 'sort_dir' => $sortBy == 'interview_id' && $sortDir == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
-                            ID
+                            No
                             @if($sortBy == 'interview_id')
                                 @if($sortDir == 'asc')
                                     <svg class="ml-1 h-3 w-3 text-gray-400 group-hover:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
@@ -214,7 +214,7 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($interviews as $interview)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $interview->interview_id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $loop->iteration }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $interview->pelamar->nama }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $interview->pelamar->job->nama_job }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $interview->pelamar->periode->nama_periode }}</td>

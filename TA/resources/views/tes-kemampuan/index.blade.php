@@ -91,7 +91,7 @@
                 <tr>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <a href="{{ route('tes-kemampuan.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'tes_id', 'sort_dir' => $sortBy == 'tes_id' && $sortDir == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
-                            ID
+                            No
                             @if($sortBy == 'tes_id')
                                 @if($sortDir == 'asc')
                                     <svg class="ml-1 h-3 w-3 text-gray-400 group-hover:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
@@ -207,7 +207,7 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($tesKemampuan as $tes)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $tes->tes_id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $loop->iteration }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $tes->pelamar->nama }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $tes->pelamar->job->nama_job }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $tes->pelamar->periode->nama_periode }}</td>

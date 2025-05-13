@@ -112,20 +112,7 @@
             <thead>
                 <tr>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <a href="{{ route('magang.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'magang_id', 'sort_dir' => $sortBy == 'magang_id' && $sortDir == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
-                            ID
-                            @if($sortBy == 'magang_id')
-                                @if($sortDir == 'asc')
-                                    <svg class="ml-1 h-3 w-3 text-gray-400 group-hover:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                @else
-                                    <svg class="ml-1 h-3 w-3 text-gray-400 group-hover:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                @endif
-                            @endif
-                        </a>
+                        No
                     </th>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <a href="{{ route('magang.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'pelamar_nama', 'sort_dir' => $sortBy == 'pelamar_nama' && $sortDir == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
@@ -229,7 +216,7 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($magang as $m)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $m->magang_id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $loop->iteration }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $m->pelamar->nama }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $m->pelamar->job->nama_job }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $m->pelamar->periode->nama_periode }}</td>
