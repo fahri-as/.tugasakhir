@@ -47,7 +47,7 @@
 
                     <!-- SMART Dashboard Links -->
                     <div class="bg-white shadow rounded-lg p-4 mb-6">
-                        <h2 class="text-lg font-medium mb-3">SMART Evaluation Dashboards</h2>
+                        <h2 class="text-lg font-medium mb-3">SMART Weekly Evaluation Dashboards</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <a href="{{ route('test.evaluasi.dashboard', ['job_id' => 'JOB001']) }}" class="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition duration-150">
                                 <div class="bg-indigo-100 p-3 rounded-full mr-4">
