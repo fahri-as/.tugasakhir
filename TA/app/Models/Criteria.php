@@ -35,7 +35,7 @@ class Criteria extends Model
     }
 
     /**
-     * Get the comparisons where this criteria is in the row.
+     * Get the criteria comparisons where this criteria is in the row.
      */
     public function rowComparisons(): HasMany
     {
@@ -43,7 +43,7 @@ class Criteria extends Model
     }
 
     /**
-     * Get the comparisons where this criteria is in the column.
+     * Get the criteria comparisons where this criteria is in the column.
      */
     public function columnComparisons(): HasMany
     {
@@ -51,10 +51,15 @@ class Criteria extends Model
     }
 
     /**
-     * Get all weekly evaluations for this criteria.
+     * Sort criteria by code properly (K1, K2, K3... instead of K1, K10, K2...)
+     *
+     * Usage:
+     * Criteria::orderByCode()->get()
      */
-    public function evaluations(): HasMany
+    public function scopeOrderByCode($query)
     {
-        return $this->hasMany(EvaluasiMingguanMagang::class, 'criteria_id', 'criteria_id');
+        // Extract numeric part from code for proper sorting
+        // This works for codes like K1, K2, K10 to sort them numerically
+        return $query->orderByRaw("CAST(SUBSTRING(code, 2) AS UNSIGNED)");
     }
 }

@@ -19,12 +19,16 @@ class CriteriaController extends Controller
         // If a job_id is provided, filter criteria by that job
         if ($request->has('job_id')) {
             $job = Job::findOrFail($request->job_id);
-            $criteria = Criteria::where('job_id', $request->job_id)->get();
+            $criteria = Criteria::where('job_id', $request->job_id)
+                                ->orderBy('code') // Sort by code to ensure K1, K2, K3 order
+                                ->get();
             return view('criteria.index', compact('criteria', 'job'));
         }
 
-        // Otherwise, get all criteria grouped by job
-        $criteriaByJob = Criteria::with('job')->get()->groupBy('job_id');
+        // Otherwise, get all criteria grouped by job, but ordered by code within each group
+        $criteriaQuery = Criteria::with('job')->orderBy('code');
+        $criteriaByJob = $criteriaQuery->get()->groupBy('job_id');
+
         return view('criteria.index', compact('criteriaByJob'));
     }
 
@@ -90,7 +94,18 @@ class CriteriaController extends Controller
     public function show(Criteria $criterium)
     {
         // Load relationships
-        $criterium->load('job', 'rowComparisons', 'columnComparisons');
+        $criterium->load(['job',
+            'rowComparisons' => function($query) {
+                $query->with(['criteriaColumn' => function($q) {
+                    $q->orderBy('code');
+                }]);
+            },
+            'columnComparisons' => function($query) {
+                $query->with(['criteriaRow' => function($q) {
+                    $q->orderBy('code');
+                }]);
+            }
+        ]);
 
         return view('criteria.show', compact('criterium'));
     }
