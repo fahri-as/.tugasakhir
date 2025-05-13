@@ -28,7 +28,6 @@ class PeriodeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'periode_id' => 'required|unique:periode',
             'nama_periode' => 'required',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after:tanggal_mulai',
@@ -37,10 +36,26 @@ class PeriodeController extends Controller
             'jobs' => 'required|array'
         ]);
 
-        $periode = Periode::create($request->except('jobs'));
+        // Generate a new ID for the period
+        $lastPeriode = Periode::orderBy('periode_id', 'desc')->first();
+
+        if ($lastPeriode) {
+            // Extract the numeric part and increment
+            $lastId = intval(substr($lastPeriode->periode_id, 3));
+            $newId = 'PER' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            // If no existing periods, start with PER001
+            $newId = 'PER001';
+        }
+
+        // Create new data array with the generated ID
+        $data = $request->except('jobs');
+        $data['periode_id'] = $newId;
+
+        $periode = Periode::create($data);
         $periode->jobs()->attach($request->jobs);
 
-        return redirect()->route('periode.index')->with('success', 'Periode created successfully');
+        return redirect()->route('periode.index')->with('success', 'Periode created successfully with ID: ' . $newId);
     }
 
     public function show(Periode $periode)

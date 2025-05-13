@@ -2,14 +2,6 @@
     <form action="{{ route('periode.store') }}" method="POST" class="space-y-6">
         @csrf
         <div>
-            <label for="periode_id" class="block text-sm font-medium text-gray-700">Period ID</label>
-            <input type="text" name="periode_id" id="periode_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-            @error('periode_id')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
             <label for="nama_periode" class="block text-sm font-medium text-gray-700">Period Name</label>
             <input type="text" name="nama_periode" id="nama_periode" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             @error('nama_periode')
