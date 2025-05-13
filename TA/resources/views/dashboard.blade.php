@@ -67,7 +67,7 @@
 
 
                 <!-- Decision Support System Section -->
-                <div class="sm:col-span-2 lg:col-span-3 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 overflow-hidden shadow-sm sm:rounded-lg">
+                {{-- <div class="sm:col-span-2 lg:col-span-3 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 border-b border-gray-200 ">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Decision Support System</h3>
                         <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
@@ -105,6 +105,114 @@
                                     </a>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div> --}}
+            </div>
+
+            <!-- Upcoming Schedules Section -->
+            <div class="mt-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Upcoming Schedules</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Interview Schedules -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Upcoming Interviews</h3>
+                                <a href="{{ route('interview.index') }}" class="text-indigo-600 hover:text-indigo-800 text-sm">
+                                    View All &rarr;
+                                </a>
+                            </div>
+
+                            @php
+                                // Get upcoming interviews (next 7 days)
+                                $upcomingInterviews = App\Models\Interview::where('jadwal', '>=', now())
+                                    ->where('jadwal', '<=', now()->addDays(7))
+                                    ->orderBy('jadwal')
+                                    ->with('pelamar')
+                                    ->limit(5)
+                                    ->get();
+                            @endphp
+
+                            @if($upcomingInterviews->count() > 0)
+                                <ul class="divide-y divide-gray-200">
+                                    @foreach($upcomingInterviews as $interview)
+                                        <li class="py-3">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <p class="font-medium text-gray-800">
+                                                        {{ $interview->pelamar->nama }}
+                                                    </p>
+                                                    <p class="text-sm text-gray-600">
+                                                        {{ $interview->pelamar->job->nama_job }}
+                                                    </p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-sm font-medium text-indigo-600">
+                                                        {{ $interview->jadwal->format('d M Y') }}
+                                                    </p>
+                                                    <p class="text-sm text-gray-600">
+                                                        {{ $interview->jadwal->format('H:i') }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <p class="text-gray-500 py-4 text-center">No upcoming interviews scheduled</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Skill Test Schedules -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Upcoming Skill Tests</h3>
+                                <a href="{{ route('tes-kemampuan.index') }}" class="text-indigo-600 hover:text-indigo-800 text-sm">
+                                    View All &rarr;
+                                </a>
+                            </div>
+
+                            @php
+                                // Get upcoming skill tests (next 7 days)
+                                $upcomingTests = App\Models\TesKemampuan::where('jadwal', '>=', now())
+                                    ->where('jadwal', '<=', now()->addDays(7))
+                                    ->orderBy('jadwal')
+                                    ->with('pelamar')
+                                    ->limit(5)
+                                    ->get();
+                            @endphp
+
+                            @if($upcomingTests->count() > 0)
+                                <ul class="divide-y divide-gray-200">
+                                    @foreach($upcomingTests as $test)
+                                        <li class="py-3">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <p class="font-medium text-gray-800">
+                                                        {{ $test->pelamar->nama }}
+                                                    </p>
+                                                    <p class="text-sm text-gray-600">
+                                                        {{ $test->pelamar->job->nama_job }}
+                                                    </p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-sm font-medium text-indigo-600">
+                                                        {{ $test->jadwal->format('d M Y') }}
+                                                    </p>
+                                                    <p class="text-sm text-gray-600">
+                                                        {{ $test->jadwal->format('H:i') }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <p class="text-gray-500 py-4 text-center">No upcoming skill tests scheduled</p>
+                            @endif
                         </div>
                     </div>
                 </div>
