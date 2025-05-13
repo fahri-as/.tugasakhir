@@ -7,9 +7,11 @@ use App\Models\EvaluasiMingguanMagang;
 use App\Models\Magang;
 use App\Models\Pelamar;
 use App\Models\Periode;
+use App\Models\TotalSkorMingguMagang;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class SMARTCalculationService
 {
@@ -140,6 +142,9 @@ class SMARTCalculationService
                         'weighted_score' => $weightedScore
                     ];
                 }
+
+                // Store the weekly total score in the new table
+                $this->updateWeeklyTotalScore($magangId, $week, $totalWeightedScore);
             }
 
             // Add this intern's results
@@ -164,6 +169,42 @@ class SMARTCalculationService
         }
 
         return $results;
+    }
+
+    /**
+     * Store or update the weekly total score for an intern
+     *
+     * @param string $magangId
+     * @param int $week
+     * @param float $totalScore
+     * @return void
+     */
+    private function updateWeeklyTotalScore($magangId, $week, $totalScore)
+    {
+        try {
+            // Try to find existing record
+            $weeklyTotal = TotalSkorMingguMagang::where('magang_id', $magangId)
+                ->where('minggu_ke', $week)
+                ->first();
+
+            if ($weeklyTotal) {
+                // Update existing record
+                $weeklyTotal->total_skor = $totalScore;
+                $weeklyTotal->save();
+            } else {
+                // Create new record
+                TotalSkorMingguMagang::create([
+                    'id' => Str::uuid()->toString(),
+                    'magang_id' => $magangId,
+                    'minggu_ke' => $week,
+                    'total_skor' => $totalScore
+                ]);
+            }
+
+            Log::info("Updated weekly total score for magang_id: {$magangId}, week: {$week}, score: {$totalScore}");
+        } catch (\Exception $e) {
+            Log::error("Error updating weekly total score: " . $e->getMessage(), ['exception' => $e]);
+        }
     }
 
     /**
@@ -488,5 +529,22 @@ class SMARTCalculationService
         $key = "smart_details_{$magangId}";
         Cache::forget($key);
         Log::info("Invalidated SMART cache for magang_id: $magangId");
+    }
+
+    /**
+     * Get weekly total scores for an intern from the database
+     *
+     * @param string $magangId
+     * @return array
+     */
+    public function getWeeklyTotalScores($magangId)
+    {
+        $weeklyScores = TotalSkorMingguMagang::where('magang_id', $magangId)
+            ->orderBy('minggu_ke')
+            ->get()
+            ->pluck('total_skor', 'minggu_ke')
+            ->toArray();
+
+        return $weeklyScores;
     }
 }

@@ -17,6 +17,12 @@
                             <a href="{{ route('magang.edit', $magang) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                 Edit
                             </a>
+                            @if($magang->pelamar && $magang->pelamar->job_id &&
+                                in_array($magang->pelamar->job_id, ['JOB001', 'JOB004']))
+                                <a href="{{ route('magang.weeklyScores', $magang) }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                    Weekly Total Scores
+                                </a>
+                            @endif
                         </div>
                     </div>
 

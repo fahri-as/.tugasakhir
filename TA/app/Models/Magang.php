@@ -44,4 +44,9 @@ class Magang extends Model
     {
         return $this->hasMany(EvaluasiMingguanMagang::class, 'magang_id', 'magang_id');
     }
+
+    public function totalSkorMingguan(): HasMany
+    {
+        return $this->hasMany(TotalSkorMingguMagang::class, 'magang_id', 'magang_id');
+    }
 }

@@ -161,6 +161,22 @@
                         </a>
                     </th>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="{{ route('magang.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'rank', 'sort_dir' => $sortBy == 'rank' && $sortDir == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
+                            Rank
+                            @if($sortBy == 'rank')
+                                @if($sortDir == 'asc')
+                                    <svg class="ml-1 h-3 w-3 text-gray-400 group-hover:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                @else
+                                    <svg class="ml-1 h-3 w-3 text-gray-400 group-hover:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                @endif
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <a href="{{ route('magang.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'total_skor', 'sort_dir' => $sortBy == 'total_skor' && $sortDir == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
                             Total Score
                             @if($sortBy == 'total_skor' || (!request('sort_by') && !request('sort_dir')))
@@ -202,6 +218,11 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $m->pelamar->nama }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $m->pelamar->job->nama_job }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $m->pelamar->periode->nama_periode }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                #{{ $m->rank }}
+                            </span>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ number_format($m->total_skor, 2) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
@@ -224,7 +245,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No internship records found. Create your first internship record!</td>
+                        <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No internship records found. Create your first internship record!</td>
                     </tr>
                 @endforelse
             </tbody>

@@ -57,6 +57,10 @@ Route::middleware('auth')->group(function () {
     Route::get('magang/smart-dashboard', [MagangController::class, 'smartDashboard'])
         ->name('magang.smartDashboard');
 
+    // Add weekly total scores route (must be before resource route)
+    Route::get('magang/{magang}/weekly-scores', [MagangController::class, 'weeklyTotalScores'])
+        ->name('magang.weeklyScores');
+
     Route::resource('magang', MagangController::class);
     Route::patch('magang/{magang}/status', [MagangController::class, 'updateStatus'])
         ->name('magang.updateStatus');

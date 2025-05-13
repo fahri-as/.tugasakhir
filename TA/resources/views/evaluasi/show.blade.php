@@ -202,7 +202,7 @@
                                             <h4 class="font-medium text-indigo-800">Step 2: Normalization (Utility Value)</h4>
                                             <p class="text-sm text-gray-700 mb-2">Each raw score is normalized to a 0-1 scale:</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
-                                                <code class="text-sm">Utility Value = (x - min) / (max - min)</code>
+                                                <code class="text-sm">Normalized Value = (Raw Value - Min Value) / (Max Value - Min Value)</code>
                                                 @if($smartDetails && isset($smartDetails['score_details'][0]))
                                                 <div class="mt-2 text-sm">
                                                     @php
@@ -254,7 +254,7 @@
                                             <h4 class="font-medium text-indigo-800">Step 3: Weighted Score Calculation</h4>
                                             <p class="text-sm text-gray-700 mb-2">Utility values are multiplied by criterion weights:</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
-                                                <code class="text-sm">Weighted Score = Utility Value × Weight</code>
+                                                <code class="text-sm">Weighted Score = Normalized Value × Criterion Weight</code>
                                                 @if($smartDetails && isset($smartDetails['score_details'][0]))
                                                 <div class="mt-2 text-sm">
                                                     Example: {{ number_format($smartDetails['score_details'][0]['normalized_value'], 4) }} × {{ number_format($smartDetails['score_details'][0]['weight'], 4) }} = {{ number_format($smartDetails['score_details'][0]['weighted_score'], 4) }}
@@ -264,10 +264,10 @@
                                         </div>
 
                                         <div>
-                                            <h4 class="font-medium text-indigo-800">Step 4: Total Score</h4>
-                                            <p class="text-sm text-gray-700 mb-2">The sum of all weighted scores:</p>
+                                            <h4 class="font-medium text-indigo-800">Step 4: Total Weekly Score</h4>
+                                            <p class="text-sm text-gray-700 mb-2">The sum of all weighted scores for the week:</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
-                                                <code class="text-sm">Total Score = ∑(Weighted Scores)</code>
+                                                <code class="text-sm">Total Weekly Score = ∑(Weighted Scores)</code>
                                                 <div class="mt-2 text-sm">
                                                     Result: {{ number_format($smartDetails['total_score'] ?? 0, 4) }}
                                                 </div>
@@ -275,19 +275,23 @@
                                         </div>
 
                                         <div>
-                                            <h4 class="font-medium text-indigo-800">Step 5: Weekly Weighting (For Final Ranking)</h4>
-                                            <p class="text-sm text-gray-700 mb-2">When calculating final scores, later weeks are given progressively higher weights:</p>
+                                            <h4 class="font-medium text-indigo-800">Step 5: Storage</h4>
+                                            <p class="text-sm text-gray-700 mb-2">The weekly total score is stored in the database:</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
-                                                <code class="text-sm">Week Weight (wi) = i / ∑i</code>
-                                                <div class="mt-2 text-sm">
-                                                    For example: Week {{ $evaluasi->minggu_ke }} would have higher weight than earlier weeks.
-                                                </div>
+                                                <code class="text-sm">
+                                                total_skor_minggu_magang(
+                                                    id='generated_uuid',
+                                                    magang_id='{{ $evaluasi->magang_id }}',
+                                                    minggu_ke={{ $evaluasi->minggu_ke }},
+                                                    total_skor={{ number_format($smartDetails['total_score'] ?? 0, 4) }}
+                                                )
+                                                </code>
                                             </div>
                                         </div>
 
                                         <div>
                                             <h4 class="font-medium text-indigo-800">Step 6: Ranking</h4>
-                                            <p class="text-sm text-gray-700 mb-2">Interns are ranked based on their total scores in descending order:</p>
+                                            <p class="text-sm text-gray-700 mb-2">Interns are ranked based on their total weekly scores in descending order:</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
                                                 <div class="text-sm">
                                                     Current Rank for Week {{ $evaluasi->minggu_ke }}: <span class="font-semibold">{{ $smartDetails['rank'] ?? 'N/A' }}</span>

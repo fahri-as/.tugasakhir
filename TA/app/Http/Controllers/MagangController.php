@@ -423,6 +423,7 @@ public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
         $smartDetails = null;
         $weeklyScores = null;
         $criteriaContribution = null;
+        $weeklyTotalScores = null;
 
         // Only get SMART details if the intern has a job that is Cook or Pastry Chef
         if ($magang->pelamar &&
@@ -437,6 +438,9 @@ public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
 
             // Get criteria contribution breakdown
             $criteriaContribution = $this->smartService->getCriteriaContribution($magang->magang_id);
+
+            // Get weekly total scores from the database
+            $weeklyTotalScores = $this->smartService->getWeeklyTotalScores($magang->magang_id);
         }
 
         // Group evaluations by week for easier display
@@ -447,8 +451,23 @@ public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
             'evaluationsByWeek',
             'smartDetails',
             'weeklyScores',
-            'criteriaContribution'
+            'criteriaContribution',
+            'weeklyTotalScores'
         ));
+    }
+
+    /**
+     * Display weekly total scores for an intern.
+     */
+    public function weeklyTotalScores(Magang $magang)
+    {
+        // Get weekly total scores from the database
+        $weeklyTotalScores = $this->smartService->getWeeklyTotalScores($magang->magang_id);
+
+        // Get magang details with relationships
+        $magang->load(['pelamar', 'pelamar.job', 'user']);
+
+        return view('magang.weekly-scores', compact('magang', 'weeklyTotalScores'));
     }
 
     /**
