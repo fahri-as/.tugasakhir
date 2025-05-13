@@ -52,16 +52,17 @@ Route::middleware('auth')->group(function () {
     Route::resource('tes-kemampuan', TesKemampuanController::class);
 
     // Magang routes
+
+    // Add SMART dashboard route for Magang (must be before resource route)
+    Route::get('magang/smart-dashboard', [MagangController::class, 'smartDashboard'])
+        ->name('magang.smartDashboard');
+
     Route::resource('magang', MagangController::class);
     Route::patch('magang/{magang}/status', [MagangController::class, 'updateStatus'])
         ->name('magang.updateStatus');
     // Add the new route for scheduling internship start and creating evaluations
     Route::post('magang/schedule-start/{tesKemampuan}', [MagangController::class, 'scheduleStart'])
         ->name('magang.schedule-start');
-
-    // Add SMART dashboard route for Magang
-    Route::get('magang/smart-dashboard', [MagangController::class, 'smartDashboard'])
-        ->name('magang.smartDashboard');
 
     // Evaluasi Mingguan routes
     Route::resource('evaluasi', EvaluasiMingguanMagangController::class);
@@ -104,6 +105,20 @@ Route::middleware('auth')->group(function () {
         ->name('smart.rankings');
     Route::get('/smart/intern/{jobId}/{magangId}', [SMARTEvaluasiController::class, 'showInternDetail'])
         ->name('smart.intern.detail');
+
+    // Add a temporary debug route
+    Route::get('/test-evaluasi-dashboard', function() {
+        return view('evaluasi.smart-dashboard', [
+            'jobs' => \App\Models\Job::whereIn('job_id', ['JOB001', 'JOB004'])->get(),
+            'periods' => \App\Models\Periode::all(),
+            'jobId' => 'JOB001',
+            'selectedPeriodeId' => \App\Models\Periode::first()->periode_id ?? null,
+            'criteria' => \App\Models\Criteria::where('job_id', 'JOB001')->get(),
+            'interns' => [],
+            'weekCount' => 4,
+            'weeklyRankings' => []
+        ]);
+    })->name('test.evaluasi.dashboard');
 });
 
 require __DIR__.'/auth.php';

@@ -343,15 +343,30 @@ class EvaluasiMingguanMagangController extends Controller
             'minggu_ke' => 'required|integer|min:1',
         ]);
 
-        // Check if evaluation already exists for this magang, criteria and week (excluding current record)
-        $exists = EvaluasiMingguanMagang::where('magang_id', $request->magang_id)
-            ->where('minggu_ke', $request->minggu_ke)
-            ->where('criteria_id', $request->criteria_id)
-            ->where('evaluasi_id', '!=', $evaluasi->evaluasi_id)
-            ->exists();
+        // Log the request parameters for debugging
+        Log::info('Evaluation update request parameters:', [
+            'request_data' => $request->all(),
+            'current_evaluasi' => [
+                'id' => $evaluasi->evaluasi_id,
+                'magang_id' => $evaluasi->magang_id,
+                'criteria_id' => $evaluasi->criteria_id,
+                'rating_id' => $evaluasi->rating_id,
+                'minggu_ke' => $evaluasi->minggu_ke,
+                'skor_minggu' => $evaluasi->skor_minggu
+            ]
+        ]);
 
-        if ($exists) {
-            return redirect()->back()->with('error', 'Evaluation for this intern, criteria and week already exists');
+        // Check if evaluation already exists for this magang, criteria and week (excluding current record)
+        if ($request->criteria_id) {
+            $exists = EvaluasiMingguanMagang::where('magang_id', $request->magang_id)
+                ->where('minggu_ke', $request->minggu_ke)
+                ->where('criteria_id', $request->criteria_id)
+                ->where('evaluasi_id', '!=', $evaluasi->evaluasi_id)
+                ->exists();
+
+            if ($exists) {
+                return redirect()->back()->with('error', 'Evaluation for this intern, criteria and week already exists');
+            }
         }
 
         // Start a database transaction
@@ -364,13 +379,49 @@ class EvaluasiMingguanMagangController extends Controller
             // Store the original magang_id for updating scores
             $originalMagangId = $evaluasi->magang_id;
 
+            // Create a clone of the original evaluation for logging
+            $originalEvaluation = clone $evaluasi;
+
             // Update the evaluation
             $evaluasi->magang_id = $request->magang_id;
             $evaluasi->rating_id = $request->rating_id;
-            $evaluasi->criteria_id = $request->criteria_id; // Update criteria_id
+
+            // Only update criteria_id if it's explicitly provided
+            if ($request->has('criteria_id')) {
+                $evaluasi->criteria_id = $request->criteria_id;
+            } else if ($request->has('original_criteria_id') && !empty($request->original_criteria_id)) {
+                // If no new criteria selected but we have an original, keep it
+                $evaluasi->criteria_id = $request->original_criteria_id;
+            }
+
             $evaluasi->minggu_ke = $request->minggu_ke;
             $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
+
+            // Log the changes before saving
+            Log::info('Evaluation update changes:', [
+                'before' => [
+                    'magang_id' => $originalEvaluation->magang_id,
+                    'criteria_id' => $originalEvaluation->criteria_id,
+                    'rating_id' => $originalEvaluation->rating_id,
+                    'minggu_ke' => $originalEvaluation->minggu_ke,
+                    'skor_minggu' => $originalEvaluation->skor_minggu
+                ],
+                'after' => [
+                    'magang_id' => $evaluasi->magang_id,
+                    'criteria_id' => $evaluasi->criteria_id,
+                    'rating_id' => $evaluasi->rating_id,
+                    'minggu_ke' => $evaluasi->minggu_ke,
+                    'skor_minggu' => $evaluasi->skor_minggu
+                ]
+            ]);
+
             $evaluasi->save();
+
+            // Log successful save
+            Log::info('Evaluation updated successfully', [
+                'evaluasi_id' => $evaluasi->evaluasi_id,
+                'updated_fields' => $evaluasi->getDirty()
+            ]);
 
             // Get the magang to determine the job
             $magang = Magang::with('pelamar')->findOrFail($request->magang_id);
@@ -416,7 +467,11 @@ class EvaluasiMingguanMagangController extends Controller
                 ->with('success', 'Evaluation updated successfully');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Error updating evaluation: " . $e->getMessage(), ['exception' => $e]);
+            Log::error("Error updating evaluation: " . $e->getMessage(), [
+                'exception' => $e,
+                'evaluasi_id' => $evaluasi->evaluasi_id,
+                'request_data' => $request->all()
+            ]);
             return redirect()->back()->with('error', 'Error updating evaluation: ' . $e->getMessage());
         }
     }
@@ -468,63 +523,75 @@ class EvaluasiMingguanMagangController extends Controller
      */
     public function smartDashboard(Request $request)
     {
-        // Get job ID or default to Cook (JOB001)
-        $jobId = $request->job_id ?? 'JOB001';
+        try {
+            // Get job ID or default to Cook (JOB001)
+            $jobId = $request->job_id ?? 'JOB001';
 
-        // Validate that job ID is Cook or Pastry Chef
-        if (!in_array($jobId, ['JOB001', 'JOB004'])) {
-            return redirect()->route('evaluasi.index')
-                ->with('error', 'SMART calculation is only available for Cook and Pastry Chef positions');
-        }
-
-        // Get period ID or default to latest
-        $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
-        $selectedPeriodeId = $request->periode_id ?? ($latestPeriode ? $latestPeriode->periode_id : null);
-
-        // Get available jobs (only Cook and Pastry Chef)
-        $jobs = Job::whereIn('job_id', ['JOB001', 'JOB004'])->orderBy('nama_job')->get();
-
-        // Get available periods
-        $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();
-
-        // Get criteria for the selected job
-        $criteria = Criteria::where('job_id', $jobId)->orderBy('code')->get();
-
-        // If no criteria found, show a message
-        if ($criteria->isEmpty()) {
-            return view('evaluasi.smart-dashboard', compact('jobs', 'periods', 'jobId', 'selectedPeriodeId'))
-                ->with('error', 'No criteria found for this job');
-        }
-
-        // Get current period to determine weeks
-        $currentPeriode = Periode::find($selectedPeriodeId);
-        $weekCount = $currentPeriode ? ($currentPeriode->durasi_minggu_magang ?? 1) : 1;
-
-        // Get all active interns for this job and period
-        $interns = Magang::whereHas('pelamar', function($query) use ($jobId, $selectedPeriodeId) {
-            $query->where('job_id', $jobId);
-            if ($selectedPeriodeId) {
-                $query->where('periode_id', $selectedPeriodeId);
+            // Validate that job ID is Cook or Pastry Chef
+            if (!in_array($jobId, ['JOB001', 'JOB004'])) {
+                return redirect()->route('evaluasi.index')
+                    ->with('error', 'SMART calculation is only available for Cook and Pastry Chef positions');
             }
-        })
-        ->with(['pelamar'])
-        ->get();
 
-        // Get SMART rankings for each week
-        $weeklyRankings = [];
-        for ($week = 1; $week <= $weekCount; $week++) {
-            $weeklyRankings[$week] = $this->smartService->calculateScores($jobId, $week, $selectedPeriodeId);
+            // Get period ID or default to latest
+            $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
+            $selectedPeriodeId = $request->periode_id ?? ($latestPeriode ? $latestPeriode->periode_id : null);
+
+            // Get available jobs (only Cook and Pastry Chef)
+            $jobs = Job::whereIn('job_id', ['JOB001', 'JOB004'])->orderBy('nama_job')->get();
+
+            // Get available periods
+            $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();
+
+            // Get criteria for the selected job
+            $criteria = Criteria::where('job_id', $jobId)->orderBy('code')->get();
+
+            // If no criteria found, show a message
+            if ($criteria->isEmpty()) {
+                return view('evaluasi.smart-dashboard', compact('jobs', 'periods', 'jobId', 'selectedPeriodeId'))
+                    ->with('error', 'No criteria found for this job');
+            }
+
+            // Get current period to determine weeks
+            $currentPeriode = Periode::find($selectedPeriodeId);
+            $weekCount = $currentPeriode ? ($currentPeriode->durasi_minggu_magang ?? 1) : 1;
+
+            // Get all active interns for this job and period
+            $interns = Magang::whereHas('pelamar', function($query) use ($jobId, $selectedPeriodeId) {
+                $query->where('job_id', $jobId);
+                if ($selectedPeriodeId) {
+                    $query->where('periode_id', $selectedPeriodeId);
+                }
+            })
+            ->with(['pelamar'])
+            ->get();
+
+            // Get SMART rankings for each week
+            $weeklyRankings = [];
+            for ($week = 1; $week <= $weekCount; $week++) {
+                $weeklyRankings[$week] = $this->smartService->calculateScores($jobId, $week, $selectedPeriodeId);
+            }
+
+            return view('evaluasi.smart-dashboard', compact(
+                'jobs',
+                'periods',
+                'jobId',
+                'selectedPeriodeId',
+                'criteria',
+                'interns',
+                'weekCount',
+                'weeklyRankings'
+            ));
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Error in smartDashboard method: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            // Redirect with error message
+            return redirect()->route('evaluasi.index')
+                ->with('error', 'Error loading SMART dashboard: ' . $e->getMessage());
         }
-
-        return view('evaluasi.smart-dashboard', compact(
-            'jobs',
-            'periods',
-            'jobId',
-            'selectedPeriodeId',
-            'criteria',
-            'interns',
-            'weekCount',
-            'weeklyRankings'
-        ));
     }
 }

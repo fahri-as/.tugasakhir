@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class MagangController extends Controller
 {
@@ -760,6 +761,13 @@ public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
         // Get jobs (only Cook and Pastry Chef) for dropdown
         $jobs = Job::whereIn('job_id', ['JOB001', 'JOB004'])->orderBy('nama_job')->get();
 
+        // Get the selected job for the title
+        $job = Job::find($jobId);
+        if (!$job) {
+            return redirect()->route('magang.index')
+                ->with('error', 'Job not found');
+        }
+
         // Get periods for dropdown
         $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();
 
@@ -819,6 +827,7 @@ public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
         }
 
         return view('magang.smart-dashboard', compact(
+            'job',
             'jobs',
             'periods',
             'jobId',

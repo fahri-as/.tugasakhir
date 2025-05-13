@@ -15,9 +15,13 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('evaluasi.update', $evaluasi) }}">
+                    <form id="evaluationForm" method="POST" action="{{ route('evaluasi.update', $evaluasi) }}" onsubmit="return validateForm()">
                         @csrf
                         @method('PUT')
+
+                        <!-- Debug info - hidden but helpful for troubleshooting -->
+                        <input type="hidden" name="debug_id" value="{{ $evaluasi->evaluasi_id }}">
+                        <input type="hidden" name="debug_timestamp" value="{{ time() }}">
 
                         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                             <!-- Magang (Intern) Selection -->
@@ -42,14 +46,21 @@
                                 <select id="criteria_id" name="criteria_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('criteria_id') border-red-500 @enderror">
                                     <option value="">No specific criteria</option>
                                     @foreach($criteria as $criteriaItem)
-                                        <option value="{{ $criteriaItem->criteria_id }}" @if(old('criteria_id', $evaluasi->criteria_id) == $criteriaItem->criteria_id) selected @endif>
+                                        <option value="{{ $criteriaItem->criteria_id }}"
+                                                @if(old('criteria_id', $evaluasi->criteria_id) == $criteriaItem->criteria_id) selected @endif
+                                                data-job-id="{{ $criteriaItem->job_id }}">
                                             {{ $criteriaItem->name }} ({{ $criteriaItem->code }}) - {{ $criteriaItem->job->nama_job }}
                                         </option>
                                     @endforeach
                                 </select>
+
+                                <!-- Hidden input to preserve the original criteria_id if no new one is selected -->
+                                <input type="hidden" name="original_criteria_id" value="{{ $evaluasi->criteria_id }}">
+
                                 @error('criteria_id')
                                     <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
                                 @enderror
+                                <p class="text-sm text-gray-500 mt-1">Current criteria: <strong>{{ $evaluasi->criteria->name ?? 'No specific criteria' }}</strong></p>
                             </div>
 
                             <!-- Rating Selection -->
@@ -103,39 +114,116 @@
         document.addEventListener('DOMContentLoaded', function() {
             const magangSelect = document.getElementById('magang_id');
             const criteriaSelect = document.getElementById('criteria_id');
+            const originalCriteriaId = "{{ $evaluasi->criteria_id }}";
 
             // Function to filter criteria based on selected intern's job
             function filterCriteria() {
-                // Get selected intern's option
+                // Get the selected intern
+                const selectedInternId = magangSelect.value;
+                if (!selectedInternId) return;
+
+                // Find the selected option to get job info
                 const selectedOption = magangSelect.options[magangSelect.selectedIndex];
+                const internText = selectedOption.text;
 
-                if (selectedOption && selectedOption.value) {
-                    // Extract job ID from the text (assuming format: "Name - Job")
-                    const text = selectedOption.text;
-                    const jobPart = text.split('-')[1]?.trim();
+                // Try to extract the job name from intern text (format: "Name - Job")
+                const jobMatch = internText.match(/- ([^-]+)$/);
+                const jobName = jobMatch ? jobMatch[1].trim() : null;
 
-                    if (jobPart) {
-                        // Hide criteria that don't match the job
-                        Array.from(criteriaSelect.options).forEach(option => {
-                            if (option.value === '') return; // Skip "No specific criteria" option
+                if (jobName) {
+                    let foundMatchingOption = false;
+                    let firstMatchingOption = null;
 
-                            const criteriaJob = option.text.split('-')[1]?.trim();
+                    // Filter criteria options based on job
+                    Array.from(criteriaSelect.options).forEach(option => {
+                        if (option.value === '') return; // Skip "No specific criteria" option
 
-                            if (criteriaJob && criteriaJob !== jobPart) {
-                                option.style.display = 'none';
-                            } else {
-                                option.style.display = '';
-                            }
-                        });
+                        // Check if this criteria is for the selected job
+                        const isMatchingJob = option.text.includes(jobName);
+                        option.style.display = isMatchingJob ? '' : 'none';
+
+                        // Track first matching option for fallback
+                        if (isMatchingJob && !firstMatchingOption && option.value !== '') {
+                            firstMatchingOption = option;
+                        }
+
+                        // Check if this is the current/original criteria
+                        if (option.value === originalCriteriaId && isMatchingJob) {
+                            foundMatchingOption = true;
+                        }
+                    });
+
+                    // Set selection based on matches
+                    if (foundMatchingOption) {
+                        // If original criteria matches job, keep it selected
+                        criteriaSelect.value = originalCriteriaId;
+                    } else if (firstMatchingOption) {
+                        // If no match but we have valid options, select first one
+                        criteriaSelect.value = firstMatchingOption.value;
+                    } else {
+                        // No valid options, select "No specific criteria"
+                        criteriaSelect.value = '';
                     }
                 }
             }
 
-            // Filter criteria on load
+            // Preserve selection on form submission
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                // If criteria is set to empty but we have an original value, use that
+                if (criteriaSelect.value === '' && originalCriteriaId) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'criteria_id';
+                    hiddenInput.value = originalCriteriaId;
+                    form.appendChild(hiddenInput);
+                }
+            });
+
+            // Initial filtering
             filterCriteria();
 
-            // Filter criteria when intern selection changes
+            // Filter when intern selection changes
             magangSelect.addEventListener('change', filterCriteria);
         });
+
+        // Form validation function to ensure critical data is present
+        function validateForm() {
+            console.log('Validating form...');
+            const form = document.getElementById('evaluationForm');
+            const formData = new FormData(form);
+
+            // Log form data for debugging
+            console.log('Form data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            // Make sure we have the required fields
+            const magangId = formData.get('magang_id');
+            const ratingId = formData.get('rating_id');
+            const weekNum = formData.get('minggu_ke');
+            const criteriaId = formData.get('criteria_id') || formData.get('original_criteria_id');
+
+            if (!magangId || !ratingId || !weekNum) {
+                alert('Please fill in all required fields');
+                return false;
+            }
+
+            // Ensure criteria_id is explicitly included
+            if (!formData.has('criteria_id') && "{{ $evaluasi->criteria_id }}") {
+                // If no criteria_id in form but evaluation has one, add it
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'criteria_id';
+                hiddenInput.value = "{{ $evaluasi->criteria_id }}";
+                form.appendChild(hiddenInput);
+                console.log('Added criteria_id:', "{{ $evaluasi->criteria_id }}");
+            }
+
+            return true;
+        }
     </script>
 </x-app-layout>
+
+
