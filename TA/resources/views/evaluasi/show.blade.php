@@ -185,6 +185,118 @@
                                     </table>
                                 </div>
 
+                                <!-- SMART Calculation Steps/Explanation -->
+                                <div class="mt-6 bg-indigo-50 p-6 rounded-lg">
+                                    <h3 class="text-lg font-semibold text-indigo-900 mb-3">SMART Calculation Methodology</h3>
+
+                                    <div class="space-y-4">
+                                        <div>
+                                            <h4 class="font-medium text-indigo-800">Step 1: Input Values</h4>
+                                            <p class="text-sm text-gray-700 mb-2">Raw scores from evaluations are collected for each criterion.</p>
+                                            <div class="bg-white p-3 rounded border border-indigo-100">
+                                                <code class="text-sm">Raw Score = {{ number_format($evaluasi->skor_minggu, 2) }}</code>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="font-medium text-indigo-800">Step 2: Normalization (Utility Value)</h4>
+                                            <p class="text-sm text-gray-700 mb-2">Each raw score is normalized to a 0-1 scale:</p>
+                                            <div class="bg-white p-3 rounded border border-indigo-100">
+                                                <code class="text-sm">Utility Value = (x - min) / (max - min)</code>
+                                                @if($smartDetails && isset($smartDetails['score_details'][0]))
+                                                <div class="mt-2 text-sm">
+                                                    @php
+                                                        try {
+                                                            $criteriaId = $smartDetails['score_details'][0]['criteria_id'] ?? null;
+                                                            // Find all scores for this criteria to determine min/max
+                                                            $allScores = [];
+                                                            if ($criteriaId && isset($evaluasi->magang) &&
+                                                                isset($evaluasi->magang->pelamar) &&
+                                                                isset($evaluasi->magang->pelamar->periode)) {
+
+                                                                $magangCollection = $evaluasi->magang->pelamar->periode->magang;
+                                                                if ($magangCollection && is_iterable($magangCollection)) {
+                                                                    foreach($magangCollection as $otherMagang) {
+                                                                        if (method_exists($otherMagang, 'evaluations')) {
+                                                                            $evals = $otherMagang->evaluations()
+                                                                                ->where('minggu_ke', $evaluasi->minggu_ke)
+                                                                                ->where('criteria_id', $criteriaId)
+                                                                                ->get();
+
+                                                                            if ($evals && count($evals) > 0) {
+                                                                                foreach($evals as $eval) {
+                                                                                    $allScores[] = $eval->skor_minggu;
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            $minScore = !empty($allScores) ? min($allScores) : 0;
+                                                            $maxScore = !empty($allScores) ? max($allScores) : 0;
+                                                            $rawValue = $smartDetails['score_details'][0]['raw_value'] ?? 0;
+                                                            $normalizedValue = $smartDetails['score_details'][0]['normalized_value'] ?? 0;
+                                                        } catch (\Exception $e) {
+                                                            $minScore = 0;
+                                                            $maxScore = 0;
+                                                            $rawValue = 0;
+                                                            $normalizedValue = 0;
+                                                        }
+                                                    @endphp
+                                                    Example: ({{ number_format($rawValue, 2) }} - {{ number_format($minScore, 2) }}) / ({{ number_format($maxScore, 2) }} - {{ number_format($minScore, 2) }}) = {{ number_format($normalizedValue, 4) }}
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="font-medium text-indigo-800">Step 3: Weighted Score Calculation</h4>
+                                            <p class="text-sm text-gray-700 mb-2">Utility values are multiplied by criterion weights:</p>
+                                            <div class="bg-white p-3 rounded border border-indigo-100">
+                                                <code class="text-sm">Weighted Score = Utility Value × Weight</code>
+                                                @if($smartDetails && isset($smartDetails['score_details'][0]))
+                                                <div class="mt-2 text-sm">
+                                                    Example: {{ number_format($smartDetails['score_details'][0]['normalized_value'], 4) }} × {{ number_format($smartDetails['score_details'][0]['weight'], 4) }} = {{ number_format($smartDetails['score_details'][0]['weighted_score'], 4) }}
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="font-medium text-indigo-800">Step 4: Total Score</h4>
+                                            <p class="text-sm text-gray-700 mb-2">The sum of all weighted scores:</p>
+                                            <div class="bg-white p-3 rounded border border-indigo-100">
+                                                <code class="text-sm">Total Score = ∑(Weighted Scores)</code>
+                                                <div class="mt-2 text-sm">
+                                                    Result: {{ number_format($smartDetails['total_score'] ?? 0, 4) }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="font-medium text-indigo-800">Step 5: Weekly Weighting (For Final Ranking)</h4>
+                                            <p class="text-sm text-gray-700 mb-2">When calculating final scores, later weeks are given progressively higher weights:</p>
+                                            <div class="bg-white p-3 rounded border border-indigo-100">
+                                                <code class="text-sm">Week Weight (wi) = i / ∑i</code>
+                                                <div class="mt-2 text-sm">
+                                                    For example: Week {{ $evaluasi->minggu_ke }} would have higher weight than earlier weeks.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="font-medium text-indigo-800">Step 6: Ranking</h4>
+                                            <p class="text-sm text-gray-700 mb-2">Interns are ranked based on their total scores in descending order:</p>
+                                            <div class="bg-white p-3 rounded border border-indigo-100">
+                                                <div class="text-sm">
+                                                    Current Rank for Week {{ $evaluasi->minggu_ke }}: <span class="font-semibold">{{ $smartDetails['rank'] ?? 'N/A' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     <!-- Weight Explanation -->
                                     <div class="bg-gray-50 p-4 rounded-lg">
@@ -242,7 +354,7 @@
                                                 <div class="bg-indigo-600 h-2.5 rounded-full" style="width: {{ $contribution['percentage'] }}%"></div>
                                             </div>
                                             <div class="flex justify-between mt-1 text-xs text-gray-600">
-                                                <span>Contribution: {{ number_format($contribution['average_contribution'], 4) }}</span>
+                                                <span>Contribution: {{ number_format($contribution['total_contribution'], 4) }}</span>
                                                 <span>{{ number_format($contribution['percentage'], 1) }}%</span>
                                             </div>
                                         </div>

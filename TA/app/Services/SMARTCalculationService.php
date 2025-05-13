@@ -111,7 +111,8 @@ class SMARTCalculationService
                     // Get the weight for this criterion
                     $weight = $criteriaWeights[$criteriaId] ?? 0;
 
-                    // Normalize the score (if min != max)
+                    // Calculate utility using the updated SMART formula from the PDF
+                    // Utility value = (x - xmin) / (xmax - xmin)
                     $utilityValue = 0;
                     if (isset($minValues[$criteriaId]) && isset($maxValues[$criteriaId]) &&
                         $maxValues[$criteriaId] > $minValues[$criteriaId]) {
@@ -122,7 +123,7 @@ class SMARTCalculationService
                         $utilityValue = 1;
                     }
 
-                    // Calculate weighted score
+                    // Calculate weighted score: V(a) = ∑ wj * vi(a)
                     $weightedScore = $utilityValue * $weight;
 
                     // Add to total
@@ -212,6 +213,18 @@ class SMARTCalculationService
             $weeklyRanks = [];
             $scoreDetails = [];
 
+            // Calculate week weights according to the PDF formula
+            // Calculate sum of week numbers for normalization
+            $sumOfWeeks = array_sum(range(1, $weekCount));
+
+            // Pre-calculate the week weights
+            $weekWeights = [];
+            for ($week = 1; $week <= $weekCount; $week++) {
+                // Progressive weight formula: wi = i / ∑i
+                // This gives more weight to later weeks which is appropriate for showing progress
+                $weekWeights[$week] = $week / $sumOfWeeks;
+            }
+
             for ($week = 1; $week <= $weekCount; $week++) {
                 $weeklyScores = $this->calculateScores($jobId, $week, $periodeId);
 
@@ -238,10 +251,8 @@ class SMARTCalculationService
                     // Store score details for this week
                     $scoreDetails[$magangId][$week] = $score['score_details'];
 
-                    // Accumulate weekly scores for final score
-                    // We can implement weighted weeks here if needed
-                    $weekWeight = $week / array_sum(range(1, $weekCount)); // Progressive weight
-                    $finalScores[$magangId] += $score['total_score'] * $weekWeight;
+                    // Apply weighted score for this week according to our progressive weight formula
+                    $finalScores[$magangId] += $score['total_score'] * $weekWeights[$week];
                 }
             }
 
@@ -259,21 +270,26 @@ class SMARTCalculationService
                 // Ensure score is within 0-5 range
                 $finalScore = max(0, min(5, $normalizedScore));
 
+                // Update the database with the final score and rank
                 Magang::where('magang_id', $magangId)->update([
                     'total_skor' => $finalScore,
                     'rank' => $rank++
                 ]);
 
-                // Store score details in cache
-                $this->storeScoreDetails($magangId, $scoreDetails[$magangId], $weeklyRanks[$magangId]);
+                // Cache the score details for faster access
+                $this->storeScoreDetails(
+                    $magangId,
+                    $scoreDetails[$magangId] ?? [],
+                    $weeklyRanks[$magangId] ?? []
+                );
             }
 
             DB::commit();
+            Log::info("Updated SMART scores for job ID: $jobId, period ID: $periodeId");
             return true;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Error updating scores: " . $e->getMessage());
+            Log::error("Error updating SMART scores: " . $e->getMessage(), ['exception' => $e]);
             return false;
         }
     }
@@ -396,7 +412,7 @@ class SMARTCalculationService
     }
 
     /**
-     * Get criteria contribution chart data
+     * Get criteria contribution to SMART score
      *
      * @param string $magangId
      * @return array
@@ -409,9 +425,13 @@ class SMARTCalculationService
         if (!empty($data['details'])) {
             $criteriaTotal = [];
             $weekCount = count($data['details']);
+            $weekSum = array_sum(range(1, $weekCount));
 
-            // Sum up contributions across weeks
+            // Sum up contributions across weeks, with progressive weighting
             foreach ($data['details'] as $week => $details) {
+                // Calculate the week weight based on the PDF formula: wi = i / ∑i
+                $weekWeight = $week / $weekSum;
+
                 foreach ($details as $criterion) {
                     $name = $criterion['criteria_name'];
 
@@ -419,30 +439,37 @@ class SMARTCalculationService
                         $criteriaTotal[$name] = [
                             'total' => 0,
                             'weight' => $criterion['weight'],
-                            'code' => $criterion['criteria_code']
+                            'code' => $criterion['criteria_code'],
+                            'weekly_contributions' => []
                         ];
                     }
 
-                    $criteriaTotal[$name]['total'] += $criterion['weighted_score'];
+                    // Store the weighted contribution for this week
+                    $weeklyContribution = $criterion['weighted_score'] * $weekWeight;
+                    $criteriaTotal[$name]['weekly_contributions'][$week] = $weeklyContribution;
+
+                    // Add to total contribution
+                    $criteriaTotal[$name]['total'] += $weeklyContribution;
                 }
             }
 
-            // Calculate averages
+            // Prepare the final contribution data
             foreach ($criteriaTotal as $name => $data) {
                 $contribution[] = [
                     'name' => $name,
                     'code' => $data['code'],
                     'weight' => $data['weight'],
-                    'average_contribution' => $data['total'] / $weekCount,
+                    'total_contribution' => $data['total'],
+                    'weekly_contributions' => $data['weekly_contributions'],
                     'percentage' => 0 // Will calculate after summing all
                 ];
             }
 
-            // Calculate percentages
-            $totalContribution = array_sum(array_column($contribution, 'average_contribution'));
+            // Calculate percentages based on total contribution
+            $totalContribution = array_sum(array_column($contribution, 'total_contribution'));
             if ($totalContribution > 0) {
                 foreach ($contribution as &$item) {
-                    $item['percentage'] = ($item['average_contribution'] / $totalContribution) * 100;
+                    $item['percentage'] = ($item['total_contribution'] / $totalContribution) * 100;
                 }
             }
         }

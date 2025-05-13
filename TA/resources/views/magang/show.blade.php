@@ -192,7 +192,7 @@
                                             <div class="bg-indigo-600 h-2.5 rounded-full" style="width: {{ $contribution['percentage'] }}%"></div>
                                         </div>
                                         <div class="flex justify-between mt-1 text-xs text-gray-600">
-                                            <span>Score: {{ number_format($contribution['average_contribution'], 4) }}</span>
+                                            <span>Score: {{ number_format($contribution['total_contribution'], 4) }}</span>
                                             <span>{{ number_format($contribution['percentage'], 1) }}%</span>
                                         </div>
                                     </div>

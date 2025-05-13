@@ -243,6 +243,147 @@
                                     <p class="text-gray-500">No rankings available for Week {{ $week }}.</p>
                                 </div>
                                 @endif
+
+                                <!-- SMART Calculation Methodology For This Week -->
+                                @if(isset($weeklyRankings[$week]) && count($weeklyRankings[$week]) > 0 && isset($weeklyRankings[$week][0]['score_details'][0]))
+                                <div class="mt-8 bg-indigo-50 p-6 rounded-lg">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h3 class="text-lg font-semibold text-indigo-900">SMART Calculation Methodology</h3>
+                                        <button id="toggle-methodology-{{ $week }}" class="text-sm text-indigo-700 hover:text-indigo-900 font-medium flex items-center">
+                                            <span>Show Calculation Steps</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div id="methodology-content-{{ $week }}" class="hidden space-y-6">
+                                        <p class="text-sm text-gray-700">
+                                            The SMART (Simple Multi-Attribute Rating Technique) method is used to evaluate and rank interns based on multiple criteria.
+                                            Below is a detailed explanation of how the calculations are performed:
+                                        </p>
+
+                                        <!-- Example calculation using first intern and criterion -->
+                                        @php
+                                            try {
+                                                $exampleIntern = isset($weeklyRankings[$week][0]) ? $weeklyRankings[$week][0] : null;
+                                                $exampleCriterion = null;
+                                                if ($exampleIntern && isset($exampleIntern['score_details']) &&
+                                                    is_array($exampleIntern['score_details']) &&
+                                                    !empty($exampleIntern['score_details'])) {
+                                                    $exampleCriterion = $exampleIntern['score_details'][0];
+                                                }
+                                            } catch (\Exception $e) {
+                                                $exampleIntern = null;
+                                                $exampleCriterion = null;
+                                            }
+                                        @endphp
+
+                                        @if($exampleIntern && $exampleCriterion)
+                                        <div class="bg-white rounded-lg border border-indigo-100 overflow-hidden">
+                                            <div class="bg-indigo-100 px-4 py-2">
+                                                <h4 class="font-medium text-indigo-800">Example Calculation for {{ $exampleIntern['pelamar_nama'] }}</h4>
+                                            </div>
+                                            <div class="p-4">
+                                                <div class="space-y-4">
+                                                    <div>
+                                                        <h5 class="font-medium text-gray-700 mb-1">Step 1: Input Values</h5>
+                                                        <p class="text-sm text-gray-600 mb-2">Raw evaluation scores for each criterion:</p>
+                                                        <div class="bg-gray-50 p-3 rounded">
+                                                            <p class="text-sm">Criterion: <span class="font-medium">{{ $exampleCriterion['criteria_name'] }} ({{ $exampleCriterion['criteria_code'] }})</span></p>
+                                                            <p class="text-sm">Raw Score: <span class="font-medium">{{ number_format($exampleCriterion['raw_value'], 2) }}</span></p>
+                                                            <p class="text-sm">Weight: <span class="font-medium">{{ number_format($exampleCriterion['weight'], 4) }}</span></p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <h5 class="font-medium text-gray-700 mb-1">Step 2: Normalization (Utility Value)</h5>
+                                                        <p class="text-sm text-gray-600 mb-2">Formula: <code>Utility Value = (x - min) / (max - min)</code></p>
+                                                        <div class="bg-gray-50 p-3 rounded">
+                                                            @php
+                                                                try {
+                                                                    // Find all scores for this criteria to get min/max
+                                                                    $criteriaId = $exampleCriterion['criteria_id'] ?? null;
+                                                                    $allCriteriaScores = [];
+
+                                                                    // Collect all scores for this criterion in this week
+                                                                    if ($criteriaId && isset($weeklyRankings[$week]) && is_array($weeklyRankings[$week])) {
+                                                                        foreach($weeklyRankings[$week] as $rankingData) {
+                                                                            if (isset($rankingData['score_details']) && is_array($rankingData['score_details'])) {
+                                                                                foreach($rankingData['score_details'] as $detail) {
+                                                                                    if(isset($detail['criteria_id']) && $detail['criteria_id'] === $criteriaId && isset($detail['raw_value'])) {
+                                                                                        $allCriteriaScores[] = $detail['raw_value'];
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+
+                                                                    $minScore = !empty($allCriteriaScores) ? min($allCriteriaScores) : 0;
+                                                                    $maxScore = !empty($allCriteriaScores) ? max($allCriteriaScores) : 0;
+                                                                    $rawValue = $exampleCriterion['raw_value'] ?? 0;
+                                                                    $normalizedValue = $exampleCriterion['normalized_value'] ?? 0;
+                                                                } catch (\Exception $e) {
+                                                                    // Default values in case of error
+                                                                    $minScore = 0;
+                                                                    $maxScore = 0;
+                                                                    $rawValue = 0;
+                                                                    $normalizedValue = 0;
+                                                                }
+                                                            @endphp
+                                                            <p class="text-sm mb-2">Calculation: ({{ number_format($rawValue, 2) }} - {{ number_format($minScore, 2) }}) / ({{ number_format($maxScore, 2) }} - {{ number_format($minScore, 2) }}) = {{ number_format($normalizedValue, 4) }}</p>
+                                                            <p class="text-sm">Normalized Value: <span class="font-medium">{{ number_format($normalizedValue, 4) }}</span></p>
+                                                            <p class="text-xs text-gray-500">This converts the raw score to a 0-1 scale based on min and max values across all interns.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <h5 class="font-medium text-gray-700 mb-1">Step 3: Weighted Score Calculation</h5>
+                                                        <p class="text-sm text-gray-600 mb-2">Formula: <code>Weighted Score = Utility Value × Weight</code></p>
+                                                        <div class="bg-gray-50 p-3 rounded">
+                                                            <p class="text-sm">{{ number_format($exampleCriterion['normalized_value'], 4) }} × {{ number_format($exampleCriterion['weight'], 4) }} = <span class="font-medium">{{ number_format($exampleCriterion['weighted_score'], 4) }}</span></p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <h5 class="font-medium text-gray-700 mb-1">Step 4: Total Score Calculation</h5>
+                                                        <p class="text-sm text-gray-600 mb-2">Formula: <code>Total Score = ∑(Weighted Scores)</code></p>
+                                                        <div class="bg-gray-50 p-3 rounded">
+                                                            <p class="text-sm">Sum of all weighted scores: <span class="font-medium">{{ number_format($exampleIntern['total_score'], 4) }}</span></p>
+                                                            <p class="text-xs text-gray-500">This represents the overall performance across all criteria.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <h5 class="font-medium text-gray-700 mb-1">Step 5: Ranking</h5>
+                                                        <p class="text-sm text-gray-600 mb-2">Sort interns by total score in descending order</p>
+                                                        <div class="bg-gray-50 p-3 rounded">
+                                                            <p class="text-sm">Rank for {{ $exampleIntern['pelamar_nama'] }}: <span class="font-medium">{{ $exampleIntern['rank'] }}</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        <div>
+                                            <h4 class="font-medium text-indigo-800 mb-2">Weekly Progressive Weighting</h4>
+                                            <p class="text-sm text-gray-700 mb-2">For final rankings across all weeks, the scores from later weeks are given more weight:</p>
+                                            <div class="bg-white p-4 rounded-lg border border-indigo-100">
+                                                <p class="text-sm mb-2"><code>Week Weight (wi) = i / ∑i</code> where i is the week number</p>
+                                                <div class="grid grid-cols-1 md:grid-cols-{{ min($weekCount, 4) }} gap-2">
+                                                    @for($i = 1; $i <= $weekCount; $i++)
+                                                        <div class="bg-gray-50 p-2 rounded text-center">
+                                                            <p class="text-sm font-medium">Week {{ $i }}</p>
+                                                            <p class="text-sm">Weight: {{ number_format($i / array_sum(range(1, $weekCount)), 4) }}</p>
+                                                        </div>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                             </div>
                             @endfor
                         </div>
@@ -276,6 +417,27 @@
                     tab.classList.add('border-indigo-500', 'text-indigo-600');
                 });
             });
+
+            // Toggle methodology content
+            for (let week = 1; week <= {{ $weekCount }}; week++) {
+                const toggleBtn = document.getElementById(`toggle-methodology-${week}`);
+                const methodologyContent = document.getElementById(`methodology-content-${week}`);
+
+                if (toggleBtn && methodologyContent) {
+                    toggleBtn.addEventListener('click', () => {
+                        // Toggle visibility
+                        if (methodologyContent.classList.contains('hidden')) {
+                            methodologyContent.classList.remove('hidden');
+                            toggleBtn.querySelector('span').textContent = 'Hide Calculation Steps';
+                            toggleBtn.querySelector('svg').style.transform = 'rotate(180deg)';
+                        } else {
+                            methodologyContent.classList.add('hidden');
+                            toggleBtn.querySelector('span').textContent = 'Show Calculation Steps';
+                            toggleBtn.querySelector('svg').style.transform = 'rotate(0)';
+                        }
+                    });
+                }
+            }
         });
     </script>
 </x-app-layout>
