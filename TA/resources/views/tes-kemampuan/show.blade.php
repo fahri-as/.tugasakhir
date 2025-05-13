@@ -68,7 +68,7 @@
                             Reset to Pending
                         </button>
                     </form>
-                @elseif($tesKemampuan->status_seleksi === 'Tidak Lulus' || $tesKemampuan->status_seleksi === 'Magang')
+                @elseif($tesKemampuan->status_seleksi === 'Tidak Lulus')
                     <form action="{{ route('tes-kemampuan.update', $tesKemampuan) }}" method="POST" class="inline" id="resetForm">
                         @csrf
                         @method('PUT')
