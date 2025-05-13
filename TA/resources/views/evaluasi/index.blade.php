@@ -10,6 +10,9 @@
         </div>
     </x-slot>
 
+    <!-- CSRF Token for AJAX Requests -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -231,6 +234,7 @@
         let currentMagangId = '';
         let weeklyEvaluations = [];
         let smartResults = {};
+        let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         function showWeekCards() {
             document.getElementById('week-cards').classList.remove('hidden');
@@ -271,7 +275,11 @@
 
         function fetchWeekData(periodeId, week) {
             // Make an AJAX request to get the evaluations for this week
-            fetch(`{{ route('api.evaluations') }}?periode_id=${periodeId}&week=${week}`)
+            fetch(`{{ route('api.evaluations') }}?periode_id=${periodeId}&week=${week}`, {
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -386,14 +394,38 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="px-6 py-4 text-sm text-gray-900">${criteriaName}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900">${eval.rating_scale ? eval.rating_scale.name : 'N/A'} (${eval.rating_scale ? eval.rating_scale.singkatan : 'N/A'})</td>
-                    <td class="px-6 py-4 text-sm text-gray-900">${eval.skor_minggu}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                        <select class="rating-dropdown rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                               data-evaluation-id="${eval.evaluasi_id}">
+                            <option value="">Not Rated Yet</option>
+                            @foreach(\App\Models\RatingScale::orderBy('value')->get() as $rating)
+                                <option value="{{ $rating->rating_id }}"
+                                        ${eval.rating_id === "{{ $rating->rating_id }}" ? 'selected' : ''}>
+                                    {{ $rating->name }} ({{ $rating->singkatan }}) - {{ $rating->value }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="update-status hidden mt-1 text-xs"></div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                        ${eval.skor_minggu}
+                        <span class="text-xs text-gray-500">
+                            ${eval.rating_scale ? '(Original rating: ' + eval.rating_scale.value + ')' : '(Not rated)'}
+                        </span>
+                    </td>
                     <td class="px-6 py-4 text-sm font-medium">
                         <a href="/evaluasi/${eval.evaluasi_id}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
                         <a href="/evaluasi/${eval.evaluasi_id}/edit" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                     </td>
                 `;
                 tbody.appendChild(row);
+            });
+
+            // Add event listeners to the rating dropdowns
+            document.querySelectorAll('.rating-dropdown').forEach(dropdown => {
+                dropdown.addEventListener('change', function() {
+                    updateRating(this.dataset.evaluationId, this.value, this);
+                });
             });
 
             // Show SMART analysis for Cook and Pastry Chef positions
@@ -476,6 +508,71 @@
             } else {
                 smartAnalysis.classList.add('hidden');
             }
+        }
+
+        function updateRating(evaluationId, ratingId, dropdown) {
+            // Show loading status
+            const statusDiv = dropdown.nextElementSibling;
+            statusDiv.textContent = 'Updating...';
+            statusDiv.className = 'text-xs text-gray-600 mt-1';
+            statusDiv.classList.remove('hidden');
+
+            // Make an AJAX request to update the rating
+            fetch('/api/evaluations/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    evaluation_id: evaluationId,
+                    rating_id: ratingId
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || 'Update failed');
+                }
+
+                // Update the score in the table (3rd cell)
+                const row = dropdown.closest('tr');
+                const scoreCell = row.cells[2];
+                scoreCell.textContent = data.evaluation.skor_minggu;
+
+                // Update the total score at the bottom of the table
+                document.getElementById('total-score').textContent = parseFloat(data.total_score).toFixed(2);
+
+                // Show success message
+                statusDiv.textContent = 'Updated successfully';
+                statusDiv.className = 'text-xs text-green-600 mt-1';
+
+                // Hide status after 3 seconds
+                setTimeout(() => {
+                    statusDiv.classList.add('hidden');
+                }, 3000);
+
+                // Update the local data
+                weeklyEvaluations.forEach(eval => {
+                    if (eval.evaluasi_id === evaluationId) {
+                        eval.rating_id = ratingId;
+                        eval.skor_minggu = data.evaluation.skor_minggu;
+                        eval.rating_scale = data.evaluation.rating_scale;
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error updating rating:', error);
+                // Show error message
+                statusDiv.textContent = 'Error updating rating: ' + error.message;
+                statusDiv.className = 'text-xs text-red-600 mt-1';
+            });
         }
 
         // Auto-submit when period filter changes

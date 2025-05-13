@@ -396,27 +396,16 @@ public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
             return;
         }
 
-        // Get default rating ("Cukup" = 3)
-        $defaultRating = RatingScale::where('singkatan', 'C')->first();
-
-        if (!$defaultRating) {
-            $defaultRating = RatingScale::orderBy('value')->skip(2)->first(); // Middle value
-
-            if (!$defaultRating) {
-                $defaultRating = RatingScale::first(); // Fallback
-            }
-        }
-
-        // Create evaluations for each week and criterion
+        // Create evaluations for each week and criterion with NULL rating
         for ($week = 1; $week <= $weekCount; $week++) {
             foreach ($criteriaList as $criteria) {
                 $evaluasi = new EvaluasiMingguanMagang();
                 $evaluasi->evaluasi_id = Str::uuid()->toString();
                 $evaluasi->magang_id = $magang->magang_id;
-                $evaluasi->rating_id = $defaultRating->rating_id;
+                $evaluasi->rating_id = null; // Set to null instead of default value
                 $evaluasi->criteria_id = $criteria->criteria_id;
                 $evaluasi->minggu_ke = $week;
-                $evaluasi->skor_minggu = $defaultRating->value / 10; // Convert to 0-5 scale
+                $evaluasi->skor_minggu = 0; // Set initial score to 0
                 $evaluasi->save();
             }
         }

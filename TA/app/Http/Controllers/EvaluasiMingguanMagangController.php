@@ -204,8 +204,8 @@ class EvaluasiMingguanMagangController extends Controller
     {
         $request->validate([
             'magang_id' => 'required|exists:magang,magang_id',
-            'rating_id' => 'required|exists:rating_scales,rating_id',
-            'criteria_id' => 'nullable|exists:criteria,criteria_id', // Make criteria optional
+            'rating_id' => 'nullable|exists:rating_scales,rating_id',
+            'criteria_id' => 'nullable|exists:criteria,criteria_id',
             'minggu_ke' => 'required|integer|min:1',
         ]);
 
@@ -223,17 +223,22 @@ class EvaluasiMingguanMagangController extends Controller
         DB::beginTransaction();
 
         try {
-            // Get the rating value to calculate score
-            $rating = RatingScale::findOrFail($request->rating_id);
-
             // Create the evaluation
             $evaluasi = new EvaluasiMingguanMagang();
             $evaluasi->evaluasi_id = Str::uuid()->toString();
             $evaluasi->magang_id = $request->magang_id;
             $evaluasi->rating_id = $request->rating_id;
-            $evaluasi->criteria_id = $request->criteria_id; // Set criteria_id if provided
+            $evaluasi->criteria_id = $request->criteria_id;
             $evaluasi->minggu_ke = $request->minggu_ke;
-            $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
+
+            // Calculate score only if rating is provided
+            if ($request->rating_id) {
+                $rating = RatingScale::findOrFail($request->rating_id);
+                $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
+            } else {
+                $evaluasi->skor_minggu = 0; // Default to 0 if no rating
+            }
+
             $evaluasi->save();
 
             // Get the magang to determine the job
@@ -338,8 +343,8 @@ class EvaluasiMingguanMagangController extends Controller
     {
         $request->validate([
             'magang_id' => 'required|exists:magang,magang_id',
-            'rating_id' => 'required|exists:rating_scales,rating_id',
-            'criteria_id' => 'nullable|exists:criteria,criteria_id', // Make criteria optional
+            'rating_id' => 'nullable|exists:rating_scales,rating_id',
+            'criteria_id' => 'nullable|exists:criteria,criteria_id',
             'minggu_ke' => 'required|integer|min:1',
         ]);
 
@@ -373,9 +378,6 @@ class EvaluasiMingguanMagangController extends Controller
         DB::beginTransaction();
 
         try {
-            // Get the rating value to calculate score
-            $rating = RatingScale::findOrFail($request->rating_id);
-
             // Store the original magang_id for updating scores
             $originalMagangId = $evaluasi->magang_id;
 
@@ -395,7 +397,14 @@ class EvaluasiMingguanMagangController extends Controller
             }
 
             $evaluasi->minggu_ke = $request->minggu_ke;
-            $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
+
+            // Calculate score only if rating is provided
+            if ($request->rating_id) {
+                $rating = RatingScale::findOrFail($request->rating_id);
+                $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
+            } else {
+                $evaluasi->skor_minggu = 0; // Default to 0 if no rating
+            }
 
             // Log the changes before saving
             Log::info('Evaluation update changes:', [
@@ -592,6 +601,91 @@ class EvaluasiMingguanMagangController extends Controller
             // Redirect with error message
             return redirect()->route('evaluasi.index')
                 ->with('error', 'Error loading SMART dashboard: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * API endpoint to update an evaluation rating via AJAX
+     */
+    public function updateRating(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'evaluation_id' => 'required|exists:evaluasi_mingguan_magang,evaluasi_id',
+                'rating_id' => 'nullable|exists:rating_scales,rating_id',
+            ]);
+
+            // Start a transaction
+            DB::beginTransaction();
+
+            // Find the evaluation
+            $evaluasi = EvaluasiMingguanMagang::findOrFail($request->evaluation_id);
+
+            // Update rating
+            $evaluasi->rating_id = $request->rating_id;
+
+            // Calculate score based on rating
+            if ($request->rating_id) {
+                $rating = RatingScale::findOrFail($request->rating_id);
+                $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
+                Log::info("Setting score for evaluasi {$evaluasi->evaluasi_id} to {$evaluasi->skor_minggu} (from rating value {$rating->value})");
+            } else {
+                $evaluasi->skor_minggu = 0; // Default to 0 if no rating
+            }
+
+            $evaluasi->save();
+
+            // Get the magang to determine the job
+            $magang = Magang::with('pelamar')->findOrFail($evaluasi->magang_id);
+            $jobId = $magang->pelamar->job_id ?? null;
+            $periodeId = $magang->pelamar->periode_id ?? null;
+
+            // Update scores using SMART method if job is Cook or Pastry Chef
+            if ($jobId && in_array($jobId, ['JOB001', 'JOB004'])) {
+                $this->smartService->updateTotalScores($jobId, $periodeId);
+
+                // Invalidate cache for this magang
+                $this->smartService->invalidateCache($evaluasi->magang_id);
+            }
+
+            // Calculate new total score for the intern in this week
+            $totalScore = EvaluasiMingguanMagang::where('magang_id', $evaluasi->magang_id)
+                ->where('minggu_ke', $evaluasi->minggu_ke)
+                ->sum('skor_minggu');
+
+            DB::commit();
+
+            // Return success response with updated data
+            return response()->json([
+                'success' => true,
+                'message' => 'Rating updated successfully',
+                'evaluation' => $evaluasi->load('ratingScale'),
+                'total_score' => (float)$totalScore, // Cast to float to ensure it's a number
+                'originalRatingValue' => $request->rating_id ? $rating->value : null
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            Log::error("Validation error updating rating: " . json_encode($e->errors()));
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error: ' . implode(', ', array_map(function ($errors) {
+                    return implode(', ', $errors);
+                }, $e->errors())),
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error updating rating: " . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating rating: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

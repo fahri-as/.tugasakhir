@@ -75,6 +75,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/evaluations', [EvaluasiMingguanMagangController::class, 'getByWeek'])
         ->name('api.evaluations');
 
+    // API route for updating evaluation ratings
+    Route::post('/api/evaluations/update', [EvaluasiMingguanMagangController::class, 'updateRating'])->name('api.evaluations.update');
+
     // Criteria routes
     Route::resource('criteria', CriteriaController::class);
     Route::post('criteria/update-weights', [CriteriaController::class, 'updateWeights'])

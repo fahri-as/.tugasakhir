@@ -54,8 +54,8 @@
                             <!-- Rating Selection -->
                             <div>
                                 <label for="rating_id" class="block text-sm font-medium text-gray-700">Rating</label>
-                                <select id="rating_id" name="rating_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('rating_id') border-red-500 @enderror" required>
-                                    <option value="">Select Rating</option>
+                                <select id="rating_id" name="rating_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('rating_id') border-red-500 @enderror">
+                                    <option value="">Not Rated Yet</option>
                                     @foreach($ratingScales as $rating)
                                         <option value="{{ $rating->rating_id }}" @if(old('rating_id') == $rating->rating_id) selected @endif>
                                             {{ $rating->name }} ({{ $rating->singkatan }}) - Value: {{ $rating->value }}
