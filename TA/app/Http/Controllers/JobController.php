@@ -21,13 +21,29 @@ class JobController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'job_id' => 'required|unique:job',
             'nama_job' => 'required',
             'deskripsi' => 'nullable'
         ]);
 
-        Job::create($request->all());
-        return redirect()->route('jobs.index')->with('success', 'Job created successfully');
+        // Generate a new ID for the job
+        $lastJob = Job::orderBy('job_id', 'desc')->first();
+
+        if ($lastJob) {
+            // Extract the numeric part and increment
+            $lastId = intval(substr($lastJob->job_id, 3));
+            $newId = 'JOB' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            // If no existing jobs, start with JOB001
+            $newId = 'JOB001';
+        }
+
+        // Create new data array with the generated ID
+        $data = $request->all();
+        $data['job_id'] = $newId;
+
+        Job::create($data);
+
+        return redirect()->route('jobs.index')->with('success', 'Job created successfully with ID: ' . $newId);
     }
 
     public function show(Job $job)

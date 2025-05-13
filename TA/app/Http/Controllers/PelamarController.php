@@ -21,18 +21,19 @@ public function index(Request $request)
     // Start with base query
     $query = Pelamar::with(['periode', 'job', 'magang', 'interview', 'tesKemampuan']);
 
-    // Check if we need to filter by period or show all
+    // Modified logic for period filtering
     if ($request->filled('periode_id')) {
-        // If a specific period is selected, filter by it
+        // If periode_id has a value, filter by it
         $query->where('periode_id', $request->periode_id);
-    } else if (!$request->has('periode_id') && !$request->has('sort_by')) {
-        // First page load or no filters applied yet - default to most recent period
+    } else if ($request->has('periode_id') && $request->periode_id === '') {
+        // If periode_id is present but empty, show all periods (don't filter)
+    } else {
+        // No period parameter in request - default to most recent period
         $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
         if ($latestPeriode) {
             $query->where('periode_id', $latestPeriode->periode_id);
         }
     }
-    // If request has periode_id but it's empty, show all periods (don't apply any filter)
 
     // Filter by selected jobs if jobs filter is applied
     if ($request->filled('jobs') && is_array($request->jobs)) {

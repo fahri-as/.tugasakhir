@@ -29,12 +29,6 @@
                     </div>
                 </a>
 
-                <a href="{{ route('criteria.index') }}" class="bg-white  overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow">
-                    <div class="p-6 border-b border-gray-200 ">
-                        <h3 class="text-lg font-medium text-gray-900 ">Criteria</h3>
-                        <p class="mt-2 text-sm text-gray-600 ">Define and manage selection criteria for job positions.</p>
-                    </div>
-                </a>
 
                 <a href="{{ route('interview.index') }}" class="bg-white  overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow">
                     <div class="p-6 border-b border-gray-200 ">
@@ -63,6 +57,14 @@
                         <p class="mt-2 text-sm text-gray-600 ">Manage weekly intern performance evaluations.</p>
                     </div>
                 </a>
+
+                <a href="{{ route('criteria.index') }}" class="bg-white  overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow">
+                    <div class="p-6 border-b border-gray-200 ">
+                        <h3 class="text-lg font-medium text-gray-900 ">Criteria</h3>
+                        <p class="mt-2 text-sm text-gray-600 ">Define and manage selection criteria for job positions.</p>
+                    </div>
+                </a>
+
 
                 <!-- Decision Support System Section -->
                 <div class="sm:col-span-2 lg:col-span-3 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 overflow-hidden shadow-sm sm:rounded-lg">

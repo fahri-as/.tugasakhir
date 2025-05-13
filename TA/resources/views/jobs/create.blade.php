@@ -1,13 +1,6 @@
 <x-crud-layout title="Create Job">
     <form action="{{ route('jobs.store') }}" method="POST" class="space-y-6">
         @csrf
-        <div>
-            <label for="job_id" class="block text-sm font-medium text-gray-700">Job ID</label>
-            <input type="text" name="job_id" id="job_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-            @error('job_id')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
 
         <div>
             <label for="nama_job" class="block text-sm font-medium text-gray-700">Job Name</label>

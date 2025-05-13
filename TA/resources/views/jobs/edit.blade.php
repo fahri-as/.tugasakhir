@@ -6,6 +6,7 @@
         <div>
             <label for="job_id" class="block text-sm font-medium text-gray-700">Job ID</label>
             <input type="text" id="job_id" value="{{ $job->job_id }}" disabled class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm">
+            <p class="mt-1 text-sm text-gray-500">Job ID is auto-generated and cannot be changed.</p>
         </div>
 
         <div>
