@@ -140,15 +140,15 @@
                                         <li class="py-3">
                                             <div class="flex justify-between">
                                                 <div>
-                                                    <p class="font-medium text-gray-800">
+                                                    <a href="{{ route('interview.show', $interview) }}" class="font-medium text-indigo-600 hover:text-indigo-800">
                                                         {{ $interview->pelamar->nama }}
-                                                    </p>
+                                                    </a>
                                                     <p class="text-sm text-gray-600">
                                                         {{ $interview->pelamar->job->nama_job }}
                                                     </p>
                                                 </div>
                                                 <div class="text-right">
-                                                    <p class="text-sm font-medium text-indigo-600">
+                                                    <p class="text-sm font-medium text-gray-800">
                                                         {{ $interview->jadwal->format('d M Y') }}
                                                     </p>
                                                     <p class="text-sm text-gray-600">
@@ -191,15 +191,15 @@
                                         <li class="py-3">
                                             <div class="flex justify-between">
                                                 <div>
-                                                    <p class="font-medium text-gray-800">
+                                                    <a href="{{ route('tes-kemampuan.show', $test) }}" class="font-medium text-indigo-600 hover:text-indigo-800">
                                                         {{ $test->pelamar->nama }}
-                                                    </p>
+                                                    </a>
                                                     <p class="text-sm text-gray-600">
                                                         {{ $test->pelamar->job->nama_job }}
                                                     </p>
                                                 </div>
                                                 <div class="text-right">
-                                                    <p class="text-sm font-medium text-indigo-600">
+                                                    <p class="text-sm font-medium text-gray-800">
                                                         {{ $test->jadwal->format('d M Y') }}
                                                     </p>
                                                     <p class="text-sm text-gray-600">
