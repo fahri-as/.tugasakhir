@@ -51,7 +51,11 @@ class AHPController extends Controller
         }
 
         $job = Job::findOrFail($job_id);
-        $criteria = Criteria::where('job_id', $job_id)->get();
+
+        // Get criteria ordered by code (K1, K2, K3, etc.)
+        $criteria = Criteria::where('job_id', $job_id)
+            ->orderBy('code')
+            ->get();
 
         // If criteria weights are already calculated, fetch them
         $hasCalculatedWeights = $criteria->filter(function($c) {
@@ -96,7 +100,9 @@ class AHPController extends Controller
             return redirect()->route('dashboard')->with('error', 'Decision support system is only available for Cook and Pastry Chef positions.');
         }
 
-        $criteria = Criteria::where('job_id', $job_id)->get();
+        $criteria = Criteria::where('job_id', $job_id)
+            ->orderBy('code')
+            ->get();
 
         // Start a transaction
         DB::beginTransaction();
@@ -253,7 +259,11 @@ class AHPController extends Controller
         }
 
         $job = Job::findOrFail($job_id);
-        $criteria = Criteria::where('job_id', $job_id)->get();
+
+        // Get criteria ordered by code
+        $criteria = Criteria::where('job_id', $job_id)
+            ->orderBy('code')
+            ->get();
 
         // Check if weights have been calculated
         $hasCalculatedWeights = $criteria->filter(function($c) {

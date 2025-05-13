@@ -37,8 +37,10 @@ class AHPCalculationService
         try {
             DB::beginTransaction();
 
-            // Get criteria for the job
-            $criteria = Criteria::where('job_id', $job_id)->get();
+            // Get criteria for the job, ordered by code
+            $criteria = Criteria::where('job_id', $job_id)
+                ->orderBy('code')
+                ->get();
 
             if ($criteria->isEmpty()) {
                 throw new \Exception('No criteria found for this job');
