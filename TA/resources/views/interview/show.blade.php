@@ -20,6 +20,7 @@
                             <input type="hidden" name="sikap_skor" value="{{ $interview->sikap_skor }}">
                             <input type="hidden" name="jadwal" value="{{ $interview->jadwal->format('Y-m-d\TH:i') }}">
                             <input type="hidden" name="status_seleksi" value="Pending">
+                            <input type="hidden" name="send_email" value="1">
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2">
                             Reset to Pending
                         </button>
@@ -35,6 +36,7 @@
                             <input type="hidden" name="sikap_skor" value="{{ $interview->sikap_skor }}">
                             <input type="hidden" name="jadwal" value="{{ $interview->jadwal->format('Y-m-d\TH:i') }}">
                             <input type="hidden" name="status_seleksi" value="Tidak Lulus">
+                            <input type="hidden" name="send_email" value="1">
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 active:bg-red-800 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2">
                                 Mark as Failed
                             </button>
@@ -174,6 +176,7 @@
                         <input type="hidden" name="skor" value="0">
                         <input type="hidden" name="catatan" value="">
                         <input type="hidden" name="status_seleksi" value="Pending">
+                        <input type="hidden" name="send_email" value="1">
 
                         <!-- Skill Test Date and Time -->
                         <div class="mb-4">
@@ -302,6 +305,16 @@
                     statusInput.name = 'update_interview_status';
                     statusInput.value = 'yes';
                     skillTestForm.appendChild(statusInput);
+
+                    // Ensure email sending field is included
+                    const emailInput = document.querySelector('input[name="send_email"]');
+                    if (!emailInput) {
+                        const newEmailInput = document.createElement('input');
+                        newEmailInput.type = 'hidden';
+                        newEmailInput.name = 'send_email';
+                        newEmailInput.value = '1';
+                        skillTestForm.appendChild(newEmailInput);
+                    }
                 });
 
                 // Modal open function

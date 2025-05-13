@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\InterviewScheduled;
+use App\Mail\InterviewFailed;
 
 class InterviewController extends Controller
 {
@@ -254,14 +255,14 @@ public function index(Request $request)
     public function update(Request $request, Interview $interview)
     {
         $request->validate([
-    'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-    'user_id' => 'required|exists:user,user_id',
-    'kualifikasi_skor' => 'required|integer|between:0,5', // Changed to allow 0
-    'komunikasi_skor' => 'required|integer|between:0,5', // Changed to allow 0
-    'sikap_skor' => 'required|integer|between:0,5',     // Changed to allow 0
-    'jadwal' => 'required|date',
-    'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
-]);
+            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+            'user_id' => 'required|exists:user,user_id',
+            'kualifikasi_skor' => 'required|integer|between:0,5', // Changed to allow 0
+            'komunikasi_skor' => 'required|integer|between:0,5', // Changed to allow 0
+            'sikap_skor' => 'required|integer|between:0,5',     // Changed to allow 0
+            'jadwal' => 'required|date',
+            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
+        ]);
         $interview->pelamar_id = $request->pelamar_id;
         $interview->user_id = $request->user_id;
         $interview->kualifikasi_skor = $request->kualifikasi_skor;
@@ -274,6 +275,32 @@ public function index(Request $request)
         $interview->total_skor = ($request->kualifikasi_skor + $request->komunikasi_skor + $request->sikap_skor) / 3;
 
         $interview->save();
+
+        // Check if email notification should be sent for failed interviews
+        if ($request->has('send_email') && $request->send_email == '1' && $request->status_seleksi == 'Tidak Lulus') {
+            $pelamar = Pelamar::findOrFail($request->pelamar_id);
+
+            $emailSent = true;
+            try {
+                Mail::to($pelamar->email)->send(new InterviewFailed($pelamar, $interview));
+            } catch (\Exception $e) {
+                Log::error('Failed to send interview failed email: ' . $e->getMessage());
+                $emailSent = false;
+            }
+
+            // Customize the success message
+            $redirectPath = $request->has('redirect') && $request->redirect === 'show'
+                          ? route('interview.show', $interview)
+                          : route('interview.index');
+
+            if ($emailSent) {
+                return redirect($redirectPath)
+                    ->with('success', 'Interview updated successfully. Email notification has been sent to ' . $pelamar->email);
+            } else {
+                return redirect($redirectPath)
+                    ->with('success', 'Interview updated successfully. Email notification could not be sent.');
+            }
+        }
 
         return redirect()->route('interview.index')->with('success', 'Interview updated successfully');
     }

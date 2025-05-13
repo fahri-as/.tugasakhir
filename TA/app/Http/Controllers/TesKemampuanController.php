@@ -11,6 +11,11 @@ use App\Models\Periode;
 use App\Models\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\SkillTestScheduled;
+use App\Mail\SkillTestPassed;
+use App\Mail\SkillTestFailed;
 
 class TesKemampuanController extends Controller
 {
@@ -194,8 +199,29 @@ class TesKemampuanController extends Controller
             }
         }
 
+        // Send email notification if requested
+        $successMessage = 'Skill test scheduled successfully';
+
+        if ($request->has('send_email') && $request->send_email == '1') {
+            $pelamar = Pelamar::findOrFail($request->pelamar_id);
+
+            $emailSent = true;
+            try {
+                Mail::to($pelamar->email)->send(new SkillTestScheduled($pelamar, $tesKemampuan));
+            } catch (\Exception $e) {
+                Log::error('Failed to send skill test email: ' . $e->getMessage());
+                $emailSent = false;
+            }
+
+            if ($emailSent) {
+                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+            } else {
+                $successMessage .= '. Email notification could not be sent.';
+            }
+        }
+
         return redirect()->route('tes-kemampuan.index')
-            ->with('success', 'Skill test scheduled successfully');
+            ->with('success', $successMessage);
     }
 
     public function show(TesKemampuan $tesKemampuan)
@@ -212,67 +238,102 @@ class TesKemampuanController extends Controller
     }
 
     public function update(Request $request, TesKemampuan $tesKemampuan)
-{
-    $request->validate([
-        'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-        'user_id' => 'required|exists:user,user_id',
-        'skor' => 'required|integer|between:0,100',
-        'catatan' => 'nullable',
-        'jadwal' => 'required|date',
-        'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang'
-    ]);
+    {
+        $request->validate([
+            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+            'user_id' => 'required|exists:user,user_id',
+            'skor' => 'required|integer|between:0,100',
+            'catatan' => 'nullable',
+            'jadwal' => 'required|date',
+            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang'
+        ]);
 
-    $tesKemampuan->pelamar_id = $request->pelamar_id;
-    $tesKemampuan->user_id = $request->user_id;
-    $tesKemampuan->skor = $request->skor;
-    $tesKemampuan->catatan = $request->catatan;
-    $tesKemampuan->jadwal = $request->jadwal;
-    $tesKemampuan->status_seleksi = $request->status_seleksi;
-    $tesKemampuan->save();
+        $tesKemampuan->pelamar_id = $request->pelamar_id;
+        $tesKemampuan->user_id = $request->user_id;
+        $tesKemampuan->skor = $request->skor;
+        $tesKemampuan->catatan = $request->catatan;
+        $tesKemampuan->jadwal = $request->jadwal;
+        $tesKemampuan->status_seleksi = $request->status_seleksi;
+        $tesKemampuan->save();
 
-    // If status is changed to Magang, create/update Magang record
-    if ($request->status_seleksi == 'Magang') {
-        // Check if magang record already exists
-        $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
+        // If status is changed to Magang, create/update Magang record
+        if ($request->status_seleksi == 'Magang') {
+            // Check if magang record already exists
+            $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
 
-        if (!$magang) {
-            // Generate a unique ID for the new magang record
-            try {
-                // Find the highest ID numerically by extracting the number part
-                $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
-                    ->orderBy('id_num', 'desc')
-                    ->first();
+            if (!$magang) {
+                // Generate a unique ID for the new magang record
+                try {
+                    // Find the highest ID numerically by extracting the number part
+                    $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
+                        ->orderBy('id_num', 'desc')
+                        ->first();
 
-                $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
-                $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
-
-                // Double-check that this ID doesn't already exist
-                while (Magang::where('magang_id', $magangId)->exists()) {
-                    $nextMagangId++;
+                    $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
                     $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+
+                    // Double-check that this ID doesn't already exist
+                    while (Magang::where('magang_id', $magangId)->exists()) {
+                        $nextMagangId++;
+                        $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+                    }
+                } catch (\Exception $e) {
+                    // Fallback if there's an issue
+                    $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+                }
+
+                Magang::create([
+                    'magang_id' => $magangId,
+                    'pelamar_id' => $request->pelamar_id,
+                    'user_id' => $request->user_id,
+                    'status_seleksi' => 'Pending', // Default to Pending in Magang
+                    'jadwal_mulai' => null // Include the new column
+                ]);
+            }
+        }
+
+        // Send email notification if requested
+        if ($request->has('send_email') && $request->send_email == '1') {
+            $pelamar = Pelamar::findOrFail($request->pelamar_id);
+            $emailSent = true;
+            $emailType = '';
+
+            try {
+                if ($request->status_seleksi == 'Lulus') {
+                    Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan));
+                    $emailType = 'lulus';
+                } elseif ($request->status_seleksi == 'Tidak Lulus') {
+                    Mail::to($pelamar->email)->send(new SkillTestFailed($pelamar, $tesKemampuan));
+                    $emailType = 'tidak lulus';
                 }
             } catch (\Exception $e) {
-                // Fallback if there's an issue
-                $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+                Log::error('Failed to send skill test ' . $emailType . ' email: ' . $e->getMessage());
+                $emailSent = false;
             }
 
-            Magang::create([
-                'magang_id' => $magangId,
-                'pelamar_id' => $request->pelamar_id,
-                'user_id' => $request->user_id,
-                'status_seleksi' => 'Pending', // Default to Pending in Magang
-                'jadwal_mulai' => null // Include the new column
-            ]);
+            // Check if we were redirected from the show page
+            if ($request->has('redirect') && $request->redirect === 'show') {
+                $successMessage = 'Test status updated successfully';
+
+                if ($emailType) {
+                    if ($emailSent) {
+                        $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+                    } else {
+                        $successMessage .= '. Email notification could not be sent.';
+                    }
+                }
+
+                return redirect()->route('tes-kemampuan.show', $tesKemampuan)->with('success', $successMessage);
+            }
         }
-    }
 
-    // Check if we were redirected from the show page
-    if ($request->has('redirect') && $request->redirect === 'show') {
-        return redirect()->route('tes-kemampuan.show', $tesKemampuan)->with('success', 'Test status updated successfully');
-    }
+        // Check if we were redirected from the show page
+        if ($request->has('redirect') && $request->redirect === 'show') {
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)->with('success', 'Test status updated successfully');
+        }
 
-    return redirect()->route('tes-kemampuan.index')->with('success', 'Tes Kemampuan updated successfully');
-}
+        return redirect()->route('tes-kemampuan.index')->with('success', 'Tes Kemampuan updated successfully');
+    }
 
     public function destroy(TesKemampuan $tesKemampuan)
     {

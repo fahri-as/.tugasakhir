@@ -32,6 +32,7 @@
                             <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
                             <input type="hidden" name="status_seleksi" value="Lulus">
                             <input type="hidden" name="redirect" value="show">
+                            <input type="hidden" name="send_email" value="1">
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2">
                                 Mark as Passed
                             </button>
@@ -49,6 +50,7 @@
                         <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
                         <input type="hidden" name="status_seleksi" value="Tidak Lulus">
                         <input type="hidden" name="redirect" value="show">
+                        <input type="hidden" name="send_email" value="1">
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 active:bg-red-800 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2">
                             Mark as Failed
                         </button>
@@ -64,6 +66,7 @@
                         <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
                         <input type="hidden" name="status_seleksi" value="Pending">
                         <input type="hidden" name="redirect" value="show">
+                        <input type="hidden" name="send_email" value="1">
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2">
                             Reset to Pending
                         </button>
@@ -79,6 +82,7 @@
                         <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
                         <input type="hidden" name="status_seleksi" value="Pending">
                         <input type="hidden" name="redirect" value="show">
+                        <input type="hidden" name="send_email" value="1">
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2">
                             Reset to Pending
                         </button>
@@ -206,6 +210,7 @@
                         <input type="hidden" name="pelamar_id" value="{{ $tesKemampuan->pelamar_id }}">
                         <input type="hidden" name="user_id" value="{{ $tesKemampuan->user_id }}">
                         <input type="hidden" name="tes_id" value="{{ $tesKemampuan->tes_id }}">
+                        <input type="hidden" name="send_email" value="1">
 
                         <!-- Internship Start Date and Time -->
                         <div class="mb-4">

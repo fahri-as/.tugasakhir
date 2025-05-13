@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InternshipScheduled;
 
 class MagangController extends Controller
 {
@@ -150,120 +152,140 @@ class MagangController extends Controller
 
 
     /**
- * Schedule the start date for an internship.
- *
- * @param  \Illuminate\Http\Request  $request
- * @param  \App\Models\TesKemampuan  $tesKemampuan
- * @return \Illuminate\Http\Response
- */
-public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
-{
-    $request->validate([
-        'jadwal_tanggal' => 'required|date',
-        'jadwal_waktu' => 'required',
-        'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-        'user_id' => 'required|exists:user,user_id',
-    ]);
+     * Schedule the start date for an internship.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\TesKemampuan  $tesKemampuan
+     * @return \Illuminate\Http\Response
+     */
+    public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
+    {
+        $request->validate([
+            'jadwal_tanggal' => 'required|date',
+            'jadwal_waktu' => 'required',
+            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+            'user_id' => 'required|exists:user,user_id',
+        ]);
 
-    // Combine date and time
-    $jadwalMulai = $request->jadwal_tanggal . ' ' . $request->jadwal_waktu . ':00';
+        // Combine date and time
+        $jadwalMulai = $request->jadwal_tanggal . ' ' . $request->jadwal_waktu . ':00';
 
-    // Check if datetime is in the future
-    $scheduledTime = \Carbon\Carbon::parse($jadwalMulai);
-    $now = \Carbon\Carbon::now();
+        // Check if datetime is in the future
+        $scheduledTime = \Carbon\Carbon::parse($jadwalMulai);
+        $now = \Carbon\Carbon::now();
 
-    if ($scheduledTime <= $now) {
-        return redirect()->back()->with('error', 'Internship start time must be in the future.');
-    }
+        if ($scheduledTime <= $now) {
+            return redirect()->back()->with('error', 'Internship start time must be in the future.');
+        }
 
-    // Start a transaction
-    DB::beginTransaction();
+        // Start a transaction
+        DB::beginTransaction();
 
-    try {
-        // Find existing magang record or create a new one
-        $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
+        try {
+            // Find existing magang record or create a new one
+            $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
 
-        if (!$magang) {
-            // Generate a unique ID for the new magang record
-            try {
-                // Find the highest ID numerically by extracting the number part
-                $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
-                    ->orderBy('id_num', 'desc')
-                    ->first();
+            if (!$magang) {
+                // Generate a unique ID for the new magang record
+                try {
+                    // Find the highest ID numerically by extracting the number part
+                    $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
+                        ->orderBy('id_num', 'desc')
+                        ->first();
 
-                $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
-                $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
-
-                // Double-check that this ID doesn't already exist
-                while (Magang::where('magang_id', $magangId)->exists()) {
-                    $nextMagangId++;
+                    $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
                     $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+
+                    // Double-check that this ID doesn't already exist
+                    while (Magang::where('magang_id', $magangId)->exists()) {
+                        $nextMagangId++;
+                        $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+                    }
+                } catch (\Exception $e) {
+                    // Fallback if there's an issue
+                    $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
                 }
-            } catch (\Exception $e) {
-                // Fallback if there's an issue
-                $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+
+                // Create new magang record
+                $magang = new Magang();
+                $magang->magang_id = $magangId;
+                $magang->pelamar_id = $request->pelamar_id;
+                $magang->user_id = $request->user_id;
+                $magang->status_seleksi = 'Sedang Berjalan';
+                $magang->total_skor = 0;
+            } else {
+                // Update existing record
+                $magang->status_seleksi = 'Sedang Berjalan';
             }
 
-            // Create new magang record
-            $magang = new Magang();
-            $magang->magang_id = $magangId;
-            $magang->pelamar_id = $request->pelamar_id;
-            $magang->user_id = $request->user_id;
-            $magang->status_seleksi = 'Sedang Berjalan';
-            $magang->total_skor = 0;
-        } else {
-            // Update existing record
-            $magang->status_seleksi = 'Sedang Berjalan';
+            // Set the start date
+            $magang->jadwal_mulai = $jadwalMulai;
+            $magang->save();
+
+            // Update the applicant status
+            $pelamar = Pelamar::findOrFail($request->pelamar_id);
+            $pelamar->status_seleksi = 'Sedang Berjalan';
+            $pelamar->save();
+
+            // Update test status
+            $tesKemampuan->status_seleksi = 'Magang';
+            $tesKemampuan->save();
+
+            // Create weekly evaluations based on the period's duration
+            if ($pelamar->periode) {
+                $weekCount = $pelamar->periode->durasi_minggu_magang;
+
+                // Get applicable criteria if available
+                $jobId = $pelamar->job_id;
+                $criteriaList = Criteria::where('job_id', $jobId)->get();
+
+                // Get default rating (middle rating)
+                $defaultRating = RatingScale::orderBy('value')->get()->filter(function($item, $key) {
+                    return $key == 2; // Get the middle item (typically "Cukup" or "Average")
+                })->first();
+
+                if (!$defaultRating) {
+                    // Fallback to first rating if no middle rating found
+                    $defaultRating = RatingScale::first();
+                }
+
+                // If this is a Cook or Pastry Chef position, create default evaluations
+                if (in_array($jobId, ['JOB001', 'JOB004'])) {
+                    $this->createDefaultEvaluations($magang);
+                }
+            }
+
+            // Send email notification if requested
+            $successMessage = 'Internship scheduled successfully. Weekly evaluations have been created.';
+
+            if ($request->has('send_email') && $request->send_email == '1') {
+                $emailSent = true;
+                try {
+                    Mail::to($pelamar->email)->send(new InternshipScheduled($pelamar, $magang, $tesKemampuan));
+                } catch (\Exception $e) {
+                    Log::error('Failed to send internship schedule email: ' . $e->getMessage());
+                    $emailSent = false;
+                }
+
+                if ($emailSent) {
+                    $successMessage .= ' Email notification has been sent to ' . $pelamar->email;
+                } else {
+                    $successMessage .= ' Email notification could not be sent.';
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Error scheduling internship: ' . $e->getMessage());
         }
-
-        // Set the start date
-        $magang->jadwal_mulai = $jadwalMulai;
-        $magang->save();
-
-        // Update the applicant status
-        $pelamar = Pelamar::findOrFail($request->pelamar_id);
-        $pelamar->status_seleksi = 'Sedang Berjalan';
-        $pelamar->save();
-
-        // Update test status
-        $tesKemampuan->status_seleksi = 'Magang';
-        $tesKemampuan->save();
-
-        // Create weekly evaluations based on the period's duration
-        if ($pelamar->periode) {
-            $weekCount = $pelamar->periode->durasi_minggu_magang;
-
-            // Get applicable criteria if available
-            $jobId = $pelamar->job_id;
-            $criteriaList = Criteria::where('job_id', $jobId)->get();
-
-            // Get default rating (middle rating)
-            $defaultRating = RatingScale::orderBy('value')->get()->filter(function($item, $key) {
-                return $key == 2; // Get the middle item (typically "Cukup" or "Average")
-            })->first();
-
-            if (!$defaultRating) {
-                // Fallback to first rating if no middle rating found
-                $defaultRating = RatingScale::first();
-            }
-
-            // If this is a Cook or Pastry Chef position, create default evaluations
-            if (in_array($jobId, ['JOB001', 'JOB004'])) {
-                $this->createDefaultEvaluations($magang);
-            }
-        }
-
-        DB::commit();
-
-        return redirect()->route('tes-kemampuan.show', $tesKemampuan)
-            ->with('success', 'Internship scheduled successfully. Weekly evaluations have been created.');
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()
-            ->with('error', 'Error scheduling internship: ' . $e->getMessage());
     }
-}
+
     /**
      * Show the form for creating a new magang record.
      */
