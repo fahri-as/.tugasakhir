@@ -90,7 +90,7 @@ class PeriodeController extends Controller
 
                 // Delete skill test records (if the model exists)
                 if (class_exists('App\\Models\\SkillTest')) {
-                    \App\Models\SkillTest::where('pelamar_id', $pelamar->pelamar_id)->delete();
+                    \App\Models\TesKemampuan::where('pelamar_id', $pelamar->pelamar_id)->delete();
                 }
 
                 // Delete magang (internship) records for this applicant
