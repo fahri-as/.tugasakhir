@@ -37,44 +37,29 @@
             <!-- Job Filter -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Job Position</label>
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-3 bg-gray-50 rounded-md max-h-40 overflow-y-auto">
-                    @php
-                        // Debug the selected period ID to understand what value we're working with
-                        // dd($selectedPeriodeId); // Uncomment to check value if needed
-
-                        // Modified logic to get jobs for selected period or ALL jobs if no period selected
-                        if ($selectedPeriodeId !== '' && $selectedPeriodeId !== null) {
-                            // Get jobs for a specific period
-                            $jobs = App\Models\Job::whereHas('periodes', function($query) use ($selectedPeriodeId) {
-                                $query->where('periode.periode_id', $selectedPeriodeId);
-                            })->orderBy('nama_job')->get();
-                        } else {
-                            // Get ALL jobs from all periods when "All Periods" is selected
-                            $jobs = App\Models\Job::whereHas('periodes')->orderBy('nama_job')->get();
-                        }
-
-                        // Make sure we have results
-                        // dd($jobs->count()); // Uncomment to check if jobs are returned
-                    @endphp
-
-                    @foreach($jobs as $job)
-                        <div class="flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="job_{{ $job->job_id }}" name="jobs[]" type="checkbox" value="{{ $job->job_id }}"
-                                    class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
-                                    {{ in_array($job->job_id, (array)$selectedJobs) ? 'checked' : '' }}>
-                            </div>
-                            <div class="ml-2 text-sm">
-                                <label for="job_{{ $job->job_id }}" class="font-medium text-gray-700">{{ $job->nama_job }}</label>
-                            </div>
+                <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 rounded-md">
+                    <!-- Only show Cook and Pastry Chef positions -->
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="job_JOB001" name="jobs[]" type="checkbox" value="JOB001"
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                {{ in_array('JOB001', (array)$selectedJobs) ? 'checked' : '' }}>
                         </div>
-                    @endforeach
-
-                    @if(count($jobs) == 0)
-                        <div class="text-sm text-gray-500 italic col-span-full">
-                            No jobs available for this period.
+                        <div class="ml-2 text-sm">
+                            <label for="job_JOB001" class="font-medium text-gray-700">Cook</label>
                         </div>
-                    @endif
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="job_JOB004" name="jobs[]" type="checkbox" value="JOB004"
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                {{ in_array('JOB004', (array)$selectedJobs) ? 'checked' : '' }}>
+                        </div>
+                        <div class="ml-2 text-sm">
+                            <label for="job_JOB004" class="font-medium text-gray-700">Pastry Chef</label>
+                        </div>
+                    </div>
                 </div>
             </div>
 
