@@ -1,286 +1,382 @@
-<x-crud-layout title="Internship Details">
-    <div class="space-y-8">
-        <div>
-            <h3 class="text-lg font-medium text-gray-900">Internship Information</h3>
-            <dl class="mt-4 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Internship ID</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ $magang->magang_id }}</dd>
-                </div>
+@extends('layouts.app')
 
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Selection Status</dt>
-                    <dd class="mt-1 text-sm">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                            {{ $magang->status_seleksi === 'Sedang Berjalan' ? 'bg-green-100 text-green-800' : '' }}
-                            {{ $magang->status_seleksi === 'Lulus' ? 'bg-blue-100 text-blue-800' : '' }}
-                            {{ $magang->status_seleksi === 'Tidak Lulus' ? 'bg-red-100 text-red-800' : '' }}
-                            {{ $magang->status_seleksi === 'Pending' ? 'bg-yellow-100 text-yellow-800' : '' }}">
-                            {{ $magang->status_seleksi }}
-                        </span>
-                    </dd>
-                </div>
-
-                <div class="sm:col-span-2">
-                    <dt class="text-sm font-medium text-gray-500">Intern Information</dt>
-                    <dd class="mt-1 text-sm text-gray-900">
-                        <div>Name: {{ $magang->pelamar->nama }}</div>
-                        <div>Position: {{ $magang->pelamar->job->nama_job ?? 'Not Assigned' }}</div>
-                        <div>Email: {{ $magang->pelamar->email }}</div>
-                        <div>Phone: {{ $magang->pelamar->nomor_wa }}</div>
-                    </dd>
-                </div>
-
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Start Date</dt>
-                    <dd class="mt-1 text-sm text-gray-900">
-                        @if($magang->jadwal_mulai)
-                            {{ $magang->jadwal_mulai->format('d F Y') }} at {{ $magang->jadwal_mulai->format('H:i') }}
-                        @else
-                            <span class="text-gray-500 italic">Not scheduled yet</span>
-                        @endif
-                    </dd>
-                </div>
-
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Supervisor</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ $magang->user->username }} ({{ $magang->user->role }})</dd>
-                </div>
-
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Total Score</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ number_format($magang->total_skor, 2) }}/5</dd>
-                </div>
-
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Rank</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ $magang->rank ?? 'Not ranked' }}</dd>
-                </div>
-
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Period</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ $magang->pelamar->periode->nama_periode ?? 'Not Assigned' }}</dd>
-                </div>
-
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Internship Duration</dt>
-                    <dd class="mt-1 text-sm text-gray-900">
-                        @if($magang->pelamar->periode && $magang->pelamar->periode->durasi_minggu_magang)
-                            {{ $magang->pelamar->periode->durasi_minggu_magang }} {{ Str::plural('week', $magang->pelamar->periode->durasi_minggu_magang) }}
-                        @else
-                            <span class="text-gray-500 italic">Not specified</span>
-                        @endif
-                    </dd>
-                </div>
-            </dl>
-        </div>
-
-        @if($magang->status_seleksi === 'Sedang Berjalan' && !$magang->jadwal_mulai)
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm text-yellow-700">
-                        This internship is in progress but no start date has been set.
-                        <a href="#" id="scheduleStartButton" class="font-medium underline text-yellow-700 hover:text-yellow-600">
-                            Schedule start date
-                        </a>
-                    </p>
-                </div>
-            </div>
-        </div>
-        @endif
-
-        @if($magang->evaluasiMingguan->count() > 0)
-        <div>
-            <h3 class="text-lg font-medium text-gray-900">Weekly Evaluations</h3>
-            <div class="mt-4 overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Week</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($magang->evaluasiMingguan->sortBy('minggu_ke') as $evaluasi)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Week {{ $evaluasi->minggu_ke }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $evaluasi->ratingScale->name ?? 'N/A' }}
-                                    <span class="text-xs text-gray-500">({{ $evaluasi->ratingScale->singkatan ?? 'N/A' }})</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ number_format($evaluasi->skor_minggu, 2) }}/5</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $evaluasi->created_at->format('d M Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="{{ route('evaluasi.show', $evaluasi) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
-                                    <a href="{{ route('evaluasi.edit', $evaluasi) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div>
-            <h3 class="text-lg font-medium text-gray-900">Evaluation Summary</h3>
-            <dl class="mt-4 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-3">
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Average Weekly Score</dt>
-                    <dd class="mt-1 text-sm text-gray-900">
-                        {{ number_format($magang->evaluasiMingguan->avg('skor_minggu'), 2) }}/5
-                    </dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Highest Weekly Score</dt>
-                    <dd class="mt-1 text-sm text-gray-900">
-                        {{ number_format($magang->evaluasiMingguan->max('skor_minggu'), 2) }}/5
-                    </dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Evaluated Weeks</dt>
-                    <dd class="mt-1 text-sm text-gray-900">
-                        {{ $magang->evaluasiMingguan->count() }}
-                        @if($magang->pelamar->periode && $magang->pelamar->periode->durasi_minggu_magang)
-                            of {{ $magang->pelamar->periode->durasi_minggu_magang }}
-                        @endif
-                    </dd>
-                </div>
-            </dl>
-        </div>
-        @else
-        <div class="bg-gray-50 p-4 rounded-md">
-            <p class="text-sm text-gray-500 italic">No weekly evaluations have been recorded yet.</p>
-        </div>
-        @endif
-
-        <div class="flex flex-wrap items-center gap-4">
-            <a href="{{ route('magang.edit', $magang) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
-                Edit Record
-            </a>
-
-            <form action="{{ route('magang.updateStatus', $magang) }}" method="POST" class="inline">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="status_seleksi" value="{{ $magang->status_seleksi == 'Sedang Berjalan' ? 'Lulus' : 'Sedang Berjalan' }}">
-                <button type="submit" class="inline-flex items-center px-4 py-2
-                    {{ $magang->status_seleksi == 'Sedang Berjalan' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700' }}
-                    rounded-md font-semibold text-xs text-white uppercase tracking-widest">
-                    {{ $magang->status_seleksi == 'Sedang Berjalan' ? 'Mark as Completed' : 'Start Internship' }}
-                </button>
-            </form>
-
-            <form action="{{ route('magang.destroy', $magang) }}" method="POST" class="inline">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500" onclick="return confirm('Are you sure you want to delete this internship record? This will also reset the related skill test status.')">
-                    Delete Record
-                </button>
-            </form>
-
-            <a href="{{ route('magang.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50">
+@section('content')
+<div class="container mx-auto py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800">{{ $magang->pelamar->nama }} - Internship Details</h1>
+        <div class="flex space-x-2">
+            <a href="{{ route('magang.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
                 Back to List
             </a>
-
-            @if($magang->status_seleksi === 'Sedang Berjalan')
-            <a href="{{ route('evaluasi.create', ['magang_id' => $magang->magang_id, 'minggu_ke' => $magang->evaluasiMingguan->count() + 1]) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
-                Add Weekly Evaluation
+            <a href="{{ route('magang.edit', $magang) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Edit
             </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Basic Information Card -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="bg-gray-100 px-4 py-2 border-b">
+                <h2 class="font-semibold text-lg">Intern Information</h2>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Full Name</p>
+                        <p class="font-medium">{{ $magang->pelamar->nama }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Position</p>
+                        <p class="font-medium">{{ $magang->pelamar->job->nama_job ?? 'Not assigned' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Status</p>
+                        <p>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                {{ $magang->status_seleksi === 'Sedang Berjalan' ? 'bg-green-100 text-green-800' : '' }}
+                                {{ $magang->status_seleksi === 'Lulus' ? 'bg-blue-100 text-blue-800' : '' }}
+                                {{ $magang->status_seleksi === 'Tidak Lulus' ? 'bg-red-100 text-red-800' : '' }}
+                                {{ $magang->status_seleksi === 'Pending' ? 'bg-yellow-100 text-yellow-800' : '' }}">
+                                {{ $magang->status_seleksi }}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Period</p>
+                        <p class="font-medium">{{ $magang->pelamar->periode->nama_periode ?? 'Not assigned' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Start Date</p>
+                        <p class="font-medium">
+                            @if($magang->jadwal_mulai)
+                                {{ $magang->jadwal_mulai->format('d M Y') }}
+                            @else
+                                Not scheduled
+                            @endif
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Contact</p>
+                        <p class="font-medium">{{ $magang->pelamar->email }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMART Score Card -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="bg-gray-100 px-4 py-2 border-b">
+                <h2 class="font-semibold text-lg">SMART Evaluation Results</h2>
+            </div>
+            <div class="p-4">
+                @if(in_array($magang->pelamar->job_id ?? '', ['JOB001', 'JOB004']))
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Overall Score</p>
+                            <p class="text-2xl font-bold">{{ number_format($magang->total_skor, 2) }}/5</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Ranking</p>
+                            <p class="text-xl font-bold bg-indigo-100 text-indigo-800 rounded-full w-10 h-10 flex items-center justify-center">
+                                {{ $magang->rank ?? '-' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600 mb-2">Method</p>
+                        <p class="text-sm">
+                            SMART (Simple Multi-Attribute Rating Technique) evaluation is used to assess interns based on multiple weighted criteria. Scores are normalized and weighted using criteria importance determined through AHP.
+                        </p>
+                    </div>
+                @else
+                    <div class="py-8 text-center">
+                        <p class="text-gray-500">SMART evaluation is only available for Cook and Pastry Chef positions.</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Scores Tab Section -->
+    @if(in_array($magang->pelamar->job_id ?? '', ['JOB001', 'JOB004']) && $weeklyScores && count($weeklyScores) > 0)
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6">
+        <div class="bg-gray-100 px-4 py-2 border-b">
+            <h2 class="font-semibold text-lg">Weekly SMART Scores</h2>
+        </div>
+        <div class="p-4">
+            <div class="mb-4">
+                <ul class="flex border-b">
+                    @foreach($weeklyScores as $week => $score)
+                    <li class="-mb-px mr-1">
+                        <a class="week-tab inline-block py-2 px-4 border-l border-t border-r rounded-t {{ $loop->first ? 'bg-indigo-500 text-white' : 'text-blue-500 hover:text-blue-800 bg-white' }}"
+                           href="#"
+                           data-target="week-{{ $week }}">
+                            Week {{ $week }}
+                        </a>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+
+            <div class="weekly-content">
+                @foreach($weeklyScores as $week => $score)
+                <div id="week-{{ $week }}" class="week-panel {{ $loop->first ? 'block' : 'hidden' }}">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Total Score</p>
+                            <p class="text-xl font-semibold">{{ number_format($score['total'], 4) }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Rank</p>
+                            <p class="text-lg font-semibold bg-indigo-100 text-indigo-800 rounded-full w-8 h-8 flex items-center justify-center">
+                                {{ $score['rank'] ?? '-' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-md font-medium mb-2">Criteria Scores</h3>
+                        <div class="space-y-3">
+                            @forelse($score['criteria'] as $criteriaName => $criteriaScore)
+                            <div>
+                                <div class="flex justify-between text-sm">
+                                    <span>{{ $criteriaName }}</span>
+                                    <span>{{ number_format($criteriaScore, 4) }}</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ min($criteriaScore * 100, 100) }}%"></div>
+                                </div>
+                            </div>
+                            @empty
+                            <p class="text-gray-500 text-sm">No criteria scores available</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Criteria Contribution Chart -->
+    @if(in_array($magang->pelamar->job_id ?? '', ['JOB001', 'JOB004']) && $criteriaContribution && count($criteriaContribution) > 0)
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6">
+        <div class="bg-gray-100 px-4 py-2 border-b">
+            <h2 class="font-semibold text-lg">Criteria Contribution Analysis</h2>
+        </div>
+        <div class="p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($criteriaContribution as $contribution)
+                <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-medium">{{ $contribution['name'] }}</h3>
+                            <p class="text-sm text-gray-500">{{ $contribution['code'] }}</p>
+                        </div>
+                        <div class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
+                            Weight: {{ number_format($contribution['weight'], 4) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-2">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: {{ $contribution['percentage'] }}%"></div>
+                        </div>
+                        <div class="flex justify-between mt-1 text-xs text-gray-600">
+                            <span>Score: {{ number_format($contribution['average_contribution'], 4) }}</span>
+                            <span>{{ number_format($contribution['percentage'], 1) }}%</span>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+            <div class="mt-4 text-sm text-gray-500">
+                <p>The percentages above show how much each criterion contributes to the intern's overall SMART score. Higher percentages indicate criteria that have more influence on the final ranking.</p>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Weekly Evaluations Section -->
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6">
+        <div class="bg-gray-100 px-4 py-2 border-b flex justify-between items-center">
+            <h2 class="font-semibold text-lg">Weekly Evaluations</h2>
+            @if($magang->status_seleksi === 'Sedang Berjalan')
+            <a href="{{ route('evaluasi.create', ['magang_id' => $magang->magang_id]) }}"
+               class="bg-green-500 hover:bg-green-600 text-white text-sm font-bold py-1 px-3 rounded">
+                Add Evaluation
+            </a>
+            @endif
+        </div>
+        <div class="p-4">
+            @if($evaluationsByWeek->count() > 0)
+            <div class="space-y-4" id="accordion">
+                @foreach($evaluationsByWeek->sortKeys() as $week => $evaluations)
+                <div class="border rounded-lg overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-3 cursor-pointer flex justify-between items-center week-header" data-week="{{ $week }}">
+                        <div class="font-medium">Week {{ $week }}</div>
+                        <div class="flex items-center">
+                            <span class="mr-2">{{ $evaluations->count() }} evaluations</span>
+                            <svg class="h-5 w-5 week-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="week-content hidden p-4">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criteria</th>
+                                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($evaluations as $evaluation)
+                                    <tr>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            @if($evaluation->criteria)
+                                                <div class="font-medium">{{ $evaluation->criteria->name }}</div>
+                                                <div class="text-sm text-gray-500">{{ $evaluation->criteria->code }}</div>
+                                            @else
+                                                <span class="text-gray-500 italic">No specific criteria</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                {{ $evaluation->ratingScale->name ?? 'N/A' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap font-medium">
+                                            {{ number_format($evaluation->skor_minggu, 2) }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                                            <a href="{{ route('evaluasi.edit', $evaluation) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                                            <a href="{{ route('evaluasi.show', $evaluation) }}" class="text-blue-600 hover:text-blue-900">View</a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-gray-50">
+                                        <td colspan="2" class="px-4 py-3 text-sm font-medium text-gray-900">Week Total</td>
+                                        <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                                            {{ number_format($evaluations->sum('skor_minggu'), 2) }}
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <div class="py-8 text-center">
+                <p class="text-gray-500">No evaluations have been recorded yet.</p>
+                @if($magang->status_seleksi === 'Sedang Berjalan')
+                <a href="{{ route('evaluasi.create', ['magang_id' => $magang->magang_id]) }}"
+                   class="mt-2 inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                    Create First Evaluation
+                </a>
+                @endif
+            </div>
             @endif
         </div>
     </div>
 
-    <!-- Start Date Scheduling Modal -->
-    <div id="scheduleStartModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <form action="{{ route('magang.scheduleStart', $magang) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                    Schedule Internship Start Date
-                                </h3>
-                                <div class="mt-4 space-y-4">
-                                    <div>
-                                        <label for="jadwal_tanggal" class="block text-sm font-medium text-gray-700">
-                                            Start Date
-                                        </label>
-                                        <input type="date" name="jadwal_tanggal" id="jadwal_tanggal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                                    </div>
-                                    <div>
-                                        <label for="jadwal_waktu" class="block text-sm font-medium text-gray-700">
-                                            Start Time
-                                        </label>
-                                        <input type="time" name="jadwal_waktu" id="jadwal_waktu" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                            Schedule
-                        </button>
-                        <button type="button" id="cancelScheduleBtn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <!-- Action Buttons -->
+    <div class="flex space-x-4">
+        <form action="{{ route('magang.updateStatus', $magang) }}" method="POST" class="inline">
+            @csrf
+            @method('PATCH')
+            @if($magang->status_seleksi === 'Sedang Berjalan')
+                <input type="hidden" name="status_seleksi" value="Lulus">
+                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                    Mark as Completed
+                </button>
+            @elseif($magang->status_seleksi === 'Pending')
+                <input type="hidden" name="status_seleksi" value="Sedang Berjalan">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                    Start Internship
+                </button>
+            @endif
+        </form>
+
+        <form action="{{ route('magang.destroy', $magang) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this internship record? This will also delete all associated evaluations.');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                Delete Record
+            </button>
+        </form>
+
+        @if(in_array($magang->pelamar->job_id ?? '', ['JOB001', 'JOB004']))
+        <a href="{{ route('evaluasi.smartDashboard', ['job_id' => $magang->pelamar->job_id]) }}" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded">
+            View SMART Dashboard
+        </a>
+        @endif
     </div>
+</div>
 
-    @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const scheduleStartButton = document.getElementById('scheduleStartButton');
-            const scheduleStartModal = document.getElementById('scheduleStartModal');
-            const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
-            const jadwalTanggalInput = document.getElementById('jadwal_tanggal');
-            const jadwalWaktuInput = document.getElementById('jadwal_waktu');
+<!-- JavaScript for tabs and accordion -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Week tabs functionality
+        document.querySelectorAll('.week-tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
 
-            if (scheduleStartButton) {
-                scheduleStartButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    scheduleStartModal.classList.remove('hidden');
-
-                    // Set default date to today
-                    const today = new Date();
-                    jadwalTanggalInput.value = today.toISOString().split('T')[0];
-
-                    // Set default time to current hour
-                    const hours = String(today.getHours()).padStart(2, '0');
-                    const minutes = String(today.getMinutes()).padStart(2, '0');
-                    jadwalWaktuInput.value = `${hours}:${minutes}`;
+                // Hide all panels
+                document.querySelectorAll('.week-panel').forEach(panel => {
+                    panel.classList.add('hidden');
                 });
-            }
 
-            if (cancelScheduleBtn) {
-                cancelScheduleBtn.addEventListener('click', function() {
-                    scheduleStartModal.classList.add('hidden');
+                // Remove active class from all tabs
+                document.querySelectorAll('.week-tab').forEach(t => {
+                    t.classList.remove('bg-indigo-500', 'text-white');
+                    t.classList.add('text-blue-500', 'hover:text-blue-800', 'bg-white');
                 });
-            }
 
-            // Close modal when clicking outside
-            window.addEventListener('click', function(e) {
-                if (e.target === scheduleStartModal) {
-                    scheduleStartModal.classList.add('hidden');
+                // Show the selected panel
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).classList.remove('hidden');
+
+                // Add active class to clicked tab
+                this.classList.remove('text-blue-500', 'hover:text-blue-800', 'bg-white');
+                this.classList.add('bg-indigo-500', 'text-white');
+            });
+        });
+
+        // Weekly evaluations accordion
+        document.querySelectorAll('.week-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const chevron = this.querySelector('.week-chevron');
+
+                // Toggle content visibility
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    chevron.style.transform = 'rotate(180deg)';
+                } else {
+                    content.classList.add('hidden');
+                    chevron.style.transform = 'rotate(0)';
                 }
             });
         });
-    </script>
-    @endpush
-</x-crud-layout>
+
+        // Auto-expand the latest week
+        const weekHeaders = document.querySelectorAll('.week-header');
+        if (weekHeaders.length > 0) {
+            weekHeaders[weekHeaders.length - 1].click();
+        }
+    });
+</script>
+@endsection

@@ -9,6 +9,9 @@ use App\Models\TesKemampuan;
 use App\Models\EvaluasiMingguanMagang;
 use App\Models\RatingScale;
 use App\Models\Criteria;
+use App\Models\Job;
+use App\Models\Periode;
+use App\Services\SMARTCalculationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -17,11 +20,15 @@ use Illuminate\Support\Facades\Log;
 
 class MagangController extends Controller
 {
+    protected $smartService;
+
+    public function __construct(SMARTCalculationService $smartService)
+    {
+        $this->smartService = $smartService;
+    }
+
     /**
      * Display a listing of magang records with filtering and sorting options.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
@@ -36,7 +43,7 @@ class MagangController extends Controller
             });
         } else if (!$request->has('periode_id')) {
             // First page load - default to most recent period
-            $latestPeriode = \App\Models\Periode::orderBy('tanggal_mulai', 'desc')->first();
+            $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
             if ($latestPeriode) {
                 $query->whereHas('pelamar', function($q) use ($latestPeriode) {
                     $q->where('periode_id', $latestPeriode->periode_id);
@@ -88,13 +95,176 @@ class MagangController extends Controller
         }
 
         $magang = $query->get();
-        return view('magang.index', compact('magang'));
+
+        // Get all available periods
+        $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();
+
+        // Get all available jobs
+        $jobs = Job::orderBy('nama_job')->get();
+
+        // Prepare SMART visualization data for Cook and Pastry Chef positions
+        $smartData = [];
+
+        // Group magang by job for SMART visualization
+        $byJob = $magang->groupBy(function($item) {
+            return $item->pelamar->job_id ?? 'unknown';
+        });
+
+        foreach ($byJob as $jobId => $magangGroup) {
+            if ($jobId !== 'unknown' && in_array($jobId, ['JOB001', 'JOB004'])) {
+                // Get all interns' magang_id for this job
+                $magangIds = $magangGroup->pluck('magang_id')->toArray();
+
+                // Prepare visualization data
+                $smartData[$jobId] = [
+                    'job_name' => $magangGroup->first()->pelamar->job->nama_job ?? 'Unknown Job',
+                    'interns' => []
+                ];
+
+                // Get SMART details for each intern
+                foreach ($magangGroup as $m) {
+                    $smartDetails = $this->smartService->getScoreDetails($m->magang_id);
+                    $weeklyScores = $this->smartService->getWeeklyScores($m->magang_id);
+
+                    $smartData[$jobId]['interns'][] = [
+                        'magang_id' => $m->magang_id,
+                        'name' => $m->pelamar->nama,
+                        'total_score' => $m->total_skor,
+                        'rank' => $m->rank,
+                        'weekly_scores' => $weeklyScores
+                    ];
+                }
+            }
+        }
+
+        return view('magang.index', compact(
+            'magang',
+            'periods',
+            'jobs',
+            'smartData',
+            'sortBy',
+            'sortDir'
+        ));
     }
 
+
+    /**
+ * Schedule the start date for an internship.
+ *
+ * @param  \Illuminate\Http\Request  $request
+ * @param  \App\Models\TesKemampuan  $tesKemampuan
+ * @return \Illuminate\Http\Response
+ */
+public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
+{
+    $request->validate([
+        'jadwal_tanggal' => 'required|date',
+        'jadwal_waktu' => 'required',
+        'pelamar_id' => 'required|exists:pelamar,pelamar_id',
+        'user_id' => 'required|exists:user,user_id',
+    ]);
+
+    // Combine date and time
+    $jadwalMulai = $request->jadwal_tanggal . ' ' . $request->jadwal_waktu . ':00';
+
+    // Check if datetime is in the future
+    $scheduledTime = \Carbon\Carbon::parse($jadwalMulai);
+    $now = \Carbon\Carbon::now();
+
+    if ($scheduledTime <= $now) {
+        return redirect()->back()->with('error', 'Internship start time must be in the future.');
+    }
+
+    // Start a transaction
+    DB::beginTransaction();
+
+    try {
+        // Find existing magang record or create a new one
+        $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
+
+        if (!$magang) {
+            // Generate a unique ID for the new magang record
+            try {
+                // Find the highest ID numerically by extracting the number part
+                $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
+                    ->orderBy('id_num', 'desc')
+                    ->first();
+
+                $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
+                $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+
+                // Double-check that this ID doesn't already exist
+                while (Magang::where('magang_id', $magangId)->exists()) {
+                    $nextMagangId++;
+                    $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
+                }
+            } catch (\Exception $e) {
+                // Fallback if there's an issue
+                $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+            }
+
+            // Create new magang record
+            $magang = new Magang();
+            $magang->magang_id = $magangId;
+            $magang->pelamar_id = $request->pelamar_id;
+            $magang->user_id = $request->user_id;
+            $magang->status_seleksi = 'Sedang Berjalan';
+            $magang->total_skor = 0;
+        } else {
+            // Update existing record
+            $magang->status_seleksi = 'Sedang Berjalan';
+        }
+
+        // Set the start date
+        $magang->jadwal_mulai = $jadwalMulai;
+        $magang->save();
+
+        // Update the applicant status
+        $pelamar = Pelamar::findOrFail($request->pelamar_id);
+        $pelamar->status_seleksi = 'Sedang Berjalan';
+        $pelamar->save();
+
+        // Update test status
+        $tesKemampuan->status_seleksi = 'Magang';
+        $tesKemampuan->save();
+
+        // Create weekly evaluations based on the period's duration
+        if ($pelamar->periode) {
+            $weekCount = $pelamar->periode->durasi_minggu_magang;
+
+            // Get applicable criteria if available
+            $jobId = $pelamar->job_id;
+            $criteriaList = Criteria::where('job_id', $jobId)->get();
+
+            // Get default rating (middle rating)
+            $defaultRating = RatingScale::orderBy('value')->get()->filter(function($item, $key) {
+                return $key == 2; // Get the middle item (typically "Cukup" or "Average")
+            })->first();
+
+            if (!$defaultRating) {
+                // Fallback to first rating if no middle rating found
+                $defaultRating = RatingScale::first();
+            }
+
+            // If this is a Cook or Pastry Chef position, create default evaluations
+            if (in_array($jobId, ['JOB001', 'JOB004'])) {
+                $this->createDefaultEvaluations($magang);
+            }
+        }
+
+        DB::commit();
+
+        return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+            ->with('success', 'Internship scheduled successfully. Weekly evaluations have been created.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->with('error', 'Error scheduling internship: ' . $e->getMessage());
+    }
+}
     /**
      * Show the form for creating a new magang record.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function create()
     {
@@ -103,13 +273,8 @@ class MagangController extends Controller
         return view('magang.create', compact('pelamar', 'users'));
     }
 
-
-
     /**
      * Store a newly created magang record in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
@@ -182,34 +347,122 @@ class MagangController extends Controller
                 $tesKemampuan->save();
             }
 
+            // Check if this is a Cook or Pastry Chef position
+            $pelamar = Pelamar::find($request->pelamar_id);
+            if ($pelamar && in_array($pelamar->job_id, ['JOB001', 'JOB004'])) {
+                // If it's a new intern with Sedang Berjalan status, create default evaluations
+                if ($request->status_seleksi === 'Sedang Berjalan') {
+                    $this->createDefaultEvaluations($magang);
+                }
+
+                // Update SMART scores
+                $this->smartService->updateTotalScores($pelamar->job_id, $pelamar->periode_id);
+            }
+
             DB::commit();
 
-            return redirect()->route('magang.index')->with('success', 'Magang created successfully');
+            return redirect()->route('magang.index')->with('success', 'Internship record created successfully');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error("Error creating magang record: " . $e->getMessage(), ['exception' => $e]);
             return redirect()->route('magang.create')
-                ->with('error', 'Error creating magang record: ' . $e->getMessage())
+                ->with('error', 'Error creating internship record: ' . $e->getMessage())
                 ->withInput();
         }
     }
 
     /**
-     * Display the specified magang record.
-     *
-     * @param  \App\Models\Magang  $magang
-     * @return \Illuminate\Http\Response
+     * Helper method to create default evaluations for a new intern
+     */
+    private function createDefaultEvaluations(Magang $magang)
+    {
+        if (!$magang->pelamar || !$magang->pelamar->periode) {
+            return;
+        }
+
+        $weekCount = $magang->pelamar->periode->durasi_minggu_magang ?? 4;
+        $jobId = $magang->pelamar->job_id;
+
+        // Only proceed for Cook or Pastry Chef
+        if (!in_array($jobId, ['JOB001', 'JOB004'])) {
+            return;
+        }
+
+        // Get criteria for this job
+        $criteriaList = Criteria::where('job_id', $jobId)->get();
+
+        if ($criteriaList->isEmpty()) {
+            return;
+        }
+
+        // Get default rating ("Cukup" = 3)
+        $defaultRating = RatingScale::where('singkatan', 'C')->first();
+
+        if (!$defaultRating) {
+            $defaultRating = RatingScale::orderBy('value')->skip(2)->first(); // Middle value
+
+            if (!$defaultRating) {
+                $defaultRating = RatingScale::first(); // Fallback
+            }
+        }
+
+        // Create evaluations for each week and criterion
+        for ($week = 1; $week <= $weekCount; $week++) {
+            foreach ($criteriaList as $criteria) {
+                $evaluasi = new EvaluasiMingguanMagang();
+                $evaluasi->evaluasi_id = Str::uuid()->toString();
+                $evaluasi->magang_id = $magang->magang_id;
+                $evaluasi->rating_id = $defaultRating->rating_id;
+                $evaluasi->criteria_id = $criteria->criteria_id;
+                $evaluasi->minggu_ke = $week;
+                $evaluasi->skor_minggu = $defaultRating->value / 10; // Convert to 0-5 scale
+                $evaluasi->save();
+            }
+        }
+    }
+
+    /**
+     * Display the specified magang record with SMART details.
      */
     public function show(Magang $magang)
     {
-        $magang->load(['pelamar', 'user', 'evaluasiMingguan']);
-        return view('magang.show', compact('magang'));
+        // Load relationships
+        $magang->load(['pelamar', 'pelamar.job', 'user', 'evaluasiMingguan.criteria', 'evaluasiMingguan.ratingScale']);
+
+        // Get SMART details for visualization
+        $smartDetails = null;
+        $weeklyScores = null;
+        $criteriaContribution = null;
+
+        // Only get SMART details if the intern has a job that is Cook or Pastry Chef
+        if ($magang->pelamar &&
+            $magang->pelamar->job_id &&
+            in_array($magang->pelamar->job_id, ['JOB001', 'JOB004'])) {
+
+            // Get SMART calculation details
+            $smartDetails = $this->smartService->getScoreDetails($magang->magang_id);
+
+            // Get weekly scores for chart
+            $weeklyScores = $this->smartService->getWeeklyScores($magang->magang_id);
+
+            // Get criteria contribution breakdown
+            $criteriaContribution = $this->smartService->getCriteriaContribution($magang->magang_id);
+        }
+
+        // Group evaluations by week for easier display
+        $evaluationsByWeek = $magang->evaluasiMingguan->groupBy('minggu_ke');
+
+        return view('magang.show', compact(
+            'magang',
+            'evaluationsByWeek',
+            'smartDetails',
+            'weeklyScores',
+            'criteriaContribution'
+        ));
     }
 
     /**
      * Show the form for editing the specified magang record.
-     *
-     * @param  \App\Models\Magang  $magang
-     * @return \Illuminate\Http\Response
      */
     public function edit(Magang $magang)
     {
@@ -220,10 +473,6 @@ class MagangController extends Controller
 
     /**
      * Update the specified magang record in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Magang  $magang
-     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Magang $magang)
     {
@@ -263,7 +512,6 @@ class MagangController extends Controller
             $magang->save();
 
             // Handle pelamar status updates
-
             // If the pelamar has changed, reset the old pelamar's status
             if ($previousPelamarId !== $request->pelamar_id) {
                 $oldPelamar = Pelamar::find($previousPelamarId);
@@ -292,96 +540,133 @@ class MagangController extends Controller
                     $tesKemampuan->status_seleksi = 'Magang';
                     $tesKemampuan->save();
                 }
+
+                // If status changed to Sedang Berjalan and it's a Cook or Pastry Chef, create default evaluations
+                if ($previousStatus !== 'Sedang Berjalan' &&
+                    in_array($pelamar->job_id, ['JOB001', 'JOB004'])) {
+                    $this->createDefaultEvaluations($magang);
+                }
+            }
+
+            // Update scores using SMART method if applicable
+            // Only if the pelamar has changed, score/rank is being directly modified, or status changed
+            if ($previousPelamarId !== $request->pelamar_id ||
+                $request->filled('total_skor') ||
+                $request->filled('rank') ||
+                $previousStatus !== $request->status_seleksi) {
+
+                // Check if new pelamar is Cook or Pastry Chef
+                if (in_array($pelamar->job_id, ['JOB001', 'JOB004'])) {
+                    $this->smartService->updateTotalScores($pelamar->job_id, $pelamar->periode_id);
+                    Log::info("Updated SMART scores for job: {$pelamar->job_id}");
+
+                    // Invalidate cache for this magang
+                    $this->smartService->invalidateCache($magang->magang_id);
+                }
+
+                // If pelamar changed, also update old pelamar's job scores if it was Cook or Pastry Chef
+                if ($previousPelamarId !== $request->pelamar_id) {
+                    $oldPelamar = Pelamar::find($previousPelamarId);
+                    if ($oldPelamar && in_array($oldPelamar->job_id, ['JOB001', 'JOB004'])) {
+                        $this->smartService->updateTotalScores($oldPelamar->job_id, $oldPelamar->periode_id);
+                        Log::info("Updated SMART scores for previous job: {$oldPelamar->job_id}");
+                    }
+                }
             }
 
             DB::commit();
 
-            return redirect()->route('magang.index')->with('success', 'Magang updated successfully');
+            return redirect()->route('magang.index')->with('success', 'Internship record updated successfully');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error("Error updating magang record: " . $e->getMessage(), ['exception' => $e]);
             return redirect()->route('magang.edit', $magang)
-                ->with('error', 'Error updating magang record: ' . $e->getMessage())
+                ->with('error', 'Error updating internship record: ' . $e->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Remove the specified magang record from storage and reset related statuses.
-     *
-     * @param  \App\Models\Magang  $magang
-     * @return \Illuminate\Http\Response
      */
     public function destroy(Magang $magang)
-{
-    // Start a transaction to ensure all updates happen together
-    DB::beginTransaction();
+    {
+        // Start a transaction to ensure all updates happen together
+        DB::beginTransaction();
 
-    try {
-        // Store the pelamar_id before deleting
-        $pelamarId = $magang->pelamar_id;
+        try {
+            // Store the pelamar_id and job_id before deleting
+            $pelamarId = $magang->pelamar_id;
+            $jobId = null;
+            $periodeId = null;
+            $magangId = $magang->magang_id;
 
-        // Delete all associated evaluations first
-        EvaluasiMingguanMagang::where('magang_id', $magang->magang_id)->delete();
+            if ($magang->pelamar) {
+                $jobId = $magang->pelamar->job_id;
+                $periodeId = $magang->pelamar->periode_id;
+            }
 
-        // Log the deletion of evaluations
-        Log::info("Deleted all evaluations for magang_id: {$magang->magang_id}");
+            // Delete all associated evaluations first
+            EvaluasiMingguanMagang::where('magang_id', $magang->magang_id)->delete();
 
-        // Check if there are any evaluations
-        if ($magang->evaluasiMingguan()->count() > 0) {
+            // Log the deletion of evaluations
+            Log::info("Deleted all evaluations for magang_id: {$magang->magang_id}");
+
+            // Delete the magang record
+            $magang->delete();
+            Log::info("Deleted magang record with ID: {$magang->magang_id}");
+
+            // Reset pelamar status
+            $pelamar = Pelamar::find($pelamarId);
+            if ($pelamar) {
+                if ($pelamar->status_seleksi === 'Sedang Berjalan') {
+                    $pelamar->status_seleksi = 'Pending';
+                    $pelamar->save();
+                    Log::info("Reset pelamar status for ID: {$pelamarId}");
+                }
+            }
+
+            // Reset the status of the related skill test record
+            $tesKemampuan = TesKemampuan::where('pelamar_id', $pelamarId)->first();
+            if ($tesKemampuan) {
+                // If the status was 'Magang', revert it to 'Pending'
+                if ($tesKemampuan->status_seleksi === 'Magang') {
+                    $tesKemampuan->status_seleksi = 'Pending';
+                    $tesKemampuan->save();
+                    Log::info("Reset tesKemampuan status for pelamar ID: {$pelamarId}");
+                }
+            }
+
+            // Update SMART scores for other interns in the same job if it was Cook or Pastry Chef
+            if ($jobId && in_array($jobId, ['JOB001', 'JOB004'])) {
+                $this->smartService->updateTotalScores($jobId, $periodeId);
+                Log::info("Updated SMART scores after deletion for job: $jobId");
+
+                // Invalidate related caches
+                Cache::forget("smart_details_{$magangId}");
+            }
+
+            // Commit all the changes
+            DB::commit();
+
+            return redirect()->route('magang.index')->with('success', 'Internship deleted successfully. Related statuses have been reset.');
+        } catch (\Exception $e) {
+            // If anything goes wrong, rollback all changes
+            DB::rollBack();
+            Log::error("Error deleting magang record: " . $e->getMessage());
+
             return redirect()->route('magang.index')
-                ->with('error', 'Cannot delete internship record. It has associated weekly evaluations that must be deleted first.');
+                ->with('error', 'An error occurred while deleting: ' . $e->getMessage());
         }
-
-        // Delete the magang record
-        $magang->delete();
-        Log::info("Deleted magang record with ID: {$magang->magang_id}");
-
-        // Reset pelamar status
-        $pelamar = Pelamar::find($pelamarId);
-        if ($pelamar) {
-            if ($pelamar->status_seleksi === 'Sedang Berjalan') {
-                $pelamar->status_seleksi = 'Pending';
-                $pelamar->save();
-                Log::info("Reset pelamar status for ID: {$pelamarId}");
-            }
-        }
-
-        // Reset the status of the related skill test record
-        $tesKemampuan = TesKemampuan::where('pelamar_id', $pelamarId)->first();
-        if ($tesKemampuan) {
-            // If the status was 'Magang', revert it to 'Pending'
-            if ($tesKemampuan->status_seleksi === 'Magang') {
-                $tesKemampuan->status_seleksi = 'Pending';
-                $tesKemampuan->save();
-                Log::info("Reset tesKemampuan status for pelamar ID: {$pelamarId}");
-            }
-        }
-
-        // Commit all the changes
-        DB::commit();
-
-        return redirect()->route('magang.index')->with('success', 'Internship deleted successfully. Related statuses have been reset.');
-    } catch (\Exception $e) {
-        // If anything goes wrong, rollback all changes
-        DB::rollBack();
-        Log::error("Error deleting magang record: " . $e->getMessage());
-
-        return redirect()->route('magang.index')
-            ->with('error', 'An error occurred while deleting: ' . $e->getMessage());
     }
-}
 
     /**
      * Update the status of a magang record.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Magang  $magang
-     * @return \Illuminate\Http\Response
      */
     public function updateStatus(Request $request, Magang $magang)
     {
         $request->validate([
-            'status_seleksi' => 'required|in:Pending,Lulus,Tidak Lulus,Sedang Berjalan,Selesai'
+            'status_seleksi' => 'required|in:Pending,Lulus,Tidak Lulus,Sedang Berjalan'
         ]);
 
         // Start a transaction
@@ -409,6 +694,13 @@ class MagangController extends Controller
                     $tesKemampuan->status_seleksi = 'Magang';
                     $tesKemampuan->save();
                 }
+
+                // If status changing to Sedang Berjalan and it's a Cook or Pastry Chef, create default evaluations
+                if ($previousStatus !== 'Sedang Berjalan' &&
+                    $magang->pelamar->job_id &&
+                    in_array($magang->pelamar->job_id, ['JOB001', 'JOB004'])) {
+                    $this->createDefaultEvaluations($magang);
+                }
             }
 
             // If status is changing FROM "Sedang Berjalan" to something else, update related records
@@ -416,9 +708,24 @@ class MagangController extends Controller
                 // For example, if internship is completed (Lulus) or failed (Tidak Lulus)
                 // You might want to update the pelamar status accordingly
                 if ($request->status_seleksi === 'Lulus' || $request->status_seleksi === 'Tidak Lulus') {
-                    $magang->pelamar->status_seleksi = ($request->status_seleksi === 'Lulus') ? 'Lulus' : 'Tidak Lulus';
+                    $magang->pelamar->status_seleksi = $request->status_seleksi;
                     $magang->pelamar->save();
                 }
+            }
+
+            // If job is Cook or Pastry Chef, update SMART scores
+            if ($magang->pelamar &&
+                $magang->pelamar->job_id &&
+                in_array($magang->pelamar->job_id, ['JOB001', 'JOB004'])) {
+
+                $jobId = $magang->pelamar->job_id;
+                $periodeId = $magang->pelamar->periode_id;
+
+                $this->smartService->updateTotalScores($jobId, $periodeId);
+                Log::info("Updated SMART scores after status change for job: $jobId");
+
+                // Invalidate cache for this magang
+                $this->smartService->invalidateCache($magang->magang_id);
             }
 
             DB::commit();
@@ -426,191 +733,101 @@ class MagangController extends Controller
             return redirect()->route('magang.index')->with('success', 'Status updated successfully');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error("Error updating status: " . $e->getMessage(), ['exception' => $e]);
             return redirect()->route('magang.index')
                 ->with('error', 'Error updating status: ' . $e->getMessage());
         }
     }
 
     /**
-     * Schedule the start date for an internship.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Magang  $magang
-     * @return \Illuminate\Http\Response
+     * Show SMART ranking dashboard for Cook and Pastry Chef positions
      */
-    public function scheduleStart(Request $request, TesKemampuan $tesKemampuan)
+    public function smartDashboard(Request $request)
     {
-        $request->validate([
-            'jadwal_tanggal' => 'required|date',
-            'jadwal_waktu' => 'required',
-            'pelamar_id' => 'required|exists:pelamar,pelamar_id',
-            'user_id' => 'required|exists:user,user_id',
-        ]);
+        // Get selected job or default to Cook (JOB001)
+        $jobId = $request->job_id ?? 'JOB001';
 
-        // Combine date and time
-        $jadwalMulai = $request->jadwal_tanggal . ' ' . $request->jadwal_waktu . ':00';
-
-        // Check if datetime is in the future
-        $scheduledTime = \Carbon\Carbon::parse($jadwalMulai);
-        $now = \Carbon\Carbon::now();
-
-        if ($scheduledTime <= $now) {
-            return redirect()->back()->with('error', 'Internship start time must be in the future.');
+        // Validate that job ID is Cook or Pastry Chef
+        if (!in_array($jobId, ['JOB001', 'JOB004'])) {
+            return redirect()->route('magang.index')
+                ->with('error', 'SMART dashboard is only available for Cook and Pastry Chef positions');
         }
 
-        // Start a transaction
-        DB::beginTransaction();
+        // Get selected period or default to latest
+        $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
+        $selectedPeriodeId = $request->periode_id ?? ($latestPeriode ? $latestPeriode->periode_id : null);
 
-        try {
-            // Find existing magang record or create a new one
-            $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
+        // Get jobs (only Cook and Pastry Chef) for dropdown
+        $jobs = Job::whereIn('job_id', ['JOB001', 'JOB004'])->orderBy('nama_job')->get();
 
-            if (!$magang) {
-                // Generate a unique ID for the new magang record
-                try {
-                    // Find the highest ID numerically by extracting the number part
-                    $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
-                        ->orderBy('id_num', 'desc')
-                        ->first();
+        // Get periods for dropdown
+        $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();
 
-                    $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
-                    $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
-
-                    // Double-check that this ID doesn't already exist
-                    while (Magang::where('magang_id', $magangId)->exists()) {
-                        $nextMagangId++;
-                        $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
-                    }
-                } catch (\Exception $e) {
-                    // Fallback if there's an issue
-                    $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
-                }
-
-                // Create new magang record
-                $magang = new Magang();
-                $magang->magang_id = $magangId;
-                $magang->pelamar_id = $request->pelamar_id;
-                $magang->user_id = $request->user_id;
-                $magang->status_seleksi = 'Sedang Berjalan';
-                $magang->total_skor = 0;
-            } else {
-                // Update existing record
-                $magang->status_seleksi = 'Sedang Berjalan';
+        // Get interns for this job and period
+        $interns = Magang::whereHas('pelamar', function($query) use ($jobId, $selectedPeriodeId) {
+            $query->where('job_id', $jobId);
+            if ($selectedPeriodeId) {
+                $query->where('periode_id', $selectedPeriodeId);
             }
+        })
+        ->with(['pelamar'])
+        ->orderBy('rank')
+        ->orderByDesc('total_skor')
+        ->get();
 
-            // Set the start date
-            $magang->jadwal_mulai = $jadwalMulai;
-            $magang->save();
+        // Get criteria for this job
+        $criteria = Criteria::where('job_id', $jobId)->orderBy('code')->get();
 
-            // Update the applicant status
-            $pelamar = Pelamar::findOrFail($request->pelamar_id);
-            $pelamar->status_seleksi = 'Sedang Berjalan';
-            $pelamar->save();
+        // Get period info to determine weeks
+        $periode = null;
+        $weekCount = 1;
 
-            // Update test status
-            $tesKemampuan->status_seleksi = 'Magang';
-            $tesKemampuan->save();
-
-            // Create weekly evaluations based on the period's duration
-            if ($pelamar->periode) {
-                $weekCount = $pelamar->periode->durasi_minggu_magang;
-
-                // Get applicable criteria if available
-                $jobId = $pelamar->job_id;
-                $criteriaList = Criteria::where('job_id', $jobId)->get();
-
-                // Get default rating (middle rating)
-                $defaultRating = RatingScale::orderBy('value')->get()->filter(function($item, $key) {
-                    return $key == 2; // Get the middle item (typically "Cukup" or "Average")
-                })->first();
-
-                if (!$defaultRating) {
-                    // Fallback to first rating if no middle rating found
-                    $defaultRating = RatingScale::first();
-                }
-
-                // Create an entry for each week and criteria
-                for ($week = 1; $week <= $weekCount; $week++) {
-                    if ($criteriaList->isEmpty()) {
-                        // If no criteria, create a single evaluation per week
-                        $this->createEvaluation($magang, $defaultRating, null, $week);
-                    } else {
-                        // Create one evaluation per criteria for each week
-                        foreach ($criteriaList as $criteria) {
-                            $this->createEvaluation($magang, $defaultRating, $criteria->criteria_id, $week);
-                        }
-                    }
-                }
+        if ($selectedPeriodeId) {
+            $periode = Periode::find($selectedPeriodeId);
+            if ($periode) {
+                $weekCount = $periode->durasi_minggu_magang ?? 1;
             }
-
-            DB::commit();
-
-            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
-                ->with('success', 'Internship scheduled successfully. Weekly evaluations have been created.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Error scheduling internship: ' . $e->getMessage());
         }
-    }
 
-    /**
-     * Helper method to create an evaluation record
-     *
-     * @param Magang $magang
-     * @param RatingScale $defaultRating
-     * @param string|null $criteriaId
-     * @param int $week
-     */
-    private function createEvaluation(Magang $magang, RatingScale $defaultRating, ?string $criteriaId, int $week)
-    {
-        // Check if evaluation for this week, magang, and criteria already exists
-        $existingEval = EvaluasiMingguanMagang::where('magang_id', $magang->magang_id)
-            ->where('minggu_ke', $week)
-            ->where('criteria_id', $criteriaId)
-            ->first();
-
-        if (!$existingEval && $defaultRating) {
-            $evaluasi = new EvaluasiMingguanMagang();
-            $evaluasi->evaluasi_id = Str::uuid()->toString();
-            $evaluasi->magang_id = $magang->magang_id;
-            $evaluasi->rating_id = $defaultRating->rating_id;
-            $evaluasi->criteria_id = $criteriaId;
-            $evaluasi->minggu_ke = $week;
-            $evaluasi->skor_minggu = $defaultRating->value / 10; // Convert to 0-5 scale
-            $evaluasi->save();
+        // Get SMART rankings for each week
+        $weeklyRankings = [];
+        for ($week = 1; $week <= $weekCount; $week++) {
+            $weeklyRankings[$week] = $this->smartService->calculateScores($jobId, $week, $selectedPeriodeId);
         }
-    }
 
-    /**
-     * Bulk update ranks for multiple magang records.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function updateRanks(Request $request)
-    {
-        $request->validate([
-            'ranks' => 'required|array',
-            'ranks.*' => 'required|integer|min:1',
-        ]);
+        // Update all interns' total scores for this job
+        $this->smartService->updateTotalScores($jobId, $selectedPeriodeId);
 
-        // Start a transaction to ensure all updates succeed or fail together
-        DB::beginTransaction();
-
-        try {
-            foreach ($request->ranks as $magangId => $rank) {
-                $magang = Magang::findOrFail($magangId);
-                $magang->rank = $rank;
-                $magang->save();
+        // Get interns again after updating scores
+        $interns = Magang::whereHas('pelamar', function($query) use ($jobId, $selectedPeriodeId) {
+            $query->where('job_id', $jobId);
+            if ($selectedPeriodeId) {
+                $query->where('periode_id', $selectedPeriodeId);
             }
+        })
+        ->with(['pelamar'])
+        ->orderBy('rank')
+        ->orderByDesc('total_skor')
+        ->get();
 
-            DB::commit();
-            return redirect()->route('magang.index')->with('success', 'Ranks updated successfully');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->route('magang.index')->with('error', 'Failed to update ranks: ' . $e->getMessage());
+        // Get contribution percentages for each criterion
+        $criteriaContributions = [];
+
+        foreach ($interns as $intern) {
+            $contribution = $this->smartService->getCriteriaContribution($intern->magang_id);
+            $criteriaContributions[$intern->magang_id] = $contribution;
         }
+
+        return view('magang.smart-dashboard', compact(
+            'jobs',
+            'periods',
+            'jobId',
+            'selectedPeriodeId',
+            'interns',
+            'criteria',
+            'weekCount',
+            'weeklyRankings',
+            'criteriaContributions'
+        ));
     }
 }

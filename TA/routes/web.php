@@ -54,13 +54,21 @@ Route::middleware('auth')->group(function () {
     // Magang routes
     Route::resource('magang', MagangController::class);
     Route::patch('magang/{magang}/status', [MagangController::class, 'updateStatus'])
-        ->name('magang.update-status');
+        ->name('magang.updateStatus');
     // Add the new route for scheduling internship start and creating evaluations
     Route::post('magang/schedule-start/{tesKemampuan}', [MagangController::class, 'scheduleStart'])
         ->name('magang.schedule-start');
 
+    // Add SMART dashboard route for Magang
+    Route::get('magang/smart-dashboard', [MagangController::class, 'smartDashboard'])
+        ->name('magang.smartDashboard');
+
     // Evaluasi Mingguan routes
     Route::resource('evaluasi', EvaluasiMingguanMagangController::class);
+
+    // Add SMART dashboard route for Evaluasi
+    Route::get('evaluasi/smart-dashboard', [EvaluasiMingguanMagangController::class, 'smartDashboard'])
+        ->name('evaluasi.smartDashboard');
 
     // API route for getting evaluations by week (for AJAX calls)
     Route::get('/api/evaluations', [EvaluasiMingguanMagangController::class, 'getByWeek'])
