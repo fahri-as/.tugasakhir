@@ -70,8 +70,13 @@ class AHPController extends Controller
                 return $item->criteria_row_id . '_' . $item->criteria_column_id;
             });
 
-        // Log comparisons for debugging if needed
+        // Log comparisons for debugging
         Log::info('AHP comparisons loaded for form: ' . $comparisons->count());
+
+        // Debug log each comparison value
+        foreach ($comparisons as $key => $comparison) {
+            Log::info("Loaded comparison for form: $key = " . $comparison->value);
+        }
 
         return view('ahp.index', compact('job', 'criteria', 'hasCalculatedWeights', 'comparisons'));
     }
@@ -106,11 +111,41 @@ class AHPController extends Controller
                 ->whereIn('criteria_row_id', $criteria->pluck('criteria_id'))
                 ->delete();
 
+            Log::info("Cleared existing comparisons for job $job_id");
+
+            // Track which comparisons have been saved to avoid duplicates
+            $savedComparisons = [];
+
             // Insert comparisons
             foreach ($request->comparison as $rowId => $columns) {
                 foreach ($columns as $colId => $value) {
+                    // Skip if already saved (to avoid duplicate processing)
+                    $compKey = $rowId . '_' . $colId;
+                    if (in_array($compKey, $savedComparisons)) {
+                        continue;
+                    }
+
+                    // Handle diagonal elements (criteria compared to itself)
+                    if ($rowId == $colId) {
+                        $comparisonId = Str::uuid()->toString();
+
+                        // Diagonal elements are always 1
+                        DB::table('criteria_comparisons')->insert([
+                            'comparisons_id' => $comparisonId,
+                            'criteria_row_id' => $rowId,
+                            'criteria_column_id' => $colId,
+                            'value' => 1.0,
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now(),
+                        ]);
+
+                        $savedComparisons[] = $compKey;
+                        Log::info("Saved diagonal element: Row $rowId, Column $colId, Value 1.0");
+                        continue;
+                    }
+
                     // Only insert if we have a value (not comparing criteria with itself)
-                    if (!empty($value)) {
+                    if (!empty($value) && is_numeric($value)) {
                         // Debug log
                         Log::info("Processing comparison: Row $rowId to Column $colId with value $value");
 
@@ -136,49 +171,29 @@ class AHPController extends Controller
                             'updated_at' => now(),
                         ]);
 
-                        // Verify saved value
-                        $savedRecord = DB::table('criteria_comparisons')
-                            ->where('criteria_row_id', $rowId)
-                            ->where('criteria_column_id', $colId)
-                            ->first();
-
-                        if ($savedRecord) {
-                            Log::info("Saved comparison record: Row $rowId, Column $colId, Value " . $savedRecord->value);
-                        } else {
-                            Log::warning("Failed to save comparison: Row $rowId, Column $colId");
-                        }
+                        $savedComparisons[] = $compKey;
 
                         // Insert the reciprocal value
-                        if ($rowId != $colId) {
-                            $reciprocalId = Str::uuid()->toString();
+                        $reciprocalId = Str::uuid()->toString();
+                        $reciprocalKey = $colId . '_' . $rowId;
 
-                            // Calculate reciprocal with high precision
-                            $reciprocalValue = 1.0 / $numericValue;
+                        // Calculate reciprocal with high precision
+                        $reciprocalValue = 1.0 / $numericValue;
 
-                            // Debug log
-                            Log::info("Calculating reciprocal: 1.0 / $numericValue = $reciprocalValue");
+                        // Debug log
+                        Log::info("Calculating reciprocal: 1.0 / $numericValue = $reciprocalValue");
 
-                            DB::table('criteria_comparisons')->insert([
-                                'comparisons_id' => $reciprocalId,
-                                'criteria_row_id' => $colId,
-                                'criteria_column_id' => $rowId,
-                                'value' => $reciprocalValue,
-                                'created_at' => now()->format('Y-m-d H:i:s'),
-                                'updated_at' => now(),
-                            ]);
+                        DB::table('criteria_comparisons')->insert([
+                            'comparisons_id' => $reciprocalId,
+                            'criteria_row_id' => $colId,
+                            'criteria_column_id' => $rowId,
+                            'value' => $reciprocalValue,
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now(),
+                        ]);
 
-                            // Verify saved reciprocal value
-                            $savedReciprocal = DB::table('criteria_comparisons')
-                                ->where('criteria_row_id', $colId)
-                                ->where('criteria_column_id', $rowId)
-                                ->first();
-
-                            if ($savedReciprocal) {
-                                Log::info("Saved reciprocal: Row $colId, Column $rowId, Value " . $savedReciprocal->value);
-                            } else {
-                                Log::warning("Failed to save reciprocal: Row $colId, Column $rowId");
-                            }
-                        }
+                        $savedComparisons[] = $reciprocalKey;
+                        Log::info("Saved reciprocal: Row $colId, Column $rowId, Value " . $reciprocalValue);
                     }
                 }
             }
@@ -250,56 +265,47 @@ class AHPController extends Controller
         }
 
         // Get all comparisons for the job
-        $comparisons = CriteriaComparison::whereIn('criteria_row_id', $criteria->pluck('criteria_id'))
+        $comparisons = DB::table('criteria_comparisons')
+            ->whereIn('criteria_row_id', $criteria->pluck('criteria_id'))
             ->whereIn('criteria_column_id', $criteria->pluck('criteria_id'))
             ->get();
+
+        // Log the number of loaded comparisons
+        Log::info("Retrieved " . $comparisons->count() . " comparisons for job $job_id");
 
         // Create comparison map for easy access
         $comparisonMap = [];
         foreach ($comparisons as $comparison) {
             $key = $comparison->criteria_row_id . '_' . $comparison->criteria_column_id;
             $comparisonMap[$key] = $comparison;
-        }
 
-        // Log loaded comparisons for debugging
-        Log::info("Loaded " . $comparisons->count() . " comparison records for results page");
+            // Log each comparison loaded
+            Log::info("Loaded comparison for matrix: $key = {$comparison->value}");
+        }
 
         // Build the comparison matrix with proper reciprocal values
         $matrix = [];
         foreach ($criteria as $row) {
             foreach ($criteria as $col) {
-                if ($row->criteria_id === $col->criteria_id) {
-                    // Diagonal always 1
-                    $matrix[$row->criteria_id][$col->criteria_id] = 1.0;
-                } else {
-                    $key = $row->criteria_id . '_' . $col->criteria_id;
+                $key = $row->criteria_id . '_' . $col->criteria_id;
 
-                    if (isset($comparisonMap[$key])) {
-                        // Use existing comparison
-                        $value = floatval($comparisonMap[$key]->value);
-                        // Ensure it's not 0
-                        $matrix[$row->criteria_id][$col->criteria_id] = ($value > 0) ? $value : 1.0;
-                    } else {
-                        // Try to find reciprocal
-                        $reverseKey = $col->criteria_id . '_' . $row->criteria_id;
+                if (isset($comparisonMap[$key])) {
+                    // Use value directly from database
+                    $value = floatval($comparisonMap[$key]->value);
 
-                        if (isset($comparisonMap[$reverseKey])) {
-                            $reverseValue = floatval($comparisonMap[$reverseKey]->value);
-                            // Prevent division by zero
-                            if ($reverseValue > 0) {
-                                $matrix[$row->criteria_id][$col->criteria_id] = 1.0 / $reverseValue;
-                            } else {
-                                $matrix[$row->criteria_id][$col->criteria_id] = 1.0;
-                            }
-                        } else {
-                            // Default to 1 if no value found
-                            $matrix[$row->criteria_id][$col->criteria_id] = 1.0;
-                        }
+                    // Validate value is positive
+                    if ($value <= 0) {
+                        Log::warning("Invalid matrix value for $key: $value, using 1.0 instead");
+                        $value = 1.0;
                     }
-                }
 
-                // Log matrix values
-                Log::info("Matrix[{$row->criteria_id}][{$col->criteria_id}] = {$matrix[$row->criteria_id][$col->criteria_id]}");
+                    $matrix[$row->criteria_id][$col->criteria_id] = $value;
+                    Log::info("Matrix[$key] = $value (from DB)");
+                } else {
+                    // This should not happen if data is saved correctly
+                    Log::warning("Missing comparison value for $key, using default 1.0");
+                    $matrix[$row->criteria_id][$col->criteria_id] = 1.0;
+                }
             }
         }
 
@@ -335,7 +341,7 @@ class AHPController extends Controller
 
         // Get Random Index (RI) value for n criteria
         $riValues = [0, 0, 0.58, 0.9, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49];
-        $ri = $n <= count($riValues) ? $riValues[$n - 1] : 1.49;
+        $ri = ($n - 1 < count($riValues)) ? $riValues[$n - 1] : 1.49;
 
         // Calculate Consistency Ratio
         $cr = ($n > 1 && $ri > 0) ? $ci / $ri : 0;

@@ -181,10 +181,10 @@ class AHPCalculationService
                 $ci = ($lambdaMax - $n) / ($n - 1);
 
                 // Get Random Index (RI) for n criteria
-                $ri = self::RI_VALUES[$n - 1] ?? 1.49;
+                $ri = isset(self::RI_VALUES[$n - 1]) ? self::RI_VALUES[$n - 1] : 1.49;
 
                 // Calculate Consistency Ratio (CR)
-                $cr = $ci / $ri;
+                $cr = $ri != 0 ? $ci / $ri : 0;
 
                 // If CR > 0.1, the comparisons are not consistent
                 if ($n > 2 && $cr > 0.1) {

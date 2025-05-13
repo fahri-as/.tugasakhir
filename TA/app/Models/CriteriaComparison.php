@@ -21,7 +21,7 @@ class CriteriaComparison extends Model
     ];
 
     protected $casts = [
-        'value' => 'integer',
+        'value' => 'decimal:4',
         'created_at' => 'string'
     ];
 
