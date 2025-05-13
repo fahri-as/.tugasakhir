@@ -55,7 +55,7 @@
                                         </div>
                                         <div>
                                             <p class="text-sm text-gray-600">Score (0-5 scale)</p>
-                                            <p class="font-medium">{{ $evaluasi->rating_id ? number_format($evaluasi->skor_minggu, 2) : 'N/A' }}</p>
+                                            <p class="font-medium">{{ $evaluasi->rating_id ? number_format($evaluasi->skor_minggu * 10, 0) : 'N/A' }}</p>
                                         </div>
                                         <div class="col-span-2">
                                             <p class="text-sm text-gray-600">Criteria</p>

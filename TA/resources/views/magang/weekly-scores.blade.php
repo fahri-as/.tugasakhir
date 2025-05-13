@@ -32,21 +32,27 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($weeklyTotalScores as $week => $score)
+                            @forelse($weeklyTotalScores as $weekScore)
                                 <tr>
-                                    <td>Week {{ $week }}</td>
-                                    <td>{{ number_format($score, 2) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">Week {{ $weekScore->minggu_ke }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ number_format($weekScore->total_skor * 10, 0) }}</td>
                                     <td>
                                         <div class="progress">
                                             <div class="progress-bar bg-success" role="progressbar"
-                                                style="width: {{ ($score/5)*100 }}%;"
-                                                aria-valuenow="{{ $score }}" aria-valuemin="0" aria-valuemax="5">
-                                                {{ number_format($score, 2) }}
+                                                style="width: {{ ($weekScore->total_skor/5)*100 }}%;"
+                                                aria-valuenow="{{ $weekScore->total_skor }}" aria-valuemin="0" aria-valuemax="5">
+                                                {{ number_format($weekScore->total_skor * 10, 0) }}
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="2" class="px-6 py-4 text-center text-gray-500">
+                                        No weekly scores recorded yet.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -74,10 +80,13 @@
         const weeks = [];
         const scores = [];
 
-        @foreach($weeklyTotalScores as $week => $score)
-            weeks.push('Week {{ $week }}');
-            scores.push({{ $score }});
-        @endforeach
+        @forelse($weeklyTotalScores as $weekScore)
+            weeks.push('Week {{ $weekScore->minggu_ke }}');
+            scores.push({{ $weekScore->total_skor }});
+        @empty
+            weeks.push('No data');
+            scores.push(0);
+        @endforelse
 
         const chart = new Chart(ctx, {
             type: 'line',

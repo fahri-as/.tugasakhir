@@ -26,6 +26,36 @@
                         </div>
                     </div>
 
+                    <!-- SMART Dashboard Links -->
+                    <div class="bg-white shadow rounded-lg p-4 mb-6">
+                        <h2 class="text-lg font-medium mb-3">SMART Evaluation Dashboards</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <a href="{{ route('magang.smartDashboard', ['job_id' => 'JOB001']) }}" class="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition duration-150">
+                                <div class="bg-indigo-100 p-3 rounded-full mr-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">Cook Position Dashboard</h3>
+                                    <p class="text-sm text-gray-500">View SMART analysis for Cook position</p>
+                                </div>
+                            </a>
+
+                            <a href="{{ route('magang.smartDashboard', ['job_id' => 'JOB004']) }}" class="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition duration-150">
+                                <div class="bg-pink-100 p-3 rounded-full mr-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">Pastry Chef Dashboard</h3>
+                                    <p class="text-sm text-gray-500">View SMART analysis for Pastry Chef position</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <!-- Basic Information Card -->
                         <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -329,12 +359,26 @@
                                 Delete Record
                             </button>
                         </form>
+                    </div>
 
-                        @if(in_array($magang->pelamar->job_id ?? '', ['JOB001', 'JOB004']))
-                        <a href="{{ route('magang.smartDashboard', ['job_id' => $magang->pelamar->job_id]) }}" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded">
-                            View SMART Dashboard
-                        </a>
-                        @endif
+                    <div class="mt-6 text-sm rounded-lg bg-gray-50 p-4">
+                        <p class="text-sm text-gray-500 mb-2">
+                            <i class="fas fa-info-circle mr-1"></i> Score information:
+                        </p>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                            <li>Total Score: <span class="font-medium">{{ number_format($magang->total_skor * 10, 0) }}</span> (scale 0-50)</li>
+                            <li>Rank: <span class="font-medium">{{ $magang->rank }}</span> out of {{ $totalInterns ?? '?' }} interns</li>
+                            @if(isset($weeklyScores) && count($weeklyScores) > 0)
+                                <li>
+                                    Weekly scores:
+                                    @foreach($weeklyScores as $week => $score)
+                                        <span class="inline-block px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded-full ml-1">
+                                            Week {{ $week }}: {{ number_format($score['total'] * 10, 0) }}
+                                        </span>
+                                    @endforeach
+                                </li>
+                            @endif
+                        </ul>
                     </div>
                 </div>
             </div>

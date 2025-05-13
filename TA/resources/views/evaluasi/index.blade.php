@@ -622,7 +622,7 @@
                         <div class="update-status hidden mt-1 text-xs"></div>
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-900">
-                        ${eval.skor_minggu}
+                        ${eval.skor_minggu * 10}
                         <span class="text-xs text-gray-500">
                             ${eval.rating_scale ? '(Original rating: ' + eval.rating_scale.value + ')' : '(Not rated)'}
                         </span>
@@ -789,10 +789,10 @@
                 // Update the score in the table (3rd cell)
                 const row = dropdown.closest('tr');
                 const scoreCell = row.cells[2];
-                scoreCell.textContent = data.evaluation.skor_minggu;
+                scoreCell.textContent = data.evaluation.skor_minggu * 10;
 
                 // Update the total score at the bottom of the table
-                document.getElementById('total-score').textContent = parseFloat(data.total_score).toFixed(2);
+                document.getElementById('total-score').textContent = (parseFloat(data.total_score) * 10).toFixed(0);
 
                 // Show success message
                 statusDiv.textContent = 'Updated successfully';
