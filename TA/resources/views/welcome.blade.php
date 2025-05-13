@@ -75,7 +75,14 @@
                                     <label for="periode_id" class="block text-sm font-medium text-gray-700">Period</label>
                                     <select name="periode_id" id="periode_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
                                         <option value="">Select Period</option>
-                                        @foreach($periodes as $periode)
+                                        @php
+                                            // Filter out periods that have already ended and sort by start date (newest first)
+                                            $activePeriodes = $periodes->filter(function($periode) {
+                                                return $periode->tanggal_selesai->greaterThanOrEqualTo(now());
+                                            })->sortByDesc('tanggal_mulai');
+                                        @endphp
+
+                                        @foreach($activePeriodes as $periode)
                                             <option value="{{ $periode->periode_id }}" {{ old('periode_id') == $periode->periode_id ? 'selected' : '' }}
                                                 data-jobs="{{ json_encode($periode->jobs) }}">
                                                 {{ $periode->nama_periode }} ({{ $periode->tanggal_mulai->format('d M Y') }} - {{ $periode->tanggal_selesai->format('d M Y') }})

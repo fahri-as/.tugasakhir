@@ -4,7 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Periode;
 use App\Models\Job;
+use App\Models\Pelamar;
+use App\Models\Magang;
+use App\Models\EvaluasiMingguanMagang;
+use App\Models\TotalSkorMingguMagang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PeriodeController extends Controller
 {
@@ -70,8 +75,58 @@ class PeriodeController extends Controller
 
     public function destroy(Periode $periode)
     {
-        $periode->jobs()->detach();
-        $periode->delete();
-        return redirect()->route('periode.index')->with('success', 'Periode deleted successfully');
+        // Begin transaction for data integrity
+        DB::beginTransaction();
+
+        try {
+            // Find all applicants associated with this period
+            $pelamars = Pelamar::where('periode_id', $periode->periode_id)->get();
+
+            foreach ($pelamars as $pelamar) {
+                // Delete interview records (if the model exists)
+                if (class_exists('App\\Models\\Interview')) {
+                    \App\Models\Interview::where('pelamar_id', $pelamar->pelamar_id)->delete();
+                }
+
+                // Delete skill test records (if the model exists)
+                if (class_exists('App\\Models\\SkillTest')) {
+                    \App\Models\SkillTest::where('pelamar_id', $pelamar->pelamar_id)->delete();
+                }
+
+                // Delete magang (internship) records for this applicant
+                $magangs = Magang::where('pelamar_id', $pelamar->pelamar_id)->get();
+                foreach ($magangs as $magang) {
+                    // Delete evaluations
+                    EvaluasiMingguanMagang::where('magang_id', $magang->magang_id)->delete();
+
+                    // Delete weekly scores
+                    TotalSkorMingguMagang::where('magang_id', $magang->magang_id)->delete();
+
+                    // Delete the magang record
+                    $magang->delete();
+                }
+
+                // Delete any other related records that might be associated with the applicant
+                // For example, if there are other tables not covered above, add them here
+
+                // Delete the applicant
+                $pelamar->delete();
+            }
+
+            // Detach jobs before deleting the period
+            $periode->jobs()->detach();
+
+            // Finally delete the period
+            $periode->delete();
+
+            // Commit the transaction
+            DB::commit();
+
+            return redirect()->route('periode.index')->with('success', 'Periode dan semua data terkait (pelamar, interview, skill test, magang, evaluasi) berhasil dihapus');
+        } catch (\Exception $e) {
+            // Rollback in case of error
+            DB::rollback();
+            return redirect()->route('periode.index')->with('error', 'Gagal menghapus periode: ' . $e->getMessage());
+        }
     }
 }
