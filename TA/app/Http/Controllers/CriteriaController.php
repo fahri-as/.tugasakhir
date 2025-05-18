@@ -161,17 +161,37 @@ class CriteriaController extends Controller
     {
         // Store job_id before deletion for redirection
         $jobId = $criterium->job_id;
+        $criteriaId = $criterium->criteria_id;
 
-        // Check if criteria has any comparisons before deleting
-        if ($criterium->rowComparisons()->count() > 0 || $criterium->columnComparisons()->count() > 0) {
+        try {
+            // Check if criteria has any comparisons before deleting
+            if ($criterium->rowComparisons()->count() > 0 || $criterium->columnComparisons()->count() > 0) {
+                return redirect()->route('criteria.index', ['job_id' => $jobId])
+                    ->with('error', 'Cannot delete criteria. It has associated comparisons that must be deleted first.');
+            }
+
+            // Check if criteria is used in evaluations
+            $evaluasiCount = \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->count();
+            if ($evaluasiCount > 0) {
+                return redirect()->route('criteria.index', ['job_id' => $jobId])
+                    ->with('error', 'Cannot delete criteria. It is being used in ' . $evaluasiCount . ' evaluations.');
+            }
+
+            // Force delete to ensure it's removed
+            $deleted = $criterium->delete();
+
+            if (!$deleted) {
+                return redirect()->route('criteria.index', ['job_id' => $jobId])
+                    ->with('error', 'Failed to delete criteria. Please try again.');
+            }
+
             return redirect()->route('criteria.index', ['job_id' => $jobId])
-                ->with('error', 'Cannot delete criteria. It has associated comparisons that must be deleted first.');
+                ->with('success', 'Criteria deleted successfully');
+
+        } catch (\Exception $e) {
+            return redirect()->route('criteria.index', ['job_id' => $jobId])
+                ->with('error', 'Error deleting criteria: ' . $e->getMessage());
         }
-
-        $criterium->delete();
-
-        return redirect()->route('criteria.index', ['job_id' => $jobId])
-            ->with('success', 'Criteria deleted successfully');
     }
 
     /**
