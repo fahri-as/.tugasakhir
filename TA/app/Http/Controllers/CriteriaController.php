@@ -6,6 +6,7 @@ use App\Models\Criteria;
 use App\Models\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class CriteriaController extends Controller
 {
@@ -189,6 +190,63 @@ class CriteriaController extends Controller
                 ->with('success', 'Criteria deleted successfully');
 
         } catch (\Exception $e) {
+            return redirect()->route('criteria.index', ['job_id' => $jobId])
+                ->with('error', 'Error deleting criteria: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Force delete a criteria by first removing all associated data
+     *
+     * @param  \App\Models\Criteria  $criteria
+     * @return \Illuminate\Http\Response
+     */
+    public function forceDestroy(Criteria $criterium)
+    {
+        // Store job_id before deletion for redirection
+        $jobId = $criterium->job_id;
+        $criteriaId = $criterium->criteria_id;
+
+        try {
+            // Begin transaction to ensure all operations succeed or fail together
+            DB::beginTransaction();
+
+            // 1. Delete all comparisons where this criteria is in the row or column
+            $rowComparisonsCount = $criterium->rowComparisons()->count();
+            $columnComparisonsCount = $criterium->columnComparisons()->count();
+
+            $criterium->rowComparisons()->delete();
+            $criterium->columnComparisons()->delete();
+
+            // 2. Update evaluations to remove references to this criteria
+            $evaluasiCount = \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->count();
+            // Set the criteria_id to null in evaluations
+            \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->update(['criteria_id' => null]);
+
+            // 3. Finally delete the criteria
+            $deleted = $criterium->delete();
+
+            if (!$deleted) {
+                DB::rollBack();
+                return redirect()->route('criteria.index', ['job_id' => $jobId])
+                    ->with('error', 'Failed to delete criteria. Please try again.');
+            }
+
+            DB::commit();
+
+            $message = 'Criteria deleted successfully. ';
+            if ($rowComparisonsCount > 0 || $columnComparisonsCount > 0) {
+                $message .= 'Removed ' . ($rowComparisonsCount + $columnComparisonsCount) . ' comparisons. ';
+            }
+            if ($evaluasiCount > 0) {
+                $message .= 'Updated ' . $evaluasiCount . ' evaluations.';
+            }
+
+            return redirect()->route('criteria.index', ['job_id' => $jobId])
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->route('criteria.index', ['job_id' => $jobId])
                 ->with('error', 'Error deleting criteria: ' . $e->getMessage());
         }

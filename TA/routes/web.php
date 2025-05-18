@@ -86,6 +86,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('criteria', CriteriaController::class);
     Route::post('criteria/update-weights', [CriteriaController::class, 'updateWeights'])
         ->name('criteria.update-weights');
+    Route::delete('criteria/{criterium}/force', [CriteriaController::class, 'forceDestroy'])
+        ->name('criteria.force-destroy');
 
     // Decision Support System (DSS) routes
     // AHP Routes

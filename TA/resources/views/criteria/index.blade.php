@@ -71,7 +71,12 @@
                                                         <form action="{{ route('criteria.destroy', $criterion->criteria_id) }}" method="POST" class="inline">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this criteria?')">Delete</button>
+                                                            <button type="submit" class="text-red-600 hover:text-red-900 mr-3" onclick="return confirm('Are you sure you want to delete this criteria?')">Delete</button>
+                                                        </form>
+                                                        <form action="{{ route('criteria.force-destroy', $criterion->criteria_id) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="text-red-800 hover:text-red-900 font-bold" onclick="return confirm('WARNING: This will force delete the criteria and remove all associated data. This action cannot be undone. Are you sure?')">Force Delete</button>
                                                         </form>
                                                     </td>
                                                 </tr>
