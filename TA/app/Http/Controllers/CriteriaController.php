@@ -60,8 +60,8 @@ class CriteriaController extends Controller
             'job_id' => 'required|exists:job,job_id',
             'name' => 'required|string|max:50',
             'code' => 'nullable|string|max:50',
-            'description' => 'nullable|string|max:255',
-            'weight' => 'required|numeric|min:0|max:1'
+            'description' => 'nullable|string|max:255'
+
         ]);
 
         // Generate a unique criteria_id
@@ -79,7 +79,7 @@ class CriteriaController extends Controller
             'name' => $request->name,
             'code' => $request->code,
             'description' => $request->description,
-            'weight' => $request->weight ?? 0,
+
         ]);
 
         return redirect()->route('criteria.index', ['job_id' => $request->job_id])
@@ -136,16 +136,16 @@ class CriteriaController extends Controller
             'job_id' => 'required|exists:job,job_id',
             'name' => 'required|string|max:50',
             'code' => 'nullable|string|max:50',
-            'description' => 'nullable|string|max:255',
-            'weight' => 'required|numeric|min:0|max:1'
+            'description' => 'nullable|string|max:255'
+
         ]);
 
         $criterion->update([
             'job_id' => $request->job_id,
             'name' => $request->name,
             'code' => $request->code,
-            'description' => $request->description,
-            'weight' => $request->weight ?? $criterion->weight,
+            'description' => $request->description
+
         ]);
 
         return redirect()->route('criteria.index', ['job_id' => $request->job_id])

@@ -64,16 +64,6 @@
                             @enderror
                         </div>
 
-                        <!-- Weight -->
-                        <div>
-                            <x-input-label for="weight" :value="__('Weight')" />
-                            <x-text-input id="weight" class="block mt-1 w-full" type="number" name="weight" :value="old('weight', $criterion->weight)" step="0.01" min="0" max="1" />
-                            <p class="mt-1 text-xs text-gray-500">Weight value between 0 and 1 (e.g., 0.25 represents 25% importance)</p>
-                            @error('weight')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         <div class="flex items-center justify-end mt-6">
                             <x-primary-button class="ml-3">
                                 {{ __('Update Criteria') }}

@@ -72,16 +72,6 @@
                             @enderror
                         </div>
 
-                        <!-- Weight -->
-                        <div>
-                            <x-input-label for="weight" :value="__('Weight (Optional)')" />
-                            <x-text-input id="weight" class="block mt-1 w-full" type="number" name="weight" :value="old('weight', 0)" step="0.01" min="0" max="1" />
-                            <p class="mt-1 text-xs text-gray-500">Weight value between 0 and 1 (e.g., 0.25 represents 25% importance). This can also be set automatically through AHP.</p>
-                            @error('weight')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         <div class="flex items-center justify-end mt-6">
                             <a href="{{ route('criteria.index', isset($selectedJobId) ? ['job_id' => $selectedJobId] : []) }}" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-300 focus:outline-none focus:bg-gray-300 transition ease-in-out duration-150 mr-3">
                                 Cancel
