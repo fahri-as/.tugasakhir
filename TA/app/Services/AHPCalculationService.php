@@ -166,13 +166,22 @@ class AHPCalculationService
             }
 
             // Update criteria weights in database
-            foreach ($weights as $criteriaId => $weight) {
-                Criteria::where('criteria_id', $criteriaId)
-                    ->update(['weight' => $weight]);
+foreach ($weights as $criteriaId => $weight) {
+    try {
+        // Verify both id and weight are of correct type before updating
+        if (is_numeric($weight)) {
+            Criteria::where('criteria_id', $criteriaId)
+                ->update(['weight' => $weight]);
 
-                // Log weight update
-                Log::info("Updated weight in database: Criteria " . $criteriaId . " = " . $weight);
-            }
+            // Log successful update
+            Log::info("Updated weight for criteria $criteriaId: $weight");
+        } else {
+            Log::error("Invalid weight value for criteria $criteriaId: $weight");
+        }
+    } catch (\Exception $e) {
+        Log::error("Error updating weight for criteria $criteriaId: " . $e->getMessage());
+    }
+}
 
             // Calculate consistency measures if needed
             if ($n > 1) {
