@@ -58,10 +58,10 @@ class CriteriaController extends Controller
     {
         $request->validate([
             'job_id' => 'required|exists:job,job_id',
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50',
-            'description' => 'nullable|string',
-            'weight' => 'nullable|numeric|between:0,1',
+            'name' => 'required|string|max:50',
+            'code' => 'nullable|string|max:50',
+            'description' => 'nullable|string|max:255',
+            'weight' => 'required|numeric|min:0|max:1'
         ]);
 
         // Generate a unique criteria_id
@@ -134,10 +134,10 @@ class CriteriaController extends Controller
     {
         $request->validate([
             'job_id' => 'required|exists:job,job_id',
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50',
-            'description' => 'nullable|string',
-            'weight' => 'nullable|numeric|between:0,1',
+            'name' => 'required|string|max:50',
+            'code' => 'nullable|string|max:50',
+            'description' => 'nullable|string|max:255',
+            'weight' => 'required|numeric|min:0|max:1'
         ]);
 
         $criterion->update([
@@ -201,22 +201,22 @@ class CriteriaController extends Controller
      * @param  \App\Models\Criteria  $criterion
      * @return \Illuminate\Http\Response
      */
-    public function forceDestroy(Criteria $criterium)
+    public function forceDestroy(Criteria $criterion)
     {
         // Store job_id before deletion for redirection
-        $jobId = $criterium->job_id;
-        $criteriaId = $criterium->criteria_id;
+        $jobId = $criterion->job_id;
+        $criteriaId = $criterion->criteria_id;
 
         try {
             // Begin transaction to ensure all operations succeed or fail together
             DB::beginTransaction();
 
             // 1. Delete all comparisons where this criteria is in the row or column
-            $rowComparisonsCount = $criterium->rowComparisons()->count();
-            $columnComparisonsCount = $criterium->columnComparisons()->count();
+            $rowComparisonsCount = $criterion->rowComparisons()->count();
+            $columnComparisonsCount = $criterion->columnComparisons()->count();
 
-            $criterium->rowComparisons()->delete();
-            $criterium->columnComparisons()->delete();
+            $criterion->rowComparisons()->delete();
+            $criterion->columnComparisons()->delete();
 
             // 2. Update evaluations to remove references to this criteria
             $evaluasiCount = \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->count();
@@ -224,7 +224,7 @@ class CriteriaController extends Controller
             \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->update(['criteria_id' => null]);
 
             // 3. Finally delete the criteria
-            $deleted = $criterium->delete();
+            $deleted = $criterion->delete();
 
             if (!$deleted) {
                 DB::rollBack();

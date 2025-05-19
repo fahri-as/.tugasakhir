@@ -12,6 +12,8 @@ use App\Http\Controllers\AHPController;
 use App\Http\Controllers\SMARTController;
 use App\Http\Controllers\SMARTEvaluasiController;
 use App\Http\Controllers\CriteriaController;
+use App\Http\Controllers\CriteriaRatingScaleController;
+use App\Http\Controllers\CriteriaComparisonController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Periode;
 
@@ -83,11 +85,35 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/evaluations/update', [EvaluasiMingguanMagangController::class, 'updateRating'])->name('api.evaluations.update');
 
     // Criteria routes
-    Route::resource('criteria', CriteriaController::class);
-    Route::post('criteria/update-weights', [CriteriaController::class, 'updateWeights'])
-        ->name('criteria.update-weights');
-    Route::delete('criteria/{criterium}/force', [CriteriaController::class, 'forceDestroy'])
-        ->name('criteria.force-destroy');
+    Route::get('/criteria', [CriteriaController::class, 'index'])->name('criteria.index');
+    Route::get('/criteria/create', [CriteriaController::class, 'create'])->name('criteria.create');
+    Route::post('/criteria', [CriteriaController::class, 'store'])->name('criteria.store');
+    Route::get('/criteria/{criterion}', [CriteriaController::class, 'show'])->name('criteria.show');
+    Route::get('/criteria/{criterion}/edit', [CriteriaController::class, 'edit'])->name('criteria.edit');
+    Route::put('/criteria/{criterion}', [CriteriaController::class, 'update'])->name('criteria.update');
+    Route::delete('/criteria/{criterion}', [CriteriaController::class, 'destroy'])->name('criteria.destroy');
+    Route::delete('/criteria/{criterion}/force', [CriteriaController::class, 'forceDestroy'])->name('criteria.force-destroy');
+    Route::post('/criteria/update-weights', [CriteriaController::class, 'updateWeights'])->name('criteria.update-weights');
+
+    // Criteria Rating Scale Routes
+    Route::get('/criteria-rating-scales', [CriteriaRatingScaleController::class, 'index'])->name('criteria-rating-scales.index');
+    Route::get('/criteria-rating-scales/create', [CriteriaRatingScaleController::class, 'create'])->name('criteria-rating-scales.create');
+    Route::post('/criteria-rating-scales', [CriteriaRatingScaleController::class, 'store'])->name('criteria-rating-scales.store');
+    Route::get('/criteria-rating-scales/{ratingScale}', [CriteriaRatingScaleController::class, 'show'])->name('criteria-rating-scales.show');
+    Route::get('/criteria-rating-scales/{ratingScale}/edit', [CriteriaRatingScaleController::class, 'edit'])->name('criteria-rating-scales.edit');
+    Route::put('/criteria-rating-scales/{ratingScale}', [CriteriaRatingScaleController::class, 'update'])->name('criteria-rating-scales.update');
+    Route::delete('/criteria-rating-scales/{ratingScale}', [CriteriaRatingScaleController::class, 'destroy'])->name('criteria-rating-scales.destroy');
+    Route::get('/criteria/{criteriaId}/rating-scales', [CriteriaRatingScaleController::class, 'getByCriteria'])->name('criteria.rating-scales');
+
+    // Criteria Comparison Routes
+    Route::get('/criteria-comparisons', [CriteriaComparisonController::class, 'index'])->name('criteria-comparisons.index');
+    Route::get('/criteria-comparisons/create', [CriteriaComparisonController::class, 'create'])->name('criteria-comparisons.create');
+    Route::post('/criteria-comparisons', [CriteriaComparisonController::class, 'store'])->name('criteria-comparisons.store');
+    Route::get('/criteria-comparisons/{comparison}', [CriteriaComparisonController::class, 'show'])->name('criteria-comparisons.show');
+    Route::get('/criteria-comparisons/{comparison}/edit', [CriteriaComparisonController::class, 'edit'])->name('criteria-comparisons.edit');
+    Route::put('/criteria-comparisons/{comparison}', [CriteriaComparisonController::class, 'update'])->name('criteria-comparisons.update');
+    Route::delete('/criteria-comparisons/{comparison}', [CriteriaComparisonController::class, 'destroy'])->name('criteria-comparisons.destroy');
+    Route::get('/criteria/{criteriaId}/comparisons', [CriteriaComparisonController::class, 'getByCriteria'])->name('criteria.comparisons');
 
     // Decision Support System (DSS) routes
     // AHP Routes

@@ -91,6 +91,20 @@
                             </x-primary-button>
                         </div>
                     </form>
+
+                    <!-- Rating Scales Section -->
+                    <div class="mt-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Rating Scales</h3>
+                            <p class="text-sm text-gray-500">Add rating scales after creating the criteria</p>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-sm text-gray-500 text-center">
+                                Rating scales can be added after the criteria is created. You will be redirected to the criteria details page where you can manage rating scales.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

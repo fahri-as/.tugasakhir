@@ -62,4 +62,9 @@ class Criteria extends Model
         // This works for codes like K1, K2, K10 to sort them numerically
         return $query->orderByRaw("CAST(SUBSTRING(code, 2) AS UNSIGNED)");
     }
+
+    public function criteriaRatingScales()
+    {
+        return $this->hasMany(CriteriaRatingScale::class, 'criteria_id', 'criteria_id');
+    }
 }

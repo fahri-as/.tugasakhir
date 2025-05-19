@@ -17,7 +17,8 @@ class CriteriaComparison extends Model
         'criteria_column_id',
         'criteria_row_id',
         'value',
-        'created_at'
+        'created_at',
+        'updated_at'
     ];
 
     protected $casts = [
@@ -39,5 +40,15 @@ class CriteriaComparison extends Model
     public function columnCriteria(): BelongsTo
     {
         return $this->belongsTo(Criteria::class, 'criteria_column_id', 'criteria_id');
+    }
+
+    public function criteriaColumn()
+    {
+        return $this->belongsTo(Criteria::class, 'criteria_column_id', 'criteria_id');
+    }
+
+    public function criteriaRow()
+    {
+        return $this->belongsTo(Criteria::class, 'criteria_row_id', 'criteria_id');
     }
 }
