@@ -64,12 +64,10 @@ class CriteriaController extends Controller
 
         ]);
 
-        // Generate a unique criteria_id
-        $criteriaId = 'C' . Str::upper(Str::random(5));
-
-        // Check if we need to generate a new ID (in case of collision)
+        // Generate a unique numeric criteria_id
+        $criteriaId = mt_rand(1, 999);
         while (Criteria::where('criteria_id', $criteriaId)->exists()) {
-            $criteriaId = 'C' . Str::upper(Str::random(5));
+            $criteriaId = mt_rand(1, 999);
         }
 
         // Create the criteria with the generated ID
