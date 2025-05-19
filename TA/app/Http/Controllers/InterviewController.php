@@ -147,6 +147,7 @@ public function index(Request $request)
         $interview->komunikasi_skor = 0;
         $interview->sikap_skor = 0;
         $interview->total_skor = 0;
+        $interview->user_id = 1;
         $interview->status_seleksi = 'Pending'; // Default status
 
         $interview->save();
