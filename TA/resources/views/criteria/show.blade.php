@@ -5,10 +5,10 @@
                 {{ __('Criteria Details') }}
             </h2>
             <div class="flex space-x-4">
-                <a href="{{ route('criteria.edit', $criterium->criteria_id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                <a href="{{ route('criteria.edit', $criterion->criteria_id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                     Edit Criteria
                 </a>
-                <a href="{{ route('criteria.index', ['job_id' => $criterium->job_id]) }}" class="inline-block px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-300 focus:outline-none focus:bg-gray-300 transition ease-in-out duration-150">
+                <a href="{{ route('criteria.index', ['job_id' => $criterion->job_id]) }}" class="inline-block px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-300 focus:outline-none focus:bg-gray-300 transition ease-in-out duration-150">
                     Back to List
                 </a>
             </div>
@@ -26,31 +26,31 @@
                             <!-- ID & Code -->
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Criteria ID</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $criterium->criteria_id }}</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ $criterion->criteria_id }}</p>
                             </div>
 
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Code</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $criterium->code }}</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ $criterion->code }}</p>
                             </div>
 
                             <!-- Name & Weight -->
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Name</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $criterium->name }}</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ $criterion->name }}</p>
                             </div>
 
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Weight</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $criterium->weight }} ({{ number_format($criterium->weight * 100, 0) }}%)</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ $criterion->weight }} ({{ number_format($criterion->weight * 100, 0) }}%)</p>
                             </div>
 
                             <!-- Job -->
                             <div class="md:col-span-2">
                                 <p class="text-sm font-medium text-gray-500">Job Position</p>
                                 <p class="mt-1 text-sm text-gray-900">
-                                    {{ $criterium->job->nama_job }}
-                                    <a href="{{ route('criteria.index', ['job_id' => $criterium->job_id]) }}" class="ml-2 text-indigo-600 hover:text-indigo-900">
+                                    {{ $criterion->job->nama_job }}
+                                    <a href="{{ route('criteria.index', ['job_id' => $criterion->job_id]) }}" class="ml-2 text-indigo-600 hover:text-indigo-900">
                                         View All Criteria for this Job &rarr;
                                     </a>
                                 </p>
@@ -59,7 +59,7 @@
                             <!-- Description -->
                             <div class="md:col-span-2">
                                 <p class="text-sm font-medium text-gray-500">Description</p>
-                                <p class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ $criterium->description }}</p>
+                                <p class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ $criterion->description }}</p>
                             </div>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
                     <div class="mt-8 pt-6 border-t border-gray-200">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Comparisons</h3>
 
-                        @if($criterium->rowComparisons->count() > 0 || $criterium->columnComparisons->count() > 0)
+                        @if($criterion->rowComparisons->count() > 0 || $criterion->columnComparisons->count() > 0)
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead>
@@ -80,14 +80,14 @@
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach($criterium->rowComparisons as $comparison)
+                                        @foreach($criterion->rowComparisons as $comparison)
                                             <tr>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {{ $criterium->name }} ({{ $criterium->code }})
+                                                    {{ $criterion->name }} ({{ $criterion->code }})
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">compared to</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {{ $comparison->criteriaColumn->name }} ({{ $comparison->criteriaColumn->code }})
+                                                    {{ $comparison->columnCriteria->name }} ({{ $comparison->columnCriteria->code }})
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                     {{ $comparison->value }}
@@ -95,14 +95,14 @@
                                             </tr>
                                         @endforeach
 
-                                        @foreach($criterium->columnComparisons as $comparison)
+                                        @foreach($criterion->columnComparisons as $comparison)
                                             <tr>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {{ $comparison->criteriaRow->name }} ({{ $comparison->criteriaRow->code }})
+                                                    {{ $comparison->rowCriteria->name }} ({{ $comparison->rowCriteria->code }})
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">compared to</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {{ $criterium->name }} ({{ $criterium->code }})
+                                                    {{ $criterion->name }} ({{ $criterion->code }})
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                     {{ $comparison->value }}
@@ -123,7 +123,7 @@
                     <div class="mt-8 pt-6 border-t border-gray-200">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Danger Zone</h3>
 
-                        <form action="{{ route('criteria.destroy', $criterium->criteria_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this criteria? This action cannot be undone.');" class="mb-4">
+                        <form action="{{ route('criteria.destroy', $criterion->criteria_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this criteria? This action cannot be undone.');" class="mb-4">
                             @csrf
                             @method('DELETE')
 
@@ -150,7 +150,7 @@
                         </form>
 
                         <!-- Force Delete Form -->
-                        <form action="{{ route('criteria.force-destroy', $criterium->criteria_id) }}" method="POST" onsubmit="return confirm('WARNING: This will force delete the criteria and remove all associated comparisons and evaluations. This action CANNOT BE UNDONE. Are you absolutely sure?');">
+                        <form action="{{ route('criteria.force-destroy', $criterion->criteria_id) }}" method="POST" onsubmit="return confirm('WARNING: This will force delete the criteria and remove all associated comparisons and evaluations. This action CANNOT BE UNDONE. Are you absolutely sure?');">
                             @csrf
                             @method('DELETE')
 

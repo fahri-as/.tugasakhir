@@ -89,48 +89,48 @@ class CriteriaController extends Controller
     /**
      * Display the specified criteria.
      *
-     * @param  \App\Models\Criteria  $criteria
+     * @param  \App\Models\Criteria  $criterion
      * @return \Illuminate\Http\Response
      */
-    public function show(Criteria $criterium)
+    public function show(Criteria $criterion)
     {
         // Load relationships
-        $criterium->load(['job',
+        $criterion->load(['job',
             'rowComparisons' => function($query) {
-                $query->with(['criteriaColumn' => function($q) {
+                $query->with(['columnCriteria' => function($q) {
                     $q->orderBy('code');
                 }]);
             },
             'columnComparisons' => function($query) {
-                $query->with(['criteriaRow' => function($q) {
+                $query->with(['rowCriteria' => function($q) {
                     $q->orderBy('code');
                 }]);
             }
         ]);
 
-        return view('criteria.show', compact('criterium'));
+        return view('criteria.show', compact('criterion'));
     }
 
     /**
      * Show the form for editing the specified criteria.
      *
-     * @param  \App\Models\Criteria  $criteria
+     * @param  \App\Models\Criteria  $criterion
      * @return \Illuminate\Http\Response
      */
-    public function edit(Criteria $criterium)
+    public function edit(Criteria $criterion)
     {
         $jobs = Job::all();
-        return view('criteria.edit', compact('criterium', 'jobs'));
+        return view('criteria.edit', compact('criterion', 'jobs'));
     }
 
     /**
      * Update the specified criteria in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Criteria  $criteria
+     * @param  \App\Models\Criteria  $criterion
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Criteria $criterium)
+    public function update(Request $request, Criteria $criterion)
     {
         $request->validate([
             'job_id' => 'required|exists:job,job_id',
@@ -140,12 +140,12 @@ class CriteriaController extends Controller
             'weight' => 'nullable|numeric|between:0,1',
         ]);
 
-        $criterium->update([
+        $criterion->update([
             'job_id' => $request->job_id,
             'name' => $request->name,
             'code' => $request->code,
             'description' => $request->description,
-            'weight' => $request->weight ?? $criterium->weight,
+            'weight' => $request->weight ?? $criterion->weight,
         ]);
 
         return redirect()->route('criteria.index', ['job_id' => $request->job_id])
@@ -155,18 +155,18 @@ class CriteriaController extends Controller
     /**
      * Remove the specified criteria from storage.
      *
-     * @param  \App\Models\Criteria  $criteria
+     * @param  \App\Models\Criteria  $criterion
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Criteria $criterium)
+    public function destroy(Criteria $criterion)
     {
         // Store job_id before deletion for redirection
-        $jobId = $criterium->job_id;
-        $criteriaId = $criterium->criteria_id;
+        $jobId = $criterion->job_id;
+        $criteriaId = $criterion->criteria_id;
 
         try {
             // Check if criteria has any comparisons before deleting
-            if ($criterium->rowComparisons()->count() > 0 || $criterium->columnComparisons()->count() > 0) {
+            if ($criterion->rowComparisons()->count() > 0 || $criterion->columnComparisons()->count() > 0) {
                 return redirect()->route('criteria.index', ['job_id' => $jobId])
                     ->with('error', 'Cannot delete criteria. It has associated comparisons that must be deleted first.');
             }
@@ -179,7 +179,7 @@ class CriteriaController extends Controller
             }
 
             // Force delete to ensure it's removed
-            $deleted = $criterium->delete();
+            $deleted = $criterion->delete();
 
             if (!$deleted) {
                 return redirect()->route('criteria.index', ['job_id' => $jobId])
@@ -198,25 +198,25 @@ class CriteriaController extends Controller
     /**
      * Force delete a criteria by first removing all associated data
      *
-     * @param  \App\Models\Criteria  $criteria
+     * @param  \App\Models\Criteria  $criterion
      * @return \Illuminate\Http\Response
      */
-    public function forceDestroy(Criteria $criterium)
+    public function forceDestroy(Criteria $criterion)
     {
         // Store job_id before deletion for redirection
-        $jobId = $criterium->job_id;
-        $criteriaId = $criterium->criteria_id;
+        $jobId = $criterion->job_id;
+        $criteriaId = $criterion->criteria_id;
 
         try {
             // Begin transaction to ensure all operations succeed or fail together
             DB::beginTransaction();
 
             // 1. Delete all comparisons where this criteria is in the row or column
-            $rowComparisonsCount = $criterium->rowComparisons()->count();
-            $columnComparisonsCount = $criterium->columnComparisons()->count();
+            $rowComparisonsCount = $criterion->rowComparisons()->count();
+            $columnComparisonsCount = $criterion->columnComparisons()->count();
 
-            $criterium->rowComparisons()->delete();
-            $criterium->columnComparisons()->delete();
+            $criterion->rowComparisons()->delete();
+            $criterion->columnComparisons()->delete();
 
             // 2. Update evaluations to remove references to this criteria
             $evaluasiCount = \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->count();
@@ -224,7 +224,7 @@ class CriteriaController extends Controller
             \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->update(['criteria_id' => null]);
 
             // 3. Finally delete the criteria
-            $deleted = $criterium->delete();
+            $deleted = $criterion->delete();
 
             if (!$deleted) {
                 DB::rollBack();
