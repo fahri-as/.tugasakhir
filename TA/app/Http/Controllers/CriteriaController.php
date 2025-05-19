@@ -201,22 +201,22 @@ class CriteriaController extends Controller
      * @param  \App\Models\Criteria  $criterion
      * @return \Illuminate\Http\Response
      */
-    public function forceDestroy(Criteria $criterion)
+    public function forceDestroy(Criteria $criterium)
     {
         // Store job_id before deletion for redirection
-        $jobId = $criterion->job_id;
-        $criteriaId = $criterion->criteria_id;
+        $jobId = $criterium->job_id;
+        $criteriaId = $criterium->criteria_id;
 
         try {
             // Begin transaction to ensure all operations succeed or fail together
             DB::beginTransaction();
 
             // 1. Delete all comparisons where this criteria is in the row or column
-            $rowComparisonsCount = $criterion->rowComparisons()->count();
-            $columnComparisonsCount = $criterion->columnComparisons()->count();
+            $rowComparisonsCount = $criterium->rowComparisons()->count();
+            $columnComparisonsCount = $criterium->columnComparisons()->count();
 
-            $criterion->rowComparisons()->delete();
-            $criterion->columnComparisons()->delete();
+            $criterium->rowComparisons()->delete();
+            $criterium->columnComparisons()->delete();
 
             // 2. Update evaluations to remove references to this criteria
             $evaluasiCount = \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->count();
@@ -224,7 +224,7 @@ class CriteriaController extends Controller
             \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->update(['criteria_id' => null]);
 
             // 3. Finally delete the criteria
-            $deleted = $criterion->delete();
+            $deleted = $criterium->delete();
 
             if (!$deleted) {
                 DB::rollBack();
