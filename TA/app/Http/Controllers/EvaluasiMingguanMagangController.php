@@ -9,6 +9,7 @@ use App\Models\Periode;
 use App\Models\Criteria;
 use App\Models\Job;
 use App\Services\SMARTCalculationService;
+use App\Services\ActualCalculationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -18,10 +19,14 @@ use App\Models\CriteriaRatingScale;
 class EvaluasiMingguanMagangController extends Controller
 {
     protected $smartService;
+    protected $actualCalculationService;
 
-    public function __construct(SMARTCalculationService $smartService)
-    {
+    public function __construct(
+        SMARTCalculationService $smartService,
+        ActualCalculationService $actualCalculationService
+    ) {
         $this->smartService = $smartService;
+        $this->actualCalculationService = $actualCalculationService;
     }
 
     /**
@@ -268,6 +273,7 @@ class EvaluasiMingguanMagangController extends Controller
         // Get SMART details for this evaluation
         $smartDetails = null;
         $criteriaContribution = null;
+        $actualCalculation = null;
 
         if ($evaluasi->magang && $evaluasi->magang->pelamar &&
             $evaluasi->magang->pelamar->job_id &&
@@ -291,9 +297,12 @@ class EvaluasiMingguanMagangController extends Controller
 
             // Get criteria contribution chart data
             $criteriaContribution = $this->smartService->getCriteriaContribution($magangId);
+
+            // Get actual calculation data with detailed steps
+            $actualCalculation = $this->actualCalculationService->getActualCalculation($evaluasi);
         }
 
-        return view('evaluasi.show', compact('evaluasi', 'smartDetails', 'criteriaContribution'));
+        return view('evaluasi.show', compact('evaluasi', 'smartDetails', 'criteriaContribution', 'actualCalculation'));
     }
 
     /**

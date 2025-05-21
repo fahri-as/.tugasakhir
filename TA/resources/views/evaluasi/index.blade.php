@@ -260,177 +260,45 @@
                                             <p class="mt-1"><strong>Note:</strong> Final overall scores use a weighted average of weekly scores, with later weeks given higher weight.</p>
                                         </div>
 
-                                        <!-- Static Numerical Example -->
+                                        <!-- Note about example calculations -->
                                         <div class="mt-4 pt-3 border-t border-gray-300">
-                                            <h5 class="font-medium mb-2 text-gray-800">Numerical Example Walkthrough:</h5>
-                                            <div class="bg-white p-3 border rounded">
-                                                <p class="mb-2 text-sm font-medium">Example for a Cook position intern evaluated on 3 key criteria:</p>
-
-                                                <div class="mt-3">
-                                                    <p class="font-medium mb-1">Step 1: Data Collection - Raw Scores</p>
-                                                    <table class="min-w-full text-xs mb-3 border">
-                                                        <thead class="bg-gray-100">
-                                                            <tr>
-                                                                <th class="p-2 text-left border">Criteria</th>
-                                                                <th class="p-2 text-left border">Code</th>
-                                                                <th class="p-2 text-left border">Raw Score</th>
-                                                                <th class="p-2 text-left border">Weight</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr class="border-b">
-                                                                <td class="p-2 border">Cooking Skills</td>
-                                                                <td class="p-2 border">K1</td>
-                                                                <td class="p-2 border">3.0</td>
-                                                                <td class="p-2 border">0.4162</td>
-                                                            </tr>
-                                                            <tr class="border-b">
-                                                                <td class="p-2 border">Food Quality</td>
-                                                                <td class="p-2 border">K2</td>
-                                                                <td class="p-2 border">3.5</td>
-                                                                <td class="p-2 border">0.2618</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="p-2 border">Team Work</td>
-                                                                <td class="p-2 border">K5</td>
-                                                                <td class="p-2 border">4.0</td>
-                                                                <td class="p-2 border">0.0624</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-
-                                                <div class="mt-4">
-                                                    <p class="font-medium mb-1">Step 2: Normalization - Range for all interns</p>
-                                                    <table class="min-w-full text-xs mb-3 border">
-                                                        <thead class="bg-gray-100">
-                                                            <tr>
-                                                                <th class="p-2 text-left border">Criteria</th>
-                                                                <th class="p-2 text-left border">Raw Score</th>
-                                                                <th class="p-2 text-left border">Min Value</th>
-                                                                <th class="p-2 text-left border">Max Value</th>
-                                                                <th class="p-2 text-left border">Calculation</th>
-                                                                <th class="p-2 text-left border">Normalized</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr class="border-b">
-                                                                <td class="p-2 border">K1</td>
-                                                                <td class="p-2 border">3.0</td>
-                                                                <td class="p-2 border">2.0</td>
-                                                                <td class="p-2 border">4.0</td>
-                                                                <td class="p-2 border text-xs">(3.0 - 2.0) / (4.0 - 2.0)</td>
-                                                                <td class="p-2 border">0.5000</td>
-                                                            </tr>
-                                                            <tr class="border-b">
-                                                                <td class="p-2 border">K2</td>
-                                                                <td class="p-2 border">3.5</td>
-                                                                <td class="p-2 border">2.5</td>
-                                                                <td class="p-2 border">4.0</td>
-                                                                <td class="p-2 border text-xs">(3.5 - 2.5) / (4.0 - 2.5)</td>
-                                                                <td class="p-2 border">0.6667</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="p-2 border">K5</td>
-                                                                <td class="p-2 border">4.0</td>
-                                                                <td class="p-2 border">3.0</td>
-                                                                <td class="p-2 border">4.0</td>
-                                                                <td class="p-2 border text-xs">(4.0 - 3.0) / (4.0 - 3.0)</td>
-                                                                <td class="p-2 border">1.0000</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-
-                                                <div class="mt-4">
-                                                    <p class="font-medium mb-1">Step 3: Weighting - Multiply normalized scores by criteria weights</p>
-                                                    <table class="min-w-full text-xs mb-3 border">
-                                                        <thead class="bg-gray-100">
-                                                            <tr>
-                                                                <th class="p-2 text-left border">Criteria</th>
-                                                                <th class="p-2 text-left border">Normalized Score</th>
-                                                                <th class="p-2 text-left border">Weight</th>
-                                                                <th class="p-2 text-left border">Calculation</th>
-                                                                <th class="p-2 text-left border">Weighted Score</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr class="border-b">
-                                                                <td class="p-2 border">K1</td>
-                                                                <td class="p-2 border">0.5000</td>
-                                                                <td class="p-2 border">0.4162</td>
-                                                                <td class="p-2 border text-xs">0.5000 × 0.4162</td>
-                                                                <td class="p-2 border">0.2081</td>
-                                                            </tr>
-                                                            <tr class="border-b">
-                                                                <td class="p-2 border">K2</td>
-                                                                <td class="p-2 border">0.6667</td>
-                                                                <td class="p-2 border">0.2618</td>
-                                                                <td class="p-2 border text-xs">0.6667 × 0.2618</td>
-                                                                <td class="p-2 border">0.1745</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="p-2 border">K5</td>
-                                                                <td class="p-2 border">1.0000</td>
-                                                                <td class="p-2 border">0.0624</td>
-                                                                <td class="p-2 border text-xs">1.0000 × 0.0624</td>
-                                                                <td class="p-2 border">0.0624</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-
-                                                <div class="mt-4">
-                                                    <p class="font-medium mb-1">Step 4: Summation - Add all weighted scores</p>
-                                                    <div class="bg-gray-50 p-3 border rounded text-sm">
-                                                        <p><strong>Total Weighted Score = </strong> 0.2081 + 0.1745 + 0.0624 = <strong>0.4450</strong></p>
-                                                    </div>
-                                                </div>
-
-                                                <div class="mt-4">
-                                                    <p class="font-medium mb-1">Step 5: Storage and Scaling</p>
-                                                    <div class="bg-gray-50 p-3 border rounded text-sm">
-                                                        <p><strong>Store in Database:</strong> In total_skor_minggu_magang table with magang_id, minggu_ke=1, total_skor=0.4450</p>
-                                                        <p class="mt-2"><strong>Scale to 0-5 Range:</strong> 0.4450 × 5 = <strong>2.225</strong> (stored as 2.23 in the interface)</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <p class="text-sm text-gray-700"><em>Note: For detailed calculation examples with your actual data, please view a specific evaluation record. The detailed calculation example will use your actual evaluation data instead of generic examples.</em></p>
                                         </div>
+                                    </div>
+                                </div>
 
-                                        <!-- Real Calculation Values -->
-                                        <div class="mt-4 pt-3 border-t border-gray-300">
-                                            <h5 class="font-medium mb-2 text-gray-800">Actual Calculation Values:</h5>
-                                            <div class="bg-white p-3 border rounded">
-                                                <p class="mb-2">Current calculation values for this intern:</p>
+                                <!-- Real Calculation Values -->
+                                <div class="mt-4 pt-3 border-t border-gray-300">
+                                    <h5 class="font-medium mb-2 text-gray-800">Actual Calculation Values:</h5>
+                                    <div class="bg-white p-3 border rounded">
+                                        <p class="mb-2">Current calculation values for this intern:</p>
 
-                                                <table class="min-w-full text-xs mb-3" id="calculation-values-table">
-                                                    <thead class="bg-gray-100">
-                                                        <tr>
-                                                            <th class="p-2 text-left">Criteria</th>
-                                                            <th class="p-2 text-left">Weight</th>
-                                                            <th class="p-2 text-left">Raw Score</th>
-                                                            <th class="p-2 text-left">Min Value</th>
-                                                            <th class="p-2 text-left">Max Value</th>
-                                                            <th class="p-2 text-left">Normalized</th>
-                                                            <th class="p-2 text-left">Weighted</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="calculation-values-body">
-                                                        <!-- This will be populated by JavaScript with actual values -->
-                                                    </tbody>
-                                                    <tfoot>
-                                                        <tr class="bg-gray-100 font-medium">
-                                                            <td class="p-2" colspan="6">Total SMART Score:</td>
-                                                            <td class="p-2" id="total-smart-value">0.000</td>
-                                                        </tr>
-                                                        <tr class="bg-gray-100 font-medium">
-                                                            <td class="p-2" colspan="6">Scaled Score (0-5):</td>
-                                                            <td class="p-2" id="scaled-smart-value">0.00</td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
-                                        </div>
+                                        <table class="min-w-full text-xs mb-3" id="calculation-values-table">
+                                            <thead class="bg-gray-100">
+                                                <tr>
+                                                    <th class="p-2 text-left">Criteria</th>
+                                                    <th class="p-2 text-left">Weight</th>
+                                                    <th class="p-2 text-left">Raw Score</th>
+                                                    <th class="p-2 text-left">Min Value</th>
+                                                    <th class="p-2 text-left">Max Value</th>
+                                                    <th class="p-2 text-left">Normalized</th>
+                                                    <th class="p-2 text-left">Weighted</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="calculation-values-body">
+                                                <!-- This will be populated by JavaScript with actual values -->
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="bg-gray-100 font-medium">
+                                                    <td class="p-2" colspan="6">Total SMART Score:</td>
+                                                    <td class="p-2" id="total-smart-value">0.000</td>
+                                                </tr>
+                                                <tr class="bg-gray-100 font-medium">
+                                                    <td class="p-2" colspan="6">Scaled Score (0-5):</td>
+                                                    <td class="p-2" id="scaled-smart-value">0.00</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
                                 </div>
                             </div>

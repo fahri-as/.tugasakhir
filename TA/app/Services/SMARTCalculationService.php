@@ -8,6 +8,7 @@ use App\Models\Magang;
 use App\Models\Pelamar;
 use App\Models\Periode;
 use App\Models\TotalSkorMingguMagang;
+use App\Models\CriteriaRatingScale;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
@@ -59,27 +60,30 @@ class SMARTCalculationService
             $evaluationsByIntern[$eval->magang_id][] = $eval;
         }
 
-        // Step 4: Find min and max values for each criterion (for normalization)
+        // Step 4: Get all criteria for this job
+        $allCriteria = Criteria::where('job_id', $jobId)->get();
+
+        // Step 5: Get min and max values from criteria_rating_scales for each criterion
         $minValues = [];
         $maxValues = [];
 
-        foreach ($evaluations as $eval) {
-            if (!$eval->criteria_id || !$eval->criteriaRatingScale) continue;
+        foreach ($allCriteria as $criterion) {
+            // Get the min and max rating scales for this criterion
+            $ratingScales = CriteriaRatingScale::where('criteria_id', $criterion->criteria_id)
+                ->orderBy('rating_level')
+                ->get();
 
-            $criteriaId = $eval->criteria_id;
-            // Use rating level from criteriaRatingScale instead of skor_minggu
-            $value = $eval->criteriaRatingScale->rating_level;
-
-            if (!isset($minValues[$criteriaId]) || $value < $minValues[$criteriaId]) {
-                $minValues[$criteriaId] = $value;
-            }
-
-            if (!isset($maxValues[$criteriaId]) || $value > $maxValues[$criteriaId]) {
-                $maxValues[$criteriaId] = $value;
+            if ($ratingScales->isNotEmpty()) {
+                $minValues[$criterion->criteria_id] = $ratingScales->min('rating_level');
+                $maxValues[$criterion->criteria_id] = $ratingScales->max('rating_level');
+            } else {
+                // Default fallback if no rating scales found
+                $minValues[$criterion->criteria_id] = 1;
+                $maxValues[$criterion->criteria_id] = 5;
             }
         }
 
-        // Step 5: Calculate SMART scores for each intern
+        // Step 6: Calculate SMART scores for each intern
         $results = [];
 
         foreach ($internships as $internship) {
@@ -132,8 +136,8 @@ class SMARTCalculationService
                         'normalized_value' => $utilityValue,
                         'weight' => $weight,
                         'weighted_score' => $weightedScore,
-                        'min_value' => $minValues[$criteriaId] ?? 0,
-                        'max_value' => $maxValues[$criteriaId] ?? 0
+                        'min_value' => $minValues[$criteriaId] ?? 1,
+                        'max_value' => $maxValues[$criteriaId] ?? 5
                     ];
                 }
 

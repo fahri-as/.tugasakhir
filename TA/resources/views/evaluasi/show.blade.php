@@ -191,10 +191,36 @@
 
                                     <div class="space-y-4">
                                         <div>
-                                            <h4 class="font-medium text-indigo-800">Step 1: Input Values</h4>
+                                            <h4 class="font-medium text-indigo-800">Step 1: Data Collection</h4>
                                             <p class="text-sm text-gray-700 mb-2">Raw scores from evaluations are collected for each criterion.</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
-                                                <code class="text-sm">Raw Score = {{ number_format($evaluasi->skor_minggu, 2) }}</code>
+                                                <h5 class="text-sm font-semibold mb-2">Actual Raw Scores for {{ $evaluasi->magang->pelamar->nama }}</h5>
+                                                @if($actualCalculation && $actualCalculation['has_data'])
+                                                    <div class="overflow-x-auto">
+                                                        <table class="min-w-full divide-y divide-gray-200">
+                                                            <thead class="bg-gray-50">
+                                                                <tr>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Criteria</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Raw Score</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Weight</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                                @foreach($actualCalculation['criteria'] as $criterion)
+                                                                <tr>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['criteria_name'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['criteria_code'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['raw_score'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ number_format($criterion['weight'], 4) }}</td>
+                                                                </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                @else
+                                                    <p class="text-sm text-gray-500">No calculation data available.</p>
+                                                @endif
                                             </div>
                                         </div>
 
@@ -203,49 +229,33 @@
                                             <p class="text-sm text-gray-700 mb-2">Each raw score is normalized to a 0-1 scale:</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
                                                 <code class="text-sm">Normalized Value = (Raw Value - Min Value) / (Max Value - Min Value)</code>
-                                                @if($smartDetails && isset($smartDetails['score_details'][0]))
-                                                <div class="mt-2 text-sm">
-                                                    @php
-                                                        try {
-                                                            $criteriaId = $smartDetails['score_details'][0]['criteria_id'] ?? null;
-                                                            // Find all scores for this criteria to determine min/max
-                                                            $allScores = [];
-                                                            if ($criteriaId && isset($evaluasi->magang) &&
-                                                                isset($evaluasi->magang->pelamar) &&
-                                                                isset($evaluasi->magang->pelamar->periode)) {
-
-                                                                $magangCollection = $evaluasi->magang->pelamar->periode->magang;
-                                                                if ($magangCollection && is_iterable($magangCollection)) {
-                                                                    foreach($magangCollection as $otherMagang) {
-                                                                        if (method_exists($otherMagang, 'evaluations')) {
-                                                                            $evals = $otherMagang->evaluations()
-                                                                                ->where('minggu_ke', $evaluasi->minggu_ke)
-                                                                                ->where('criteria_id', $criteriaId)
-                                                                                ->get();
-
-                                                                            if ($evals && count($evals) > 0) {
-                                                                                foreach($evals as $eval) {
-                                                                                    $allScores[] = $eval->skor_minggu;
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            $minScore = !empty($allScores) ? min($allScores) : 0;
-                                                            $maxScore = !empty($allScores) ? max($allScores) : 0;
-                                                            $rawValue = $smartDetails['score_details'][0]['raw_value'] ?? 0;
-                                                            $normalizedValue = $smartDetails['score_details'][0]['normalized_value'] ?? 0;
-                                                        } catch (\Exception $e) {
-                                                            $minScore = 0;
-                                                            $maxScore = 0;
-                                                            $rawValue = 0;
-                                                            $normalizedValue = 0;
-                                                        }
-                                                    @endphp
-                                                    Example: ({{ number_format($rawValue, 2) }} - {{ number_format($minScore, 2) }}) / ({{ number_format($maxScore, 2) }} - {{ number_format($minScore, 2) }}) = {{ number_format($normalizedValue, 4) }}
-                                                </div>
+                                                @if($actualCalculation && $actualCalculation['has_data'])
+                                                    <div class="overflow-x-auto mt-2">
+                                                        <table class="min-w-full divide-y divide-gray-200">
+                                                            <thead class="bg-gray-50">
+                                                                <tr>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Criteria</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Raw Score</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Min Value</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Max Value</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Calculation</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Normalized</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                                @foreach($actualCalculation['criteria'] as $criterion)
+                                                                <tr>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['criteria_code'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['raw_score'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['min_value'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['max_value'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['calculation'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ number_format($criterion['normalized'], 4) }}</td>
+                                                                </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 @endif
                                             </div>
                                         </div>
@@ -255,10 +265,31 @@
                                             <p class="text-sm text-gray-700 mb-2">Utility values are multiplied by criterion weights:</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
                                                 <code class="text-sm">Weighted Score = Normalized Value × Criterion Weight</code>
-                                                @if($smartDetails && isset($smartDetails['score_details'][0]))
-                                                <div class="mt-2 text-sm">
-                                                    Example: {{ number_format($smartDetails['score_details'][0]['normalized_value'], 4) }} × {{ number_format($smartDetails['score_details'][0]['weight'], 4) }} = {{ number_format($smartDetails['score_details'][0]['weighted_score'], 4) }}
-                                                </div>
+                                                @if($actualCalculation && $actualCalculation['has_data'])
+                                                    <div class="overflow-x-auto mt-2">
+                                                        <table class="min-w-full divide-y divide-gray-200">
+                                                            <thead class="bg-gray-50">
+                                                                <tr>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Criteria</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Normalized Value</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Weight</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Calculation</th>
+                                                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Weighted Score</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                                @foreach($actualCalculation['criteria'] as $criterion)
+                                                                <tr>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['criteria_code'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ number_format($criterion['normalized'], 4) }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ number_format($criterion['weight'], 4) }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ $criterion['weighted_calculation'] }}</td>
+                                                                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ number_format($criterion['weighted'], 4) }}</td>
+                                                                </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 @endif
                                             </div>
                                         </div>
@@ -268,34 +299,27 @@
                                             <p class="text-sm text-gray-700 mb-2">The sum of all weighted scores for the week:</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
                                                 <code class="text-sm">Total Weekly Score = ∑(Weighted Scores)</code>
-                                                <div class="mt-2 text-sm">
-                                                    Result: {{ number_format($smartDetails['total_score'] ?? 0, 4) }}
-                                                </div>
+                                                @if($actualCalculation && $actualCalculation['has_data'])
+                                                    <div class="mt-2 text-sm">
+                                                        <p class="font-medium">Calculation: {{ $actualCalculation['full_calculation'] }}</p>
+                                                        <p class="font-medium mt-1">Total SMART Score (0-1 scale): {{ number_format($actualCalculation['total_score'], 4) }}</p>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
 
                                         <div>
-                                            <h4 class="font-medium text-indigo-800">Step 5: Storage</h4>
-                                            <p class="text-sm text-gray-700 mb-2">The weekly total score is stored in the database:</p>
+                                            <h4 class="font-medium text-indigo-800">Step 5: Storage and Scaling</h4>
+                                            <p class="text-sm text-gray-700 mb-2">The weekly total score is stored and can be scaled to a 0-5 range:</p>
                                             <div class="bg-white p-3 rounded border border-indigo-100">
-                                                <code class="text-sm">
-                                                total_skor_minggu_magang(
-                                                    id='generated_uuid',
-                                                    magang_id='{{ $evaluasi->magang_id }}',
-                                                    minggu_ke={{ $evaluasi->minggu_ke }},
-                                                    total_skor={{ number_format($smartDetails['total_score'] ?? 0, 4) }}
-                                                )
-                                                </code>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <h4 class="font-medium text-indigo-800">Step 6: Ranking</h4>
-                                            <p class="text-sm text-gray-700 mb-2">Interns are ranked based on their total weekly scores in descending order:</p>
-                                            <div class="bg-white p-3 rounded border border-indigo-100">
-                                                <div class="text-sm">
-                                                    Current Rank for Week {{ $evaluasi->minggu_ke }}: <span class="font-semibold">{{ $smartDetails['rank'] ?? 'N/A' }}</span>
-                                                </div>
+                                                @if($actualCalculation && $actualCalculation['has_data'])
+                                                    <div class="text-sm">
+                                                        <p class="font-medium">Stored in Database:
+                                                            <code>total_skor_minggu_magang(magang_id='{{ $evaluasi->magang_id }}', minggu_ke={{ $evaluasi->minggu_ke }}, total_skor={{ number_format($actualCalculation['total_score'], 4) }})</code>
+                                                        </p>
+                                                        <p class="font-medium mt-1">Scaled Score (0-5 range): {{ number_format($actualCalculation['total_score'] * 5, 2) }}</p>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
