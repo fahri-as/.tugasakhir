@@ -429,7 +429,7 @@ class MagangController extends Controller
     public function show(Magang $magang)
     {
         // Load relationships
-        $magang->load(['pelamar', 'pelamar.job', 'user', 'evaluasiMingguan.criteria', 'evaluasiMingguan.ratingScale']);
+        $magang->load(['pelamar', 'pelamar.job', 'user', 'evaluasiMingguan.criteria', 'evaluasiMingguan.criteriaRatingScale']);
 
         // Get SMART details for visualization
         $smartDetails = null;
