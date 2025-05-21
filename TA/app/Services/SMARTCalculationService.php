@@ -25,27 +25,17 @@ class SMARTCalculationService
      */
     public function calculateScores($jobId, $week, $periodeId = null)
     {
-        // Step 1: Get criteria and their weights for this job
-        $criteria = Criteria::where('job_id', $jobId)->get();
+        // Step 1: Get AHP-calculated weights for criteria
+        $criteriaWeights = $this->getCriteriaWeights($jobId);
 
-        if ($criteria->isEmpty()) {
-            Log::warning("No criteria found for job ID: $jobId");
-            return [];
-        }
-
-        // Create a map of criteria ID to weight for easier access
-        $criteriaWeights = [];
-        foreach ($criteria as $criterion) {
-            $criteriaWeights[$criterion->criteria_id] = $criterion->weight;
-        }
-
-        // Step 2: Get all magang (internships) for this job and period
+        // Step 2: Get all interns for this job and period
         $magangQuery = Magang::whereHas('pelamar', function($query) use ($jobId, $periodeId) {
             $query->where('job_id', $jobId);
             if ($periodeId) {
                 $query->where('periode_id', $periodeId);
             }
-        });
+        })
+        ->with(['pelamar']);
 
         $internships = $magangQuery->get();
 
@@ -57,7 +47,7 @@ class SMARTCalculationService
         // Step 3: Get all evaluations for the specified week
         $evaluations = EvaluasiMingguanMagang::whereIn('magang_id', $internships->pluck('magang_id'))
             ->where('minggu_ke', $week)
-            ->with(['criteria', 'ratingScale'])
+            ->with(['criteria', 'criteriaRatingScale'])
             ->get();
 
         // Group evaluations by magang_id
@@ -74,10 +64,11 @@ class SMARTCalculationService
         $maxValues = [];
 
         foreach ($evaluations as $eval) {
-            if (!$eval->criteria_id) continue;
+            if (!$eval->criteria_id || !$eval->criteriaRatingScale) continue;
 
             $criteriaId = $eval->criteria_id;
-            $value = $eval->skor_minggu;
+            // Use rating level from criteriaRatingScale instead of skor_minggu
+            $value = $eval->criteriaRatingScale->rating_level;
 
             if (!isset($minValues[$criteriaId]) || $value < $minValues[$criteriaId]) {
                 $minValues[$criteriaId] = $value;
@@ -102,13 +93,14 @@ class SMARTCalculationService
 
                 // Calculate score for each criterion
                 foreach ($internEvals as $eval) {
-                    // Skip if no criteria associated (general evaluation)
-                    if (!$eval->criteria_id) continue;
+                    // Skip if no criteria associated (general evaluation) or no rating
+                    if (!$eval->criteria_id || !$eval->criteriaRatingScale) continue;
 
                     $criteriaId = $eval->criteria_id;
                     $criteriaName = $eval->criteria->name ?? 'Unknown';
                     $criteriaCode = $eval->criteria->code ?? '';
-                    $rawValue = $eval->skor_minggu;
+                    // Get raw value from criteriaRatingScale
+                    $rawValue = $eval->criteriaRatingScale->rating_level;
 
                     // Get the weight for this criterion
                     $weight = $criteriaWeights[$criteriaId] ?? 0;
@@ -139,7 +131,9 @@ class SMARTCalculationService
                         'raw_value' => $rawValue,
                         'normalized_value' => $utilityValue,
                         'weight' => $weight,
-                        'weighted_score' => $weightedScore
+                        'weighted_score' => $weightedScore,
+                        'min_value' => $minValues[$criteriaId] ?? 0,
+                        'max_value' => $maxValues[$criteriaId] ?? 0
                     ];
                 }
 
@@ -182,24 +176,8 @@ class SMARTCalculationService
     private function updateWeeklyTotalScore($magangId, $week, $totalScore)
     {
         try {
-            // Try to find existing record
-            $weeklyTotal = TotalSkorMingguMagang::where('magang_id', $magangId)
-                ->where('minggu_ke', $week)
-                ->first();
-
-            if ($weeklyTotal) {
-                // Update existing record
-                $weeklyTotal->total_skor = $totalScore;
-                $weeklyTotal->save();
-            } else {
-                // Create new record
-                TotalSkorMingguMagang::create([
-                    'id' => Str::uuid()->toString(),
-                    'magang_id' => $magangId,
-                    'minggu_ke' => $week,
-                    'total_skor' => $totalScore
-                ]);
-            }
+            // Use the updateOrCreateScore method from the model
+            TotalSkorMingguMagang::updateOrCreateScore($magangId, $week, $totalScore);
 
             Log::info("Updated weekly total score for magang_id: {$magangId}, week: {$week}, score: {$totalScore}");
         } catch (\Exception $e) {
@@ -546,5 +524,30 @@ class SMARTCalculationService
             ->toArray();
 
         return $weeklyScores;
+    }
+
+    /**
+     * Get criteria weights for a job using the most recent AHP calculations
+     *
+     * @param string $jobId
+     * @return array
+     */
+    private function getCriteriaWeights($jobId)
+    {
+        // Get criteria for this job
+        $criteria = Criteria::where('job_id', $jobId)->get();
+
+        if ($criteria->isEmpty()) {
+            Log::warning("No criteria found for job ID: $jobId");
+            return [];
+        }
+
+        // Create a map of criteria ID to weight for easier access
+        $criteriaWeights = [];
+        foreach ($criteria as $criterion) {
+            $criteriaWeights[$criterion->criteria_id] = $criterion->weight;
+        }
+
+        return $criteriaWeights;
     }
 }

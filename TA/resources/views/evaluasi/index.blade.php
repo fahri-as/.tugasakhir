@@ -136,7 +136,7 @@
                                         <tr>
                                             <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intern Name</th>
                                             <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job</th>
-                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Average Score</th>
+                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SMART Score</th>
                                             <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                         </tr>
                                     </thead>
@@ -566,10 +566,35 @@
                     row.className = 'hover:bg-gray-50 cursor-pointer';
                     row.onclick = () => showInternEvaluations(intern.magangId, intern.nama, intern.jobId);
 
+                    // Determine if this intern has a total score
+                    const hasScore = intern.evaluations.length > 0 &&
+                                   intern.evaluations.some(eval => eval.hasOwnProperty('total_score') && eval.total_score > 0);
+
+                    // Format the score display
+                    let scoreDisplay = '';
+                    if (hasScore) {
+                        // Get the first evaluation with a total_score (they should all be the same for this intern)
+                        const evalWithScore = intern.evaluations.find(e => e.hasOwnProperty('total_score') && e.total_score > 0);
+                        const scoreValue = evalWithScore ? parseFloat(evalWithScore.total_score).toFixed(2) : '0.00';
+                        scoreDisplay = `
+                            <span class="font-medium text-indigo-700">${scoreValue}</span>
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Scored
+                            </span>
+                        `;
+                    } else {
+                        scoreDisplay = `
+                            <span class="text-gray-500">0.00</span>
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                Not scored
+                            </span>
+                        `;
+                    }
+
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${intern.nama}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${intern.job}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${intern.averageScore}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${scoreDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button onclick="showInternEvaluations('${intern.magangId}', '${intern.nama}', '${intern.jobId}'); event.stopPropagation();" class="text-blue-600 hover:text-blue-900 mr-3">View Details</button>
                         </td>
@@ -592,39 +617,51 @@
             // Filter evaluations for this intern
             const internEvals = weeklyEvaluations.filter(eval => eval.magang_id === magangId);
 
-            // Calculate total score (sum of all criteria scores)
-            const totalScore = internEvals.reduce((sum, eval) => sum + parseFloat(eval.skor_minggu), 0).toFixed(2);
+            // Get the total score from the database
+            // First check if we have at least one evaluation with a total_score property
+            let totalScore = '0.00';
+            if (internEvals.length > 0) {
+                // Use the first evaluation's total_score as they should all be the same
+                // for the same magang_id and minggu_ke
+                if (internEvals[0].hasOwnProperty('total_score')) {
+                    totalScore = parseFloat(internEvals[0].total_score).toFixed(2);
+                }
+            }
+
+            // Update the displayed total score
             document.getElementById('total-score').textContent = totalScore;
 
             // Populate criteria table
             const tbody = document.getElementById('criteria-tbody');
             tbody.innerHTML = ''; // Clear existing rows
 
+            // Create rows for each evaluation
             internEvals.forEach(eval => {
                 const criteriaName = eval.criteria ?
                     `${eval.criteria.name} (${eval.criteria.code})` :
                     'General Evaluation';
 
+                // Get rating value (assuming AJAX response now includes rating_value)
+                const ratingValue = eval.criteria_rating_scale ?
+                                    eval.criteria_rating_scale.rating_level : 0;
+
+                // Create row with initial loading state for rating dropdown
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="px-6 py-4 text-sm text-gray-900">${criteriaName}</td>
                     <td class="px-6 py-4 text-sm text-gray-900">
                         <select class="rating-dropdown rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                               data-evaluation-id="${eval.evaluasi_id}">
-                            <option value="">Not Rated Yet</option>
-                            @foreach(\App\Models\RatingScale::orderBy('value')->get() as $rating)
-                                <option value="{{ $rating->rating_id }}"
-                                        ${eval.rating_id === "{{ $rating->rating_id }}" ? 'selected' : ''}>
-                                    {{ $rating->name }} ({{ $rating->singkatan }}) - {{ $rating->value }}
-                                </option>
-                            @endforeach
+                               data-evaluation-id="${eval.evaluasi_id}"
+                               data-criteria-id="${eval.criteria_id}"
+                               data-current-rating="${eval.criteria_rating_id || ''}">
+                            <option value="">Loading ratings...</option>
                         </select>
                         <div class="update-status hidden mt-1 text-xs"></div>
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-900">
-                        ${eval.skor_minggu * 10}
+                        ${ratingValue}
                         <span class="text-xs text-gray-500">
-                            ${eval.rating_scale ? '(Original rating: ' + eval.rating_scale.value + ')' : '(Not rated)'}
+                            ${eval.criteria_rating_scale ? '(Rating level: ' + eval.criteria_rating_scale.rating_level + ')' : '(Not rated)'}
                         </span>
                     </td>
                     <td class="px-6 py-4 text-sm font-medium">
@@ -633,6 +670,15 @@
                     </td>
                 `;
                 tbody.appendChild(row);
+
+                // Load ratings for this specific criterion
+                if (eval.criteria_id) {
+                    loadCriteriaRatings(row.querySelector('.rating-dropdown'), eval.criteria_id, eval.criteria_rating_id);
+                } else {
+                    // For evaluations without a specific criterion, just show "Not Rated Yet" option
+                    const dropdown = row.querySelector('.rating-dropdown');
+                    dropdown.innerHTML = '<option value="">Not Rated Yet</option>';
+                }
             });
 
             // Add event listeners to the rating dropdowns
@@ -772,7 +818,7 @@
                 },
                 body: JSON.stringify({
                     evaluation_id: evaluationId,
-                    rating_id: ratingId
+                    criteria_rating_id: ratingId
                 })
             })
             .then(response => {
@@ -786,13 +832,35 @@
                     throw new Error(data.message || 'Update failed');
                 }
 
-                // Update the score in the table (3rd cell)
+                // Update the rating value in the table (3rd cell)
                 const row = dropdown.closest('tr');
                 const scoreCell = row.cells[2];
-                scoreCell.textContent = data.evaluation.skor_minggu * 10;
+
+                // Update with the actual rating value from the response
+                const ratingValue = data.evaluation.rating_value || 0;
+                scoreCell.textContent = ratingValue;
+
+                // Add rating level info in a small text
+                if (data.evaluation.criteria_rating_scale) {
+                    const ratingInfo = document.createElement('span');
+                    ratingInfo.className = 'text-xs text-gray-500';
+                    ratingInfo.textContent = ` (Rating level: ${data.evaluation.criteria_rating_scale.rating_level})`;
+                    scoreCell.appendChild(ratingInfo);
+                } else {
+                    const ratingInfo = document.createElement('span');
+                    ratingInfo.className = 'text-xs text-gray-500';
+                    ratingInfo.textContent = ' (Not rated)';
+                    scoreCell.appendChild(ratingInfo);
+                }
 
                 // Update the total score at the bottom of the table
-                document.getElementById('total-score').textContent = (parseFloat(data.total_score) * 10).toFixed(0);
+                // Ensure we use the total_score from the response, which comes from the database
+                if (data.hasOwnProperty('total_score')) {
+                    document.getElementById('total-score').textContent =
+                        typeof data.total_score === 'number' ?
+                        parseFloat(data.total_score).toFixed(2) :
+                        '0.00';
+                }
 
                 // Show success message
                 statusDiv.textContent = 'Updated successfully';
@@ -806,9 +874,12 @@
                 // Update the local data
                 weeklyEvaluations.forEach(eval => {
                     if (eval.evaluasi_id === evaluationId) {
-                        eval.rating_id = ratingId;
-                        eval.skor_minggu = data.evaluation.skor_minggu;
-                        eval.rating_scale = data.evaluation.rating_scale;
+                        eval.criteria_rating_id = ratingId;
+                        eval.criteria_rating_scale = data.evaluation.criteria_rating_scale;
+                        // Set total_score for all evaluations of this intern to keep it in sync
+                        if (data.hasOwnProperty('total_score')) {
+                            eval.total_score = data.total_score;
+                        }
                     }
                 });
             })
@@ -817,6 +888,40 @@
                 // Show error message
                 statusDiv.textContent = 'Error updating rating: ' + error.message;
                 statusDiv.className = 'text-xs text-red-600 mt-1';
+            });
+        }
+
+        // Helper function to load ratings for a specific criterion
+        function loadCriteriaRatings(dropdown, criteriaId, currentRatingId) {
+            // Make an AJAX request to get ratings for this criterion
+            fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Build options HTML
+                    let optionsHtml = '<option value="">Not Rated Yet</option>';
+
+                    data.ratings.forEach(rating => {
+                        const selected = rating.id == currentRatingId ? 'selected' : '';
+                        optionsHtml += `<option value="${rating.id}" ${selected}>${rating.name} - Nilai: ${rating.rating_level}</option>`;
+                    });
+
+                    // Update dropdown options
+                    dropdown.innerHTML = optionsHtml;
+                } else {
+                    console.error('Error loading ratings:', data.message);
+                    dropdown.innerHTML = '<option value="">Error loading ratings</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading ratings:', error);
+                dropdown.innerHTML = '<option value="">Error loading ratings</option>';
             });
         }
 

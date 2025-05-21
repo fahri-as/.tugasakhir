@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\CriteriaRatingScale;
 
 class EvaluasiMingguanMagangController extends Controller
 {
@@ -46,15 +47,19 @@ class EvaluasiMingguanMagangController extends Controller
 
                 // Get evaluations for this period
                 $evaluationsByWeek = $this->getEvaluationsByWeek($selectedPeriodeId, $weekCount);
+
+                // Get all criteria evaluations in one flat collection
+                $evaluationsByCriteria = EvaluasiMingguanMagang::whereHas('magang', function($query) use ($selectedPeriodeId) {
+                    $query->whereHas('pelamar', function($q) use ($selectedPeriodeId) {
+                        $q->where('periode_id', $selectedPeriodeId);
+                    });
+                })
+                ->with(['criteria'])
+                ->get();
             }
         }
 
-        return view('evaluasi.index', compact(
-            'periods',
-            'selectedPeriodeId',
-            'evaluationsByWeek',
-            'weekCount'
-        ));
+        return view('evaluasi.index', compact('periods', 'selectedPeriodeId', 'evaluationsByWeek', 'weekCount', 'evaluationsByCriteria'));
     }
 
     /**
@@ -71,7 +76,7 @@ class EvaluasiMingguanMagangController extends Controller
                 });
             })
             ->where('minggu_ke', $week)
-            ->with(['magang', 'magang.pelamar', 'magang.pelamar.job', 'criteria', 'ratingScale'])
+            ->with(['magang', 'magang.pelamar', 'magang.pelamar.job', 'criteria', 'criteriaRatingScale'])
             ->get();
 
             // Group by magang_id
@@ -102,7 +107,7 @@ class EvaluasiMingguanMagangController extends Controller
                     'magang',
                     'magang.pelamar',
                     'magang.pelamar.job',
-                    'ratingScale',
+                    'criteriaRatingScale',
                     'criteria'
                 ])
                 ->whereHas('magang', function($query) use ($periodeId) {
@@ -112,6 +117,17 @@ class EvaluasiMingguanMagangController extends Controller
                 })
                 ->where('minggu_ke', $week)
                 ->get();
+
+            // Get total scores for each magang for this week
+            $totalScores = DB::table('total_skor_minggu_magang')
+                ->whereIn('magang_id', $evaluations->pluck('magang_id')->unique())
+                ->where('minggu_ke', $week)
+                ->pluck('total_skor', 'magang_id');
+
+            // Append total scores to each evaluation
+            foreach ($evaluations as $evaluation) {
+                $evaluation->total_score = $totalScores[$evaluation->magang_id] ?? 0;
+            }
 
             // Group evaluations by job and calculate SMART scores
             $smartResults = [];
@@ -166,35 +182,14 @@ class EvaluasiMingguanMagangController extends Controller
             })
             ->get();
 
-        // Get available rating scales
-        $ratingScales = RatingScale::orderBy('value')->get();
+        // Get all criteria
+        $criteria = Criteria::with('job')->get();
 
-        // Get criteria based on the selected intern's job
-        $criteria = collect();
+        // Get default criteria rating scales
+        // Note: In the view, we'll use JavaScript to fetch specific scales for selected criteria
+        $criteriaRatingScales = CriteriaRatingScale::orderBy('rating_level')->limit(1)->get();
 
-        // If magang_id is provided, filter criteria by job
-        if ($selectedMagangId) {
-            $selectedMagang = $magang->firstWhere('magang_id', $selectedMagangId);
-            if ($selectedMagang && $selectedMagang->pelamar && $selectedMagang->pelamar->job_id) {
-                $criteria = Criteria::where('job_id', $selectedMagang->pelamar->job_id)->get();
-            }
-        } else {
-            // Get all criteria (will be filtered by JavaScript on the frontend)
-            $criteria = Criteria::all();
-        }
-
-        // Get periods for dropdown
-        $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();
-
-        return view('evaluasi.create', compact(
-            'magang',
-            'ratingScales',
-            'criteria',
-            'periods',
-            'selectedPeriodeId',
-            'selectedWeek',
-            'selectedMagangId'
-        ));
+        return view('evaluasi.create', compact('magang', 'criteria', 'criteriaRatingScales', 'selectedWeek', 'selectedMagangId'));
     }
 
     /**
@@ -204,8 +199,8 @@ class EvaluasiMingguanMagangController extends Controller
     {
         $request->validate([
             'magang_id' => 'required|exists:magang,magang_id',
-            'rating_id' => 'nullable|exists:rating_scales,rating_id',
-            'criteria_id' => 'nullable|exists:criteria,criteria_id',
+            'criteria_rating_id' => 'nullable|exists:criteria_rating_scales,id',
+            'criteria_id' => 'required|exists:criteria,criteria_id',
             'minggu_ke' => 'required|integer|min:1',
         ]);
 
@@ -227,18 +222,9 @@ class EvaluasiMingguanMagangController extends Controller
             $evaluasi = new EvaluasiMingguanMagang();
             $evaluasi->evaluasi_id = Str::uuid()->toString();
             $evaluasi->magang_id = $request->magang_id;
-            $evaluasi->rating_id = $request->rating_id;
+            $evaluasi->criteria_rating_id = $request->criteria_rating_id;
             $evaluasi->criteria_id = $request->criteria_id;
             $evaluasi->minggu_ke = $request->minggu_ke;
-
-            // Calculate score only if rating is provided
-            if ($request->rating_id) {
-                $rating = RatingScale::findOrFail($request->rating_id);
-                $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
-            } else {
-                $evaluasi->skor_minggu = 0; // Default to 0 if no rating
-            }
-
             $evaluasi->save();
 
             // Get the magang to determine the job
@@ -277,7 +263,7 @@ class EvaluasiMingguanMagangController extends Controller
      */
     public function show(EvaluasiMingguanMagang $evaluasi)
     {
-        $evaluasi->load(['magang', 'magang.pelamar', 'magang.pelamar.job', 'ratingScale', 'criteria']);
+        $evaluasi->load(['magang', 'magang.pelamar', 'magang.pelamar.job', 'criteriaRatingScale', 'criteria']);
 
         // Get SMART details for this evaluation
         $smartDetails = null;
@@ -320,20 +306,22 @@ class EvaluasiMingguanMagangController extends Controller
         // Get all interns for dropdown
         $magang = Magang::with(['pelamar', 'pelamar.job'])->get();
 
-        // Get rating scales
-        $ratingScales = RatingScale::orderBy('value')->get();
-
         // Get criteria based on the intern's job
         $jobId = $evaluasi->magang->pelamar->job_id ?? null;
 
         if ($jobId) {
             $criteria = Criteria::where('job_id', $jobId)->get();
+
+            // Get criteria rating scales for this specific criterion
+            $criteriaRatingScales = CriteriaRatingScale::where('criteria_id', $evaluasi->criteria_id)
+                ->orderBy('rating_level')
+                ->get();
         } else {
-            // If no job ID, get all criteria
             $criteria = Criteria::all();
+            $criteriaRatingScales = collect(); // Empty collection if no criteria found
         }
 
-        return view('evaluasi.edit', compact('evaluasi', 'magang', 'ratingScales', 'criteria'));
+        return view('evaluasi.edit', compact('evaluasi', 'magang', 'criteria', 'criteriaRatingScales'));
     }
 
     /**
@@ -343,7 +331,7 @@ class EvaluasiMingguanMagangController extends Controller
     {
         $request->validate([
             'magang_id' => 'required|exists:magang,magang_id',
-            'rating_id' => 'nullable|exists:rating_scales,rating_id',
+            'criteria_rating_id' => 'nullable|exists:criteria_rating_scales,id',
             'criteria_id' => 'nullable|exists:criteria,criteria_id',
             'minggu_ke' => 'required|integer|min:1',
         ]);
@@ -355,9 +343,8 @@ class EvaluasiMingguanMagangController extends Controller
                 'id' => $evaluasi->evaluasi_id,
                 'magang_id' => $evaluasi->magang_id,
                 'criteria_id' => $evaluasi->criteria_id,
-                'rating_id' => $evaluasi->rating_id,
-                'minggu_ke' => $evaluasi->minggu_ke,
-                'skor_minggu' => $evaluasi->skor_minggu
+                'criteria_rating_id' => $evaluasi->criteria_rating_id,
+                'minggu_ke' => $evaluasi->minggu_ke
             ]
         ]);
 
@@ -386,7 +373,7 @@ class EvaluasiMingguanMagangController extends Controller
 
             // Update the evaluation
             $evaluasi->magang_id = $request->magang_id;
-            $evaluasi->rating_id = $request->rating_id;
+            $evaluasi->criteria_rating_id = $request->criteria_rating_id;
 
             // Only update criteria_id if it's explicitly provided
             if ($request->has('criteria_id')) {
@@ -398,29 +385,19 @@ class EvaluasiMingguanMagangController extends Controller
 
             $evaluasi->minggu_ke = $request->minggu_ke;
 
-            // Calculate score only if rating is provided
-            if ($request->rating_id) {
-                $rating = RatingScale::findOrFail($request->rating_id);
-                $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
-            } else {
-                $evaluasi->skor_minggu = 0; // Default to 0 if no rating
-            }
-
             // Log the changes before saving
             Log::info('Evaluation update changes:', [
                 'before' => [
                     'magang_id' => $originalEvaluation->magang_id,
                     'criteria_id' => $originalEvaluation->criteria_id,
-                    'rating_id' => $originalEvaluation->rating_id,
-                    'minggu_ke' => $originalEvaluation->minggu_ke,
-                    'skor_minggu' => $originalEvaluation->skor_minggu
+                    'criteria_rating_id' => $originalEvaluation->criteria_rating_id,
+                    'minggu_ke' => $originalEvaluation->minggu_ke
                 ],
                 'after' => [
                     'magang_id' => $evaluasi->magang_id,
                     'criteria_id' => $evaluasi->criteria_id,
-                    'rating_id' => $evaluasi->rating_id,
-                    'minggu_ke' => $evaluasi->minggu_ke,
-                    'skor_minggu' => $evaluasi->skor_minggu
+                    'criteria_rating_id' => $evaluasi->criteria_rating_id,
+                    'minggu_ke' => $evaluasi->minggu_ke
                 ]
             ]);
 
@@ -612,7 +589,7 @@ class EvaluasiMingguanMagangController extends Controller
         try {
             $validated = $request->validate([
                 'evaluation_id' => 'required|exists:evaluasi_mingguan_magang,evaluasi_id',
-                'rating_id' => 'nullable|exists:rating_scales,rating_id',
+                'criteria_rating_id' => 'nullable|exists:criteria_rating_scales,id',
             ]);
 
             // Start a transaction
@@ -622,23 +599,21 @@ class EvaluasiMingguanMagangController extends Controller
             $evaluasi = EvaluasiMingguanMagang::findOrFail($request->evaluation_id);
 
             // Update rating
-            $evaluasi->rating_id = $request->rating_id;
-
-            // Calculate score based on rating
-            if ($request->rating_id) {
-                $rating = RatingScale::findOrFail($request->rating_id);
-                $evaluasi->skor_minggu = $rating->value / 10; // Convert to 0-5 scale
-                Log::info("Setting score for evaluasi {$evaluasi->evaluasi_id} to {$evaluasi->skor_minggu} (from rating value {$rating->value})");
-            } else {
-                $evaluasi->skor_minggu = 0; // Default to 0 if no rating
-            }
-
+            $evaluasi->criteria_rating_id = $request->criteria_rating_id;
             $evaluasi->save();
 
             // Get the magang to determine the job
             $magang = Magang::with('pelamar')->findOrFail($evaluasi->magang_id);
             $jobId = $magang->pelamar->job_id ?? null;
             $periodeId = $magang->pelamar->periode_id ?? null;
+
+            // Fetch the current rating value if a rating is provided
+            $ratingValue = null;
+            if ($request->criteria_rating_id) {
+                $criteriaRating = CriteriaRatingScale::findOrFail($request->criteria_rating_id);
+                $ratingValue = $criteriaRating->rating_level;
+                Log::info("Rating value for evaluasi {$evaluasi->evaluasi_id}: {$ratingValue} (from rating level {$criteriaRating->rating_level})");
+            }
 
             // Update scores using SMART method if job is Cook or Pastry Chef
             if ($jobId && in_array($jobId, ['JOB001', 'JOB004'])) {
@@ -648,10 +623,17 @@ class EvaluasiMingguanMagangController extends Controller
                 $this->smartService->invalidateCache($evaluasi->magang_id);
             }
 
-            // Calculate new total score for the intern in this week
-            $totalScore = EvaluasiMingguanMagang::where('magang_id', $evaluasi->magang_id)
+            // Get total score from the total_skor_minggu table
+            $totalScore = DB::table('total_skor_minggu_magang')
+                ->where('magang_id', $evaluasi->magang_id)
                 ->where('minggu_ke', $evaluasi->minggu_ke)
-                ->sum('skor_minggu');
+                ->value('total_skor');
+
+            // If no score was found in the database, return 0
+            if ($totalScore === null) {
+                $totalScore = 0;
+                Log::warning("No total score found for magang_id: {$evaluasi->magang_id}, minggu_ke: {$evaluasi->minggu_ke}");
+            }
 
             DB::commit();
 
@@ -659,9 +641,14 @@ class EvaluasiMingguanMagangController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Rating updated successfully',
-                'evaluation' => $evaluasi->load('ratingScale'),
+                'evaluation' => [
+                    'evaluasi_id' => $evaluasi->evaluasi_id,
+                    'criteria_rating_id' => $evaluasi->criteria_rating_id,
+                    'criteria_rating_scale' => $evaluasi->criteriaRatingScale,
+                    'rating_value' => $ratingValue ?? 0
+                ],
                 'total_score' => (float)$totalScore, // Cast to float to ensure it's a number
-                'originalRatingValue' => $request->rating_id ? $rating->value : null
+                'originalRatingLevel' => $request->criteria_rating_id ? $criteriaRating->rating_level : null
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
@@ -685,6 +672,39 @@ class EvaluasiMingguanMagangController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error updating rating: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * API endpoint to get ratings for a specific criterion
+     */
+    public function getCriteriaRatings(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'criteria_id' => 'required|exists:criteria,criteria_id',
+            ]);
+
+            // Get all rating scales for this specific criterion
+            $ratings = CriteriaRatingScale::where('criteria_id', $request->criteria_id)
+                ->orderBy('rating_level')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'ratings' => $ratings
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error fetching criteria ratings: " . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching ratings: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -292,7 +292,7 @@
                                                         </td>
                                                         <td class="px-4 py-3 whitespace-nowrap">
                                                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                                {{ $evaluation->ratingScale->name ?? 'N/A' }}
+                                                                {{ $evaluation->criteriaRatingScale->name ?? 'N/A' }}
                                                             </span>
                                                         </td>
                                                         <td class="px-4 py-3 whitespace-nowrap font-medium">

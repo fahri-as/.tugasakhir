@@ -84,6 +84,9 @@ Route::middleware('auth')->group(function () {
     // API route for updating evaluation ratings
     Route::post('/api/evaluations/update', [EvaluasiMingguanMagangController::class, 'updateRating'])->name('api.evaluations.update');
 
+    // API route for getting ratings for a specific criterion
+    Route::get('/api/criteria-ratings', [EvaluasiMingguanMagangController::class, 'getCriteriaRatings'])->name('api.criteria.ratings');
+
     // Criteria routes
     Route::get('/criteria', [CriteriaController::class, 'index'])->name('criteria.index');
     Route::get('/criteria/create', [CriteriaController::class, 'create'])->name('criteria.create');

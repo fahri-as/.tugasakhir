@@ -7,7 +7,7 @@ use App\Models\Pelamar;
 use App\Models\User;
 use App\Models\TesKemampuan;
 use App\Models\EvaluasiMingguanMagang;
-use App\Models\RatingScale;
+use App\Models\CriteriaRatingScale;
 use App\Models\Criteria;
 use App\Models\Job;
 use App\Models\Periode;
@@ -239,16 +239,6 @@ class MagangController extends Controller
                 $jobId = $pelamar->job_id;
                 $criteriaList = Criteria::where('job_id', $jobId)->get();
 
-                // Get default rating (middle rating)
-                $defaultRating = RatingScale::orderBy('value')->get()->filter(function($item, $key) {
-                    return $key == 2; // Get the middle item (typically "Cukup" or "Average")
-                })->first();
-
-                if (!$defaultRating) {
-                    // Fallback to first rating if no middle rating found
-                    $defaultRating = RatingScale::first();
-                }
-
                 // If this is a Cook or Pastry Chef position, create default evaluations
                 if (in_array($jobId, ['JOB001', 'JOB004'])) {
                     $this->createDefaultEvaluations($magang);
@@ -424,7 +414,7 @@ class MagangController extends Controller
                 $evaluasi = new EvaluasiMingguanMagang();
                 $evaluasi->evaluasi_id = Str::uuid()->toString();
                 $evaluasi->magang_id = $magang->magang_id;
-                $evaluasi->rating_id = null; // Set to null instead of default value
+                $evaluasi->criteria_rating_id = null; // Updated to use criteria_rating_id instead of rating_id
                 $evaluasi->criteria_id = $criteria->criteria_id;
                 $evaluasi->minggu_ke = $week;
                 $evaluasi->skor_minggu = 0; // Set initial score to 0

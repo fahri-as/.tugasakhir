@@ -53,18 +53,10 @@
 
                             <!-- Rating Selection -->
                             <div>
-                                <label for="rating_id" class="block text-sm font-medium text-gray-700">Rating</label>
-                                <select id="rating_id" name="rating_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('rating_id') border-red-500 @enderror">
+                                <label for="criteria_rating_id" class="block text-sm font-medium text-gray-700">Rating</label>
+                                <select id="criteria_rating_id" name="criteria_rating_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     <option value="">Not Rated Yet</option>
-                                    @foreach($ratingScales as $rating)
-                                        <option value="{{ $rating->rating_id }}" @if(old('rating_id') == $rating->rating_id) selected @endif>
-                                            {{ $rating->name }} ({{ $rating->singkatan }}) - Value: {{ $rating->value }}
-                                        </option>
-                                    @endforeach
                                 </select>
-                                @error('rating_id')
-                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                                @enderror
                             </div>
 
                             <!-- Week Number -->
@@ -95,6 +87,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             const magangSelect = document.getElementById('magang_id');
             const criteriaSelect = document.getElementById('criteria_id');
+            const ratingSelect = document.getElementById('criteria_rating_id');
+            const csrfToken = "{{ csrf_token() }}";
 
             // Function to filter criteria based on selected intern's job
             function filterCriteria() {
@@ -123,11 +117,64 @@
                 }
             }
 
+            // Function to load ratings specific to the selected criterion
+            function loadCriteriaRatings() {
+                const criteriaId = criteriaSelect.value;
+
+                if (!criteriaId) {
+                    // If no criterion selected, clear and disable the rating dropdown
+                    ratingSelect.innerHTML = '<option value="">Not Rated Yet</option>';
+                    return;
+                }
+
+                // Show loading state
+                ratingSelect.innerHTML = '<option value="">Loading ratings...</option>';
+
+                // Make AJAX request to get ratings for this criterion
+                fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Clear the rating dropdown
+                        ratingSelect.innerHTML = '<option value="">Not Rated Yet</option>';
+
+                        // Add rating options
+                        data.ratings.forEach(rating => {
+                            const option = document.createElement('option');
+                            option.value = rating.id;
+                            option.textContent = `${rating.name} - Level: ${rating.rating_level}`;
+                            ratingSelect.appendChild(option);
+                        });
+                    } else {
+                        console.error('Error loading ratings:', data.message);
+                        ratingSelect.innerHTML = '<option value="">Error loading ratings</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading ratings:', error);
+                    ratingSelect.innerHTML = '<option value="">Error loading ratings</option>';
+                });
+            }
+
             // Filter criteria on load
             filterCriteria();
 
             // Filter criteria when intern selection changes
             magangSelect.addEventListener('change', filterCriteria);
+
+            // Load ratings when criterion selection changes
+            criteriaSelect.addEventListener('change', loadCriteriaRatings);
+
+            // Load ratings on page load if a criterion is already selected
+            if (criteriaSelect.value) {
+                loadCriteriaRatings();
+            }
         });
     </script>
 </x-app-layout>

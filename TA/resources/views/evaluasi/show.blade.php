@@ -42,9 +42,9 @@
                                         <div>
                                             <p class="text-sm text-gray-600">Rating</p>
                                             <p class="font-medium">
-                                                @if($evaluasi->rating_id)
+                                                @if($evaluasi->criteria_rating_id)
                                                 <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                                                    {{ $evaluasi->ratingScale->name }} ({{ $evaluasi->ratingScale->singkatan }})
+                                                    {{ $evaluasi->criteriaRatingScale->name ?? 'N/A' }}
                                                 </span>
                                                 @else
                                                 <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">
@@ -55,7 +55,7 @@
                                         </div>
                                         <div>
                                             <p class="text-sm text-gray-600">Score (0-5 scale)</p>
-                                            <p class="font-medium">{{ $evaluasi->rating_id ? number_format($evaluasi->skor_minggu * 10, 0) : 'N/A' }}</p>
+                                            <p class="font-medium">{{ $evaluasi->criteria_rating_id ? number_format($evaluasi->skor_minggu * 10, 0) : 'N/A' }}</p>
                                         </div>
                                         <div class="col-span-2">
                                             <p class="text-sm text-gray-600">Criteria</p>
