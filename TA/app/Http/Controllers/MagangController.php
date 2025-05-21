@@ -417,7 +417,6 @@ class MagangController extends Controller
                 $evaluasi->criteria_rating_id = null; // Updated to use criteria_rating_id instead of rating_id
                 $evaluasi->criteria_id = $criteria->criteria_id;
                 $evaluasi->minggu_ke = $week;
-                $evaluasi->skor_minggu = 0; // Set initial score to 0
                 $evaluasi->save();
             }
         }
