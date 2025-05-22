@@ -64,24 +64,142 @@ class CriteriaController extends Controller
 
         ]);
 
-        // Generate a unique numeric criteria_id
-        $criteriaId = mt_rand(1, 999);
-        while (Criteria::where('criteria_id', $criteriaId)->exists()) {
+        // Begin transaction to ensure all operations succeed or fail together
+        DB::beginTransaction();
+
+        try {
+            // Generate a unique numeric criteria_id
             $criteriaId = mt_rand(1, 999);
+            while (Criteria::where('criteria_id', $criteriaId)->exists()) {
+                $criteriaId = mt_rand(1, 999);
+            }
+
+            // Create the criteria with the generated ID
+            $criteria = Criteria::create([
+                'criteria_id' => $criteriaId,
+                'job_id' => $request->job_id,
+                'name' => $request->name,
+                'code' => $request->code,
+                'description' => $request->description,
+            ]);
+
+            $createdEvaluations = 0;
+
+            // PART 1: For existing evaluations, add this criteria to each intern's weekly evaluation
+            // Get interns (magang) via pelamar (applicants) that match the job_id
+            // Then get unique magang_id and minggu_ke combinations from existing evaluations
+            $existingEvaluations = DB::table('evaluasi_mingguan_magang as emm')
+                ->join('magang as m', 'emm.magang_id', '=', 'm.magang_id')
+                ->join('pelamar as p', 'm.pelamar_id', '=', 'p.pelamar_id')
+                ->select('emm.magang_id', 'emm.minggu_ke')
+                ->where('p.job_id', '=', $request->job_id)
+                ->groupBy('emm.magang_id', 'emm.minggu_ke')
+                ->get();
+
+            // For each combination, create a new evaluation for the new criteria
+            foreach ($existingEvaluations as $evaluation) {
+                // Check if this evaluation already exists
+                $exists = DB::table('evaluasi_mingguan_magang')
+                    ->where('magang_id', $evaluation->magang_id)
+                    ->where('criteria_id', $criteriaId)
+                    ->where('minggu_ke', $evaluation->minggu_ke)
+                    ->exists();
+
+                if (!$exists) {
+                    $evaluasiId = Str::uuid()->toString();
+
+                    DB::table('evaluasi_mingguan_magang')->insert([
+                        'evaluasi_id' => $evaluasiId,
+                        'magang_id' => $evaluation->magang_id,
+                        'criteria_id' => $criteriaId,
+                        'minggu_ke' => $evaluation->minggu_ke,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+
+                    $createdEvaluations++;
+
+                    // Ensure a total_skor_minggu_magang record exists for this magang_id and minggu_ke
+                    $totalScoreExists = DB::table('total_skor_minggu_magang')
+                        ->where('magang_id', $evaluation->magang_id)
+                        ->where('minggu_ke', $evaluation->minggu_ke)
+                        ->exists();
+
+                    if (!$totalScoreExists) {
+                        DB::table('total_skor_minggu_magang')->insert([
+                            'id' => Str::uuid()->toString(),
+                            'magang_id' => $evaluation->magang_id,
+                            'minggu_ke' => $evaluation->minggu_ke,
+                            'total_skor' => 0.00,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                    }
+                }
+            }
+
+            // PART 2: For all interns with this job_id that have no evaluations yet,
+            // create initial evaluation records for week 1
+            $internsWithoutEvals = DB::table('magang as m')
+                ->join('pelamar as p', 'm.pelamar_id', '=', 'p.pelamar_id')
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                          ->from('evaluasi_mingguan_magang as emm')
+                          ->whereRaw('emm.magang_id = m.magang_id');
+                })
+                ->select('m.magang_id')
+                ->where('p.job_id', '=', $request->job_id)
+                ->where('m.status_seleksi', '=', 'Sedang Berjalan') // Only for active interns
+                ->groupBy('m.magang_id')
+                ->get();
+
+            foreach ($internsWithoutEvals as $intern) {
+                $evaluasiId = Str::uuid()->toString();
+
+                DB::table('evaluasi_mingguan_magang')->insert([
+                    'evaluasi_id' => $evaluasiId,
+                    'magang_id' => $intern->magang_id,
+                    'criteria_id' => $criteriaId,
+                    'minggu_ke' => 1, // Start with week 1
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                $createdEvaluations++;
+
+                // Ensure a total_skor_minggu_magang record exists for this magang_id and minggu_ke
+                $totalScoreExists = DB::table('total_skor_minggu_magang')
+                    ->where('magang_id', $intern->magang_id)
+                    ->where('minggu_ke', 1)
+                    ->exists();
+
+                if (!$totalScoreExists) {
+                    DB::table('total_skor_minggu_magang')->insert([
+                        'id' => Str::uuid()->toString(),
+                        'magang_id' => $intern->magang_id,
+                        'minggu_ke' => 1,
+                        'total_skor' => 0.00,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            $message = 'Criteria created successfully with ID: ' . $criteriaId;
+            if ($createdEvaluations > 0) {
+                $message .= '. Created ' . $createdEvaluations . ' evaluation records for existing interns.';
+            }
+
+            return redirect()->route('criteria.index', ['job_id' => $request->job_id])
+                ->with('success', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('criteria.create')
+                ->with('error', 'Error creating criteria: ' . $e->getMessage())
+                ->withInput();
         }
-
-        // Create the criteria with the generated ID
-        $criteria = Criteria::create([
-            'criteria_id' => $criteriaId,
-            'job_id' => $request->job_id,
-            'name' => $request->name,
-            'code' => $request->code,
-            'description' => $request->description,
-
-        ]);
-
-        return redirect()->route('criteria.index', ['job_id' => $request->job_id])
-            ->with('success', 'Criteria created successfully with ID: ' . $criteriaId);
     }
 
     /**
@@ -169,14 +287,11 @@ class CriteriaController extends Controller
                     ->with('error', 'Cannot delete criteria. It has associated comparisons that must be deleted first.');
             }
 
-            // Check if criteria is used in evaluations
+            // Check if criteria is used in evaluations - warn but allow deletion
             $evaluasiCount = \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->count();
-            if ($evaluasiCount > 0) {
-                return redirect()->route('criteria.index', ['job_id' => $jobId])
-                    ->with('error', 'Cannot delete criteria. It is being used in ' . $evaluasiCount . ' evaluations.');
-            }
 
-            // Force delete to ensure it's removed
+            // Force delete to ensure it's removed - this will trigger the deleting event in the model
+            // which will cascade delete evaluations
             $deleted = $criterion->delete();
 
             if (!$deleted) {
@@ -184,8 +299,13 @@ class CriteriaController extends Controller
                     ->with('error', 'Failed to delete criteria. Please try again.');
             }
 
+            $message = 'Criteria deleted successfully';
+            if ($evaluasiCount > 0) {
+                $message .= '. Also deleted ' . $evaluasiCount . ' related evaluations.';
+            }
+
             return redirect()->route('criteria.index', ['job_id' => $jobId])
-                ->with('success', 'Criteria deleted successfully');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             return redirect()->route('criteria.index', ['job_id' => $jobId])
@@ -216,12 +336,11 @@ class CriteriaController extends Controller
             $criterion->rowComparisons()->delete();
             $criterion->columnComparisons()->delete();
 
-            // 2. Update evaluations to remove references to this criteria
-            $evaluasiCount = \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->count();
-            // Set the criteria_id to null in evaluations
-            \App\Models\EvaluasiMingguanMagang::where('criteria_id', $criteriaId)->update(['criteria_id' => null]);
+            // 2. Count evaluations related to this criteria for the success message
+            $evaluasiCount = $criterion->evaluations()->count();
 
-            // 3. Finally delete the criteria
+            // 3. Delete the criteria - this will trigger the deleting event in the model
+            // which will cascade delete evaluations
             $deleted = $criterion->delete();
 
             if (!$deleted) {
@@ -237,7 +356,7 @@ class CriteriaController extends Controller
                 $message .= 'Removed ' . ($rowComparisonsCount + $columnComparisonsCount) . ' comparisons. ';
             }
             if ($evaluasiCount > 0) {
-                $message .= 'Updated ' . $evaluasiCount . ' evaluations.';
+                $message .= 'Deleted ' . $evaluasiCount . ' related evaluations.';
             }
 
             return redirect()->route('criteria.index', ['job_id' => $jobId])

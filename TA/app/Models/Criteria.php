@@ -27,6 +27,20 @@ class Criteria extends Model
     ];
 
     /**
+     * Boot method to set up event listeners
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // When criteria is being deleted (force or soft delete)
+        static::deleting(function ($criteria) {
+            // Delete all related evaluations
+            $criteria->evaluations()->delete();
+        });
+    }
+
+    /**
      * Get the job that owns the criteria.
      */
     public function job(): BelongsTo
@@ -48,6 +62,14 @@ class Criteria extends Model
     public function columnComparisons(): HasMany
     {
         return $this->hasMany(CriteriaComparison::class, 'criteria_column_id', 'criteria_id');
+    }
+
+    /**
+     * Get the evaluations related to this criteria
+     */
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(EvaluasiMingguanMagang::class, 'criteria_id', 'criteria_id');
     }
 
     /**
