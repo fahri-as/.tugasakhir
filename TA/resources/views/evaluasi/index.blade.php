@@ -137,12 +137,12 @@
                                             @endphp
 
                                                         @if($isFullyEvaluated)
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" title="All criteria rated">
+                                                            <a href="javascript:void(0)" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors">
                                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                                 </svg>
                                                                 Fully Evaluated
-                                                            </span>
+                                                            </a>
                                                         @elseif($isPartiallyEvaluated)
                                                             <a href="javascript:void(0)" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors">
                                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -151,7 +151,7 @@
                                                                 Partially Evaluated
                                                             </a>
                                                         @else
-                                                            <a href="{{ route('evaluasi.create') }}?periode_id={{ $selectedPeriodeId }}&week={{ $week }}&magang_id={{ $intern->magang_id }}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
+                                                            <a href="javascript:void(0)" onclick="currentPeriod = '{{ $selectedPeriodeId }}'; currentWeek = {{ $week }}; handleNotEvaluated(currentPeriod, currentWeek, '{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}');" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
                                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                                 </svg>
@@ -796,23 +796,23 @@
                     if (isFullyEvaluated) {
                         scoreDisplay = `
                             <span class="font-medium text-indigo-700">${scoreValue}</span>
-                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <button onclick="showInternEvaluations('${intern.magangId}', '${intern.nama}', '${intern.jobId}'); event.stopPropagation();" class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors">
                                 Fully Evaluated
-                            </span>
+                            </button>
                         `;
                     } else if (isPartiallyEvaluated) {
                         scoreDisplay = `
                             <span class="text-yellow-600">${scoreValue}</span>
-                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <button onclick="showInternEvaluations('${intern.magangId}', '${intern.nama}', '${intern.jobId}'); event.stopPropagation();" class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors">
                                 Partially Evaluated
-                            </span>
+                            </button>
                         `;
                     } else {
                         scoreDisplay = `
                             <span class="text-gray-500">0.00</span>
-                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <button onclick="handleNotEvaluated(currentPeriod, currentWeek, '${intern.magangId}', '${intern.nama}', '${intern.jobId}'); event.stopPropagation();" class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
                                 Not Evaluated
-                            </span>
+                            </button>
                         `;
                     }
 
@@ -865,7 +865,37 @@
                         showInternEvaluations(magangId, internName, jobId);
                     } else {
                         // No evaluations found
-                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">No evaluations found for this intern.</td></tr>';
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-center">
+                                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-yellow-700">
+                                                    No evaluations found for this intern for Week ${currentWeek}.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-center space-x-4">
+                                        <a href="{{ route('evaluasi.create') }}?periode_id=${currentPeriod}&week=${currentWeek}&magang_id=${magangId}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                            Create New Evaluation
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+
+                        // Clear the total score
+                        document.getElementById('total-score').textContent = '0.00';
+
+                        // Hide SMART analysis
+                        document.getElementById('smart-analysis').classList.add('hidden');
                     }
                 })
                 .catch(error => {
@@ -1212,5 +1242,75 @@
                 });
             }
         });
+
+        // Add a function to handle the Not Evaluated status - checks if the week exists first
+        function handleNotEvaluated(periodeId, week, magangId, internName, jobId) {
+            // First check if data for this week exists but is just not evaluated
+            fetch(`{{ route('api.evaluations') }}?periode_id=${periodeId}&week=${week}`, {
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Check if there's any data for this week (for any intern)
+                if (data.evaluations && data.evaluations.length > 0) {
+                    // The week exists, so show the regular evaluation view
+                    loadWeekEvaluations(periodeId, week);
+                    setTimeout(() => showInternEvaluations(magangId, internName, jobId), 500);
+                } else {
+                    // Week doesn't have any data, show the create prompt
+                    showCreateEvaluationPrompt(periodeId, week, magangId, internName);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking week data:', error);
+                // If there's an error, default to showing the create prompt
+                showCreateEvaluationPrompt(periodeId, week, magangId, internName);
+            });
+        }
+
+        // Function to show a create evaluation prompt when there's no existing data
+        function showCreateEvaluationPrompt(periodeId, week, magangId, internName) {
+            document.getElementById('evaluation-table-container').classList.add('hidden');
+            document.getElementById('criteria-container').classList.remove('hidden');
+
+            // Update the intern title
+            document.getElementById('intern-title').textContent = `Evaluations for ${internName} - Week ${week}`;
+
+            // Create a prompt to add a new evaluation
+            const tbody = document.getElementById('criteria-tbody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center">
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-700">
+                                        No evaluations found for this intern for Week ${week}.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center space-x-4">
+                            <a href="{{ route('evaluasi.create') }}?periode_id=${periodeId}&week=${week}&magang_id=${magangId}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Create New Evaluation
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            // Clear the total score
+            document.getElementById('total-score').textContent = '0.00';
+
+            // Hide SMART analysis
+            document.getElementById('smart-analysis').classList.add('hidden');
+        }
     </script>
 </x-app-layout>
