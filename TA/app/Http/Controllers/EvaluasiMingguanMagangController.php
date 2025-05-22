@@ -44,6 +44,9 @@ class EvaluasiMingguanMagangController extends Controller
         // Initialize variables
         $evaluationsByWeek = collect();
         $weekCount = 0;
+        $allInterns = collect();
+        $evaluationStatus = collect();
+        $totalScores = collect();
 
         if ($selectedPeriodeId) {
             $periode = Periode::find($selectedPeriodeId);
@@ -61,10 +64,57 @@ class EvaluasiMingguanMagangController extends Controller
                 })
                 ->with(['criteria'])
                 ->get();
+
+                // Get all interns for the selected period
+                $allInterns = Magang::whereHas('pelamar', function($query) use ($selectedPeriodeId) {
+                    $query->where('periode_id', $selectedPeriodeId);
+                })
+                ->with(['pelamar', 'pelamar.job'])
+                ->get();
+
+                // Get all evaluations for the selected period grouped by magang_id and minggu_ke
+                $allEvaluations = EvaluasiMingguanMagang::whereIn('magang_id', $allInterns->pluck('magang_id'))
+                    ->select('magang_id', 'minggu_ke', DB::raw('count(*) as count'))
+                    ->groupBy('magang_id', 'minggu_ke')
+                    ->get()
+                    ->groupBy(['magang_id', 'minggu_ke']);
+
+                // Get total scores for each intern for each week
+                $totalScoresRaw = DB::table('total_skor_minggu_magang')
+                    ->whereIn('magang_id', $allInterns->pluck('magang_id'))
+                    ->select('magang_id', 'minggu_ke', 'total_skor')
+                    ->get();
+
+                // Restructure the data for easier access in the view
+                $totalScores = collect();
+                foreach ($totalScoresRaw as $score) {
+                    if (!$totalScores->has($score->magang_id)) {
+                        $totalScores[$score->magang_id] = collect();
+                    }
+                    $totalScores[$score->magang_id][$score->minggu_ke] = $score;
+                }
+
+                // Log scores for debugging
+                Log::info('Total scores data in controller:', [
+                    'count' => $totalScores->count(),
+                    'sample' => $totalScores->take(2)->toArray()
+                ]);
+
+                // Prepare evaluation status data
+                $evaluationStatus = $allEvaluations;
             }
         }
 
-        return view('evaluasi.index', compact('periods', 'selectedPeriodeId', 'evaluationsByWeek', 'weekCount', 'evaluationsByCriteria'));
+        return view('evaluasi.index', compact(
+            'periods',
+            'selectedPeriodeId',
+            'evaluationsByWeek',
+            'weekCount',
+            'evaluationsByCriteria',
+            'allInterns',
+            'evaluationStatus',
+            'totalScores'
+        ));
     }
 
     /**
@@ -100,38 +150,83 @@ class EvaluasiMingguanMagangController extends Controller
     {
         $request->validate([
             'periode_id' => 'required|exists:periode,periode_id',
-            'week' => 'required|integer|min:1',
+            'week' => 'nullable|integer|min:1',
+            'magang_id' => 'nullable|exists:magang,magang_id',
         ]);
 
         $periodeId = $request->periode_id;
         $week = $request->week;
+        $magangId = $request->magang_id;
 
         try {
-            // Get all evaluations for this week in the selected period
-            $evaluations = EvaluasiMingguanMagang::with([
-                    'magang',
-                    'magang.pelamar',
-                    'magang.pelamar.job',
-                    'criteriaRatingScale',
-                    'criteria'
-                ])
-                ->whereHas('magang', function($query) use ($periodeId) {
-                    $query->whereHas('pelamar', function($q) use ($periodeId) {
-                        $q->where('periode_id', $periodeId);
-                    });
-                })
-                ->where('minggu_ke', $week)
-                ->get();
+            // Log request parameters for debugging
+            Log::info('getByWeek request', [
+                'periode_id' => $periodeId,
+                'week' => $week,
+                'magang_id' => $magangId
+            ]);
 
-            // Get total scores for each magang for this week
-            $totalScores = DB::table('total_skor_minggu_magang')
-                ->whereIn('magang_id', $evaluations->pluck('magang_id')->unique())
-                ->where('minggu_ke', $week)
-                ->pluck('total_skor', 'magang_id');
+            // Build the query
+            $query = EvaluasiMingguanMagang::with([
+                'magang',
+                'magang.pelamar',
+                'magang.pelamar.job',
+                'criteriaRatingScale',
+                'criteria'
+            ])
+            ->whereHas('magang', function($query) use ($periodeId) {
+                $query->whereHas('pelamar', function($q) use ($periodeId) {
+                    $q->where('periode_id', $periodeId);
+                });
+            });
+
+            // Filter by week if provided
+            if ($week) {
+                $query->where('minggu_ke', $week);
+            }
+
+            // Filter by magang_id if provided
+            if ($magangId) {
+                $query->where('magang_id', $magangId);
+            }
+
+            $evaluations = $query->get();
+
+            // Get total scores for each magang for this week or all weeks
+            $totalScoresQuery = DB::table('total_skor_minggu_magang')
+                ->whereIn('magang_id', $evaluations->pluck('magang_id')->unique());
+
+            if ($week) {
+                // If specific week, get scores for just that week
+                $totalScoresQuery->where('minggu_ke', $week);
+                $totalScores = $totalScoresQuery->pluck('total_skor', 'magang_id');
+            } else {
+                // If all weeks, restructure for easier access
+                $totalScoresRaw = $totalScoresQuery
+                    ->select('magang_id', 'minggu_ke', 'total_skor')
+                    ->get();
+
+                $totalScores = collect();
+                foreach ($totalScoresRaw as $score) {
+                    if (!$totalScores->has($score->magang_id)) {
+                        $totalScores[$score->magang_id] = collect();
+                    }
+                    $totalScores[$score->magang_id][$score->minggu_ke] = $score->total_skor;
+                }
+            }
 
             // Append total scores to each evaluation
             foreach ($evaluations as $evaluation) {
-                $evaluation->total_score = $totalScores[$evaluation->magang_id] ?? 0;
+                if ($week) {
+                    $evaluation->total_score = $totalScores[$evaluation->magang_id] ?? 0;
+                    // Add evaluation status flag based on total score
+                    $evaluation->is_fully_evaluated = $evaluation->total_score > 0;
+                } else {
+                    $magangScores = $totalScores[$evaluation->magang_id] ?? collect();
+                    $evaluation->total_score = $magangScores[$evaluation->minggu_ke] ?? 0;
+                    // Add evaluation status flag based on total score
+                    $evaluation->is_fully_evaluated = $evaluation->total_score > 0;
+                }
             }
 
             // Group evaluations by job and calculate SMART scores

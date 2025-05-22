@@ -75,23 +75,137 @@
                         </div>
                     </div>
 
-                    <!-- Week Selection Cards -->
+                    <!-- Weekly Evaluation Status Overview -->
                     @if($weekCount > 0)
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Evaluation Status Overview</h3>
+                            <button id="toggle-evaluation-status" class="inline-flex items-center px-3 py-1.5 bg-indigo-100 border border-indigo-300 rounded-md text-xs text-indigo-700 uppercase tracking-widest hover:bg-indigo-200 transition duration-150">
+                                <svg id="chevron-down" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                                <svg id="chevron-up" class="w-4 h-4 mr-1 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                                <span id="status-toggle-text">Hide Overview</span>
+                            </button>
+                        </div>
+                        <div id="weekly-evaluation-status" class="bg-white shadow rounded-lg mb-6 overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intern Name</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Position</th>
+                                            @for($week = 1; $week <= $weekCount; $week++)
+                                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Week {{ $week }}</th>
+                                            @endfor
+                                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @foreach($allInterns as $intern)
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $intern->pelamar->nama }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $intern->pelamar->job->nama_job ?? 'N/A' }}
+                                                </td>
+                                                @for($week = 1; $week <= $weekCount; $week++)
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                                                                    @php
+                                                $hasEvaluation = isset($evaluationStatus[$intern->magang_id][$week]);
+                                                $totalScore = 0;
+                                                if (isset($totalScores[$intern->magang_id][$week])) {
+                                                    // Access the total_skor property if it's an object, or use the value directly if not
+                                                    $scoreValue = $totalScores[$intern->magang_id][$week];
+                                                    $totalScore = is_object($scoreValue) ? $scoreValue->total_skor : $scoreValue;
+                                                }
+                                                // For debugging
+                                                // echo "<!-- DEBUG: Intern: {$intern->magang_id}, Week: {$week}, Score: {$totalScore}, Type: " . gettype($totalScore) . " -->";
+                                                $isFullyEvaluated = $hasEvaluation && floatval($totalScore) > 0;
+                                                $isPartiallyEvaluated = $hasEvaluation && floatval($totalScore) <= 0;
+                                            @endphp
+
+                                                        @if($isFullyEvaluated)
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" title="Score: {{ floatval($totalScore) }}">
+                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                                </svg>
+                                                                Fully Evaluated
+                                                            </span>
+                                                        @elseif($isPartiallyEvaluated)
+                                                            <a href="javascript:void(0)" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors">
+                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                                                </svg>
+                                                                Partially Evaluated
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ route('evaluasi.create') }}?periode_id={{ $selectedPeriodeId }}&week={{ $week }}&magang_id={{ $intern->magang_id }}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
+                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                                </svg>
+                                                                Not Evaluated
+                                                            </a>
+                                                        @endif
+                                                    </td>
+                                                @endfor
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                    <button class="text-blue-600 hover:text-blue-900" onclick="loadInternWeekSummary('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}')">
+                                                        View All Weeks
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Week Selection Cards -->
                         <div id="week-cards" class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-6">
                             @for($week = 1; $week <= $weekCount; $week++)
                                 <div class="bg-white shadow rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
-                                    onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }})">
+                                    onclick="console.log('Week card clicked: {{ $week }}'); loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }});">
                                     <div class="p-4">
                                         <h3 class="text-lg font-medium text-gray-900">Week {{ $week }}</h3>
                                         <p class="mt-2 text-sm text-gray-600">
-                                            @php
+                                                                                            @php
                                                 // Count interns with evaluations for this week
-                                                $internCount = 0;
+                                                $evaluatedCount = 0;
+                                                $partialCount = 0;
+                                                $totalCount = $allInterns->count();
+
                                                 if (isset($evaluationsByWeek[$week])) {
-                                                    $internCount = $evaluationsByWeek[$week]->count();
+                                                    foreach ($evaluationsByWeek[$week] as $magangId => $evals) {
+                                                        // Check if this intern has a score > 0
+                                                        $hasScore = false;
+                                                        if (isset($totalScores[$magangId][$week])) {
+                                                            $scoreValue = $totalScores[$magangId][$week];
+                                                            $totalScore = is_object($scoreValue) ? $scoreValue->total_skor : $scoreValue;
+                                                            $hasScore = floatval($totalScore) > 0;
+                                                        }
+                                                        $hasEvaluation = isset($evaluationStatus[$magangId][$week]);
+
+                                                        if ($hasScore) {
+                                                            $evaluatedCount++;
+                                                        } elseif ($hasEvaluation) {
+                                                            // This is a "Partial" evaluation - has records but score is 0 or negative
+                                                            $partialCount++;
+                                                        }
+                                                    }
                                                 }
+
+                                                $pendingCount = $totalCount - $evaluatedCount - $partialCount;
                                             @endphp
-                                            {{ $internCount }} {{ Str::plural('intern', $internCount) }} evaluated
+                                            <span class="font-medium text-green-700">{{ $evaluatedCount }}</span> fully evaluated
+                                            @if($partialCount > 0)
+                                                · <span class="font-medium text-yellow-700">{{ $partialCount }}</span> partially evaluated
+                                            @endif
+                                            @if($pendingCount > 0)
+                                                · <span class="font-medium text-red-700">{{ $pendingCount }}</span> not evaluated
+                                            @endif
                                         </p>
                                     </div>
                                     <div class="bg-gray-50 px-4 py-2 border-t">
@@ -220,87 +334,9 @@
                                     </div>
                                 </div>
 
-                                <!-- Calculation Details Explanation -->
-                                <div class="mt-4 border-t pt-4">
-                                    <h4 class="text-md font-medium mb-2">Calculation Method Details</h4>
-                                    <div class="bg-gray-50 p-4 rounded text-sm">
-                                        <p class="mb-3">The weekly total score is calculated using the SMART (Simple Multi-Attribute Rating Technique) methodology in 5 steps:</p>
 
-                                        <ol class="list-decimal pl-5 space-y-3">
-                                            <li>
-                                                <strong>Data Collection:</strong> Raw scores are gathered for each criterion (from rating scale values).
-                                            </li>
-                                            <li>
-                                                <strong>Normalization:</strong> Each criterion score is normalized to a 0-1 scale using:
-                                                <div class="bg-white p-2 my-1 border rounded font-mono text-xs">
-                                                    Normalized Value = (Raw Value - Minimum Value) / (Maximum Value - Minimum Value)
-                                                </div>
-                                                <span class="text-gray-600">This creates a comparable scale across all criteria. When all interns have the same score (min=max), all normalized values become 1.</span>
-                                            </li>
-                                            <li>
-                                                <strong>Weighting:</strong> Normalized scores are multiplied by criterion weights:
-                                                <div class="bg-white p-2 my-1 border rounded font-mono text-xs">
-                                                    Weighted Score = Normalized Value × Criterion Weight
-                                                </div>
-                                                <span class="text-gray-600">Weights are determined through AHP analysis and sum to 1.</span>
-                                            </li>
-                                            <li>
-                                                <strong>Summation:</strong> All weighted scores are added together to get the total weekly score:
-                                                <div class="bg-white p-2 my-1 border rounded font-mono text-xs">
-                                                    Total Weekly Score = Sum of all Weighted Scores
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <strong>Storage:</strong> The final score is stored in the <code>total_skor_minggu_magang</code> table linked to this intern and week.
-                                            </li>
-                                        </ol>
 
-                                        <div class="mt-3 pt-3 border-t text-gray-700">
-                                            <p><strong>Scaling:</strong> For display purposes, scores may be multiplied by 5 to convert from the 0-1 scale to a 0-5 scale.</p>
-                                            <p class="mt-1"><strong>Note:</strong> Final overall scores use a weighted average of weekly scores, with later weeks given higher weight.</p>
-                                        </div>
 
-                                        <!-- Note about example calculations -->
-                                        <div class="mt-4 pt-3 border-t border-gray-300">
-                                            <p class="text-sm text-gray-700"><em>Note: For detailed calculation examples with your actual data, please view a specific evaluation record. The detailed calculation example will use your actual evaluation data instead of generic examples.</em></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Real Calculation Values -->
-                                <div class="mt-4 pt-3 border-t border-gray-300">
-                                    <h5 class="font-medium mb-2 text-gray-800">Actual Calculation Values:</h5>
-                                    <div class="bg-white p-3 border rounded">
-                                        <p class="mb-2">Current calculation values for this intern:</p>
-
-                                        <table class="min-w-full text-xs mb-3" id="calculation-values-table">
-                                            <thead class="bg-gray-100">
-                                                <tr>
-                                                    <th class="p-2 text-left">Criteria</th>
-                                                    <th class="p-2 text-left">Weight</th>
-                                                    <th class="p-2 text-left">Raw Score</th>
-                                                    <th class="p-2 text-left">Min Value</th>
-                                                    <th class="p-2 text-left">Max Value</th>
-                                                    <th class="p-2 text-left">Normalized</th>
-                                                    <th class="p-2 text-left">Weighted</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="calculation-values-body">
-                                                <!-- This will be populated by JavaScript with actual values -->
-                                            </tbody>
-                                            <tfoot>
-                                                <tr class="bg-gray-100 font-medium">
-                                                    <td class="p-2" colspan="6">Total SMART Score:</td>
-                                                    <td class="p-2" id="total-smart-value">0.000</td>
-                                                </tr>
-                                                <tr class="bg-gray-100 font-medium">
-                                                    <td class="p-2" colspan="6">Scaled Score (0-5):</td>
-                                                    <td class="p-2" id="scaled-smart-value">0.00</td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -318,21 +354,24 @@
         let smartResults = {};
         let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        function showWeekCards() {
-            document.getElementById('week-cards').classList.remove('hidden');
-            document.getElementById('evaluation-table-container').classList.add('hidden');
-            document.getElementById('criteria-container').classList.add('hidden');
-            currentWeek = 0;
-            currentMagangId = '';
-        }
+        // Pre-loaded scores from PHP
+        const preloadedScores = {
+            @foreach($totalScores as $magangId => $weeks)
+                '{{ $magangId }}': {
+                    @foreach($weeks as $weekNum => $scoreData)
+                        '{{ $weekNum }}': {{
+                            is_object($scoreData) ?
+                            floatval($scoreData->total_skor) :
+                            floatval($scoreData)
+                        }},
+                    @endforeach
+                },
+            @endforeach
+        };
 
-        function showInternsTable() {
-            document.getElementById('evaluation-table-container').classList.remove('hidden');
-            document.getElementById('criteria-container').classList.add('hidden');
-            currentMagangId = '';
-        }
-
+        // Define all necessary functions first
         function loadWeekEvaluations(periodeId, week) {
+            console.log('Loading week evaluations for period:', periodeId, 'week:', week);
             currentWeek = week;
             currentPeriod = periodeId;
 
@@ -347,12 +386,291 @@
             document.getElementById('evaluation-table-container').classList.remove('hidden');
             document.getElementById('criteria-container').classList.add('hidden');
 
+            // Hide the intern summary if it exists
+            const summaryContainer = document.getElementById('intern-week-summary');
+            if (summaryContainer) {
+                summaryContainer.classList.add('hidden');
+            }
+
             // Show loading indicator
             const tbody = document.getElementById('interns-tbody');
             tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">Loading...</td></tr>';
 
             // Fetch data for the selected week
             fetchWeekData(periodeId, week);
+        }
+
+        // Add event listener when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up the toggle functionality for the evaluation status overview
+            const toggleButton = document.getElementById('toggle-evaluation-status');
+            const statusTable = document.getElementById('weekly-evaluation-status');
+            const chevronDown = document.getElementById('chevron-down');
+            const chevronUp = document.getElementById('chevron-up');
+            const toggleText = document.getElementById('status-toggle-text');
+
+            // Initialize the currentPeriod variable from the selected period
+            currentPeriod = '{{ $selectedPeriodeId }}';
+
+            // Make sure the overview is visible by default
+            statusTable.classList.remove('hidden');
+            chevronDown.classList.remove('hidden');
+            chevronUp.classList.add('hidden');
+            toggleText.textContent = 'Hide Overview';
+
+            toggleButton.addEventListener('click', function() {
+                if (statusTable.classList.contains('hidden')) {
+                    statusTable.classList.remove('hidden');
+                    chevronDown.classList.remove('hidden');
+                    chevronUp.classList.add('hidden');
+                    toggleText.textContent = 'Hide Overview';
+                } else {
+                    statusTable.classList.add('hidden');
+                    chevronDown.classList.add('hidden');
+                    chevronUp.classList.remove('hidden');
+                    toggleText.textContent = 'Show Overview';
+                }
+            });
+        });
+
+        function showWeekCards() {
+            document.getElementById('week-cards').classList.remove('hidden');
+            document.getElementById('evaluation-table-container').classList.add('hidden');
+            document.getElementById('criteria-container').classList.add('hidden');
+            currentWeek = 0;
+            currentMagangId = '';
+        }
+
+        function showInternsTable() {
+            document.getElementById('evaluation-table-container').classList.remove('hidden');
+            document.getElementById('criteria-container').classList.add('hidden');
+            currentMagangId = '';
+        }
+
+        function loadInternWeekSummary(magangId, internName) {
+            // This function loads the summary view for all weeks for a specific intern
+            // Make sure we have a period ID
+            if (!currentPeriod) {
+                alert('No period selected. Please select a period first.');
+                return;
+            }
+
+            // Hide week cards and criteria container
+            document.getElementById('week-cards').classList.add('hidden');
+            document.getElementById('evaluation-table-container').classList.add('hidden');
+            document.getElementById('criteria-container').classList.add('hidden');
+
+            // Create or show the intern summary container
+            let summaryContainer = document.getElementById('intern-week-summary');
+            if (!summaryContainer) {
+                summaryContainer = document.createElement('div');
+                summaryContainer.id = 'intern-week-summary';
+                summaryContainer.className = 'bg-white shadow rounded-lg mb-6 overflow-hidden';
+                document.querySelector('.max-w-7xl .bg-white.overflow-hidden.shadow-sm .p-6').appendChild(summaryContainer);
+            } else {
+                summaryContainer.classList.remove('hidden');
+            }
+
+            // Set the loading state
+            summaryContainer.innerHTML = `
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">Weekly Evaluations for ${internName}</h3>
+                    <button onclick="hideInternSummary()" class="inline-flex items-center px-3 py-1.5 bg-gray-200 border border-gray-300 rounded-md text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition duration-150">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Close
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center justify-center">
+                        <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="ml-2 text-gray-600">Loading evaluations...</span>
+                    </div>
+                </div>
+            `;
+
+            // Fetch data for all weeks for this intern
+            fetch(`{{ route('api.evaluations') }}?periode_id=${currentPeriod}&magang_id=${magangId}`, {
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Process the data and update the UI
+                populateInternSummary(summaryContainer, data.evaluations, internName, magangId);
+            })
+            .catch(error => {
+                console.error('Error fetching evaluations:', error);
+                summaryContainer.innerHTML = `
+                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Weekly Evaluations for ${internName}</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-700">
+                                        Error loading evaluations: ${error.message}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function hideInternSummary() {
+            const summaryContainer = document.getElementById('intern-week-summary');
+            if (summaryContainer) {
+                summaryContainer.classList.add('hidden');
+            }
+            showWeekCards();
+        }
+
+        function populateInternSummary(container, evaluations, internName, magangId) {
+            // Group evaluations by week
+            const evaluationsByWeek = {};
+            evaluations.forEach(eval => {
+                const week = eval.minggu_ke;
+                if (!evaluationsByWeek[week]) {
+                    evaluationsByWeek[week] = [];
+                }
+                evaluationsByWeek[week].push(eval);
+            });
+
+            // Build the HTML for the summary
+            let weeksHtml = '';
+
+            // Sort weeks numerically
+            const weeks = Object.keys(evaluationsByWeek).sort((a, b) => parseInt(a) - parseInt(b));
+
+            if (weeks.length === 0) {
+                weeksHtml = `
+                    <div class="bg-yellow-50 border border-yellow-100 rounded-lg p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    No evaluations found for this intern.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Build accordion for each week
+                weeks.forEach(week => {
+                                        const weekEvals = evaluationsByWeek[week];
+                    const totalScore = weekEvals[0].total_score || 0;
+                    const hasScore = parseFloat(totalScore) > 0;
+
+                    weeksHtml += `
+                        <div class="border rounded-lg mb-4 overflow-hidden">
+                            <div class="bg-gray-50 px-4 py-3 flex justify-between items-center cursor-pointer"
+                                 onclick="toggleWeekDetails('week-${week}-${magangId}')">
+                                <h4 class="font-medium">Week ${week}</h4>
+                                <div class="flex items-center">
+                                    <span class="mr-3 font-medium ${hasScore ? 'text-green-600' : 'text-yellow-600'}">
+                                        Score: ${parseFloat(totalScore).toFixed(2)}
+                                        ${!hasScore ? '<span class="text-xs font-normal">(Partially Evaluated)</span>' : ''}
+                                    </span>
+                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div id="week-${week}-${magangId}" class="hidden border-t">
+                                <div class="p-4">
+                                    <h5 class="font-medium mb-2">Criteria Evaluations</h5>
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criteria</th>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                    `;
+
+                    // Add rows for each criteria
+                    weekEvals.forEach(eval => {
+                        const criteriaName = eval.criteria ? eval.criteria.nama_criteria : 'Unknown Criteria';
+                        const ratingName = eval.criteriaRatingScale ? eval.criteriaRatingScale.rating_name : 'Not rated';
+                        const ratingLevel = eval.criteriaRatingScale ? eval.criteriaRatingScale.rating_level : 0;
+                        const contributes = ratingLevel > 0;
+                        const editUrl = '{{ url("evaluasi") }}/' + eval.evaluasi_id + '/edit';
+
+                        weeksHtml += `
+                            <tr>
+                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${criteriaName}</td>
+                                <td class="px-4 py-2 whitespace-nowrap text-sm ${contributes ? 'text-gray-900' : 'text-yellow-600'}">
+                                    ${ratingName}
+                                    ${contributes ? '' : ' <span class="text-xs text-yellow-700">(Rating does not contribute to score)</span>'}
+                                </td>
+                                <td class="px-4 py-2 whitespace-nowrap text-sm text-right">
+                                    <a href="${editUrl}" class="text-indigo-600 hover:text-indigo-900">
+                                        Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    weeksHtml += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Update the container with the summary
+            container.innerHTML = `
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">Weekly Evaluations for ${internName}</h3>
+                    <button onclick="hideInternSummary()" class="inline-flex items-center px-3 py-1.5 bg-gray-200 border border-gray-300 rounded-md text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition duration-150">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Close
+                    </button>
+                </div>
+                <div class="p-6">
+                    ${weeksHtml}
+                </div>
+            `;
+        }
+
+        function toggleWeekDetails(weekId) {
+            const weekDetails = document.getElementById(weekId);
+            if (weekDetails.classList.contains('hidden')) {
+                weekDetails.classList.remove('hidden');
+            } else {
+                weekDetails.classList.add('hidden');
+            }
         }
 
         function fetchWeekData(periodeId, week) {
@@ -434,27 +752,50 @@
                     row.className = 'hover:bg-gray-50 cursor-pointer';
                     row.onclick = () => showInternEvaluations(intern.magangId, intern.nama, intern.jobId);
 
-                    // Determine if this intern has a total score
-                    const hasScore = intern.evaluations.length > 0 &&
-                                   intern.evaluations.some(eval => eval.hasOwnProperty('total_score') && eval.total_score > 0);
+                                        // Determine if this intern has a total score
+                    // First check preloaded scores from PHP
+                    let hasScore = false;
+                    let scoreValue = '0.00';
+
+                    // First check preloaded scores
+                    if (preloadedScores &&
+                        preloadedScores[intern.magangId] &&
+                        preloadedScores[intern.magangId][currentWeek]) {
+                        scoreValue = parseFloat(preloadedScores[intern.magangId][currentWeek]).toFixed(2);
+                        hasScore = parseFloat(scoreValue) > 0;
+                    }
+                    // Then check AJAX data if no preloaded score
+                    else if (intern.evaluations.length > 0) {
+                        const evalWithScore = intern.evaluations.find(e => e.hasOwnProperty('total_score'));
+                        if (evalWithScore && evalWithScore.total_score) {
+                            scoreValue = parseFloat(evalWithScore.total_score).toFixed(2);
+                            hasScore = parseFloat(scoreValue) > 0;
+                        }
+                    }
+
+                    const hasEvaluations = intern.evaluations.length > 0;
 
                     // Format the score display
                     let scoreDisplay = '';
                     if (hasScore) {
-                        // Get the first evaluation with a total_score (they should all be the same for this intern)
-                        const evalWithScore = intern.evaluations.find(e => e.hasOwnProperty('total_score') && e.total_score > 0);
-                        const scoreValue = evalWithScore ? parseFloat(evalWithScore.total_score).toFixed(2) : '0.00';
                         scoreDisplay = `
                             <span class="font-medium text-indigo-700">${scoreValue}</span>
                             <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Scored
+                                Fully Evaluated
+                            </span>
+                        `;
+                    } else if (hasEvaluations) {
+                        scoreDisplay = `
+                            <span class="text-yellow-600">${scoreValue}</span>
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Partially Evaluated
                             </span>
                         `;
                     } else {
                         scoreDisplay = `
                             <span class="text-gray-500">0.00</span>
                             <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                Not scored
+                                Not Evaluated
                             </span>
                         `;
                     }
@@ -485,11 +826,44 @@
             // Filter evaluations for this intern
             const internEvals = weeklyEvaluations.filter(eval => eval.magang_id === magangId);
 
+            // If we don't have data for this intern yet, we might need to fetch it
+            if (internEvals.length === 0) {
+                // Show loading state
+                const tbody = document.getElementById('criteria-tbody');
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">Loading evaluation data...</td></tr>';
+
+                // Try to fetch data specifically for this intern if not already loaded
+                fetch(`{{ route('api.evaluations') }}?periode_id=${currentPeriod}&week=${currentWeek}&magang_id=${magangId}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Add these evaluations to our existing data
+                    if (data.evaluations && data.evaluations.length > 0) {
+                        weeklyEvaluations = weeklyEvaluations.concat(
+                            data.evaluations.filter(e => !weeklyEvaluations.some(we => we.evaluasi_id === e.evaluasi_id))
+                        );
+                        // Now retry showing evaluations with fresh data
+                        showInternEvaluations(magangId, internName, jobId);
+                    } else {
+                        // No evaluations found
+                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">No evaluations found for this intern.</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching intern evaluations:', error);
+                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-red-600">Error loading data: ${error.message}</td></tr>`;
+                });
+                return;
+            }
+
             // Get the total score from the database
             // First check if we have at least one evaluation with a total_score property
             let totalScore = '0.00';
             if (internEvals.length > 0) {
-                // Use the first evaluation's total_score as they should all be the same
+                // Use the first evaluation's total_score as they should all be the same for this intern
                 // for the same magang_id and minggu_ke
                 if (internEvals[0].hasOwnProperty('total_score')) {
                     totalScore = parseFloat(internEvals[0].total_score).toFixed(2);
@@ -533,8 +907,8 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 text-sm font-medium">
-                        <a href="/evaluasi/${eval.evaluasi_id}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
-                        <a href="/evaluasi/${eval.evaluasi_id}/edit" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                        <a href="{{ url('evaluasi') }}/${eval.evaluasi_id}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                        <a href="{{ url('evaluasi') }}/${eval.evaluasi_id}/edit" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -676,18 +1050,21 @@
             statusDiv.className = 'text-xs text-gray-600 mt-1';
             statusDiv.classList.remove('hidden');
 
+            // Prepare the data to send
+            const requestData = {
+                evaluation_id: evaluationId,
+                criteria_rating_id: ratingId || null // Ensure we send null if ratingId is empty
+            };
+
             // Make an AJAX request to update the rating
-            fetch('/api/evaluations/update', {
+            fetch('{{ url("api/evaluations/update") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({
-                    evaluation_id: evaluationId,
-                    criteria_rating_id: ratingId
-                })
+                body: JSON.stringify(requestData)
             })
             .then(response => {
                 if (!response.ok) {
@@ -798,6 +1175,23 @@
             const periodeFilter = document.getElementById('periode_filter');
             if (periodeFilter) {
                 periodeFilter.addEventListener('change', function() {
+                    // Update current period before submitting
+                    currentPeriod = this.value;
+                    // Show a loading indicator
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    loadingDiv.innerHTML = `
+                        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                            <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="text-gray-700">Loading data...</p>
+                        </div>
+                    `;
+                    document.body.appendChild(loadingDiv);
+
+                    // Submit the form
                     this.form.submit();
                 });
             }
