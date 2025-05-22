@@ -114,21 +114,30 @@
                                                 @for($week = 1; $week <= $weekCount; $week++)
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                                                                                                     @php
-                                                $hasEvaluation = isset($evaluationStatus[$intern->magang_id][$week]);
-                                                $totalScore = 0;
-                                                if (isset($totalScores[$intern->magang_id][$week])) {
-                                                    // Access the total_skor property if it's an object, or use the value directly if not
-                                                    $scoreValue = $totalScores[$intern->magang_id][$week];
-                                                    $totalScore = is_object($scoreValue) ? $scoreValue->total_skor : $scoreValue;
+                                                // Get all evaluations for this intern for this week
+                                                $internEvaluations = [];
+                                                if (isset($evaluationsByWeek[$week][$intern->magang_id])) {
+                                                    $internEvaluations = $evaluationsByWeek[$week][$intern->magang_id];
                                                 }
-                                                // For debugging
-                                                // echo "<!-- DEBUG: Intern: {$intern->magang_id}, Week: {$week}, Score: {$totalScore}, Type: " . gettype($totalScore) . " -->";
-                                                $isFullyEvaluated = $hasEvaluation && floatval($totalScore) > 0;
-                                                $isPartiallyEvaluated = $hasEvaluation && floatval($totalScore) <= 0;
+
+                                                // Check how many criteria have ratings
+                                                $totalCriteria = count($internEvaluations);
+                                                $ratedCriteria = 0;
+
+                                                foreach ($internEvaluations as $eval) {
+                                                    if (!empty($eval->criteria_rating_id)) {
+                                                        $ratedCriteria++;
+                                                    }
+                                                }
+
+                                                // Determine status based on rated criteria
+                                                $isFullyEvaluated = $totalCriteria > 0 && $ratedCriteria == $totalCriteria;
+                                                $isPartiallyEvaluated = $totalCriteria > 0 && $ratedCriteria > 0 && $ratedCriteria < $totalCriteria;
+                                                $isNotEvaluated = $totalCriteria == 0 || $ratedCriteria == 0;
                                             @endphp
 
                                                         @if($isFullyEvaluated)
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" title="Score: {{ floatval($totalScore) }}">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" title="All criteria rated">
                                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                                 </svg>
@@ -179,21 +188,25 @@
 
                                                 if (isset($evaluationsByWeek[$week])) {
                                                     foreach ($evaluationsByWeek[$week] as $magangId => $evals) {
-                                                        // Check if this intern has a score > 0
-                                                        $hasScore = false;
-                                                        if (isset($totalScores[$magangId][$week])) {
-                                                            $scoreValue = $totalScores[$magangId][$week];
-                                                            $totalScore = is_object($scoreValue) ? $scoreValue->total_skor : $scoreValue;
-                                                            $hasScore = floatval($totalScore) > 0;
-                                                        }
-                                                        $hasEvaluation = isset($evaluationStatus[$magangId][$week]);
+                                                        // Count total criteria and how many are rated
+                                                        $totalCriteria = count($evals);
+                                                        $ratedCriteria = 0;
 
-                                                        if ($hasScore) {
+                                                        foreach ($evals as $eval) {
+                                                            if (!empty($eval->criteria_rating_id)) {
+                                                                $ratedCriteria++;
+                                                            }
+                                                        }
+
+                                                        // Determine status based on criteria ratings
+                                                        if ($totalCriteria > 0 && $ratedCriteria == $totalCriteria) {
+                                                            // Fully evaluated - all criteria have ratings
                                                             $evaluatedCount++;
-                                                        } elseif ($hasEvaluation) {
-                                                            // This is a "Partial" evaluation - has records but score is 0 or negative
+                                                        } elseif ($totalCriteria > 0 && $ratedCriteria > 0) {
+                                                            // Partially evaluated - some criteria have ratings, but not all
                                                             $partialCount++;
                                                         }
+                                                        // If $ratedCriteria is 0, it's counted in pendingCount
                                                     }
                                                 }
 
@@ -752,39 +765,42 @@
                     row.className = 'hover:bg-gray-50 cursor-pointer';
                     row.onclick = () => showInternEvaluations(intern.magangId, intern.nama, intern.jobId);
 
-                                        // Determine if this intern has a total score
-                    // First check preloaded scores from PHP
-                    let hasScore = false;
-                    let scoreValue = '0.00';
+                    // Count total criteria and how many have ratings for this intern
+                    const totalCriteria = intern.evaluations.length;
+                    let ratedCriteria = 0;
 
-                    // First check preloaded scores
-                    if (preloadedScores &&
-                        preloadedScores[intern.magangId] &&
-                        preloadedScores[intern.magangId][currentWeek]) {
+                    intern.evaluations.forEach(eval => {
+                        if (eval.criteria_rating_id) {
+                            ratedCriteria++;
+                        }
+                    });
+
+                    // Determine status based on rated criteria
+                    const isFullyEvaluated = totalCriteria > 0 && ratedCriteria === totalCriteria;
+                    const isPartiallyEvaluated = totalCriteria > 0 && ratedCriteria > 0 && ratedCriteria < totalCriteria;
+                    const isNotEvaluated = totalCriteria === 0 || ratedCriteria === 0;
+
+                    // Get total score for display
+                    let scoreValue = '0.00';
+                    if (preloadedScores && preloadedScores[intern.magangId] && preloadedScores[intern.magangId][currentWeek]) {
                         scoreValue = parseFloat(preloadedScores[intern.magangId][currentWeek]).toFixed(2);
-                        hasScore = parseFloat(scoreValue) > 0;
-                    }
-                    // Then check AJAX data if no preloaded score
-                    else if (intern.evaluations.length > 0) {
+                    } else if (intern.evaluations.length > 0) {
                         const evalWithScore = intern.evaluations.find(e => e.hasOwnProperty('total_score'));
                         if (evalWithScore && evalWithScore.total_score) {
                             scoreValue = parseFloat(evalWithScore.total_score).toFixed(2);
-                            hasScore = parseFloat(scoreValue) > 0;
                         }
                     }
 
-                    const hasEvaluations = intern.evaluations.length > 0;
-
                     // Format the score display
                     let scoreDisplay = '';
-                    if (hasScore) {
+                    if (isFullyEvaluated) {
                         scoreDisplay = `
                             <span class="font-medium text-indigo-700">${scoreValue}</span>
                             <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 Fully Evaluated
                             </span>
                         `;
-                    } else if (hasEvaluations) {
+                    } else if (isPartiallyEvaluated) {
                         scoreDisplay = `
                             <span class="text-yellow-600">${scoreValue}</span>
                             <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
