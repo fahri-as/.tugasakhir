@@ -694,6 +694,7 @@ class EvaluasiMingguanMagangController extends Controller
             $validated = $request->validate([
                 'evaluation_id' => 'required|exists:evaluasi_mingguan_magang,evaluasi_id',
                 'criteria_rating_id' => 'nullable|exists:criteria_rating_scales,id',
+                'preview_only' => 'sometimes|boolean',
             ]);
 
             // Start a transaction
@@ -702,9 +703,17 @@ class EvaluasiMingguanMagangController extends Controller
             // Find the evaluation
             $evaluasi = EvaluasiMingguanMagang::findOrFail($request->evaluation_id);
 
-            // Update rating
-            $evaluasi->criteria_rating_id = $request->criteria_rating_id;
-            $evaluasi->save();
+            // Check if this is a preview-only request
+            $isPreview = $request->has('preview_only') && $request->preview_only === true;
+
+            if (!$isPreview) {
+                // Update rating in the database if not in preview mode
+                $evaluasi->criteria_rating_id = $request->criteria_rating_id;
+                $evaluasi->save();
+            } else {
+                // For preview, just update the model temporarily without saving
+                $evaluasi->criteria_rating_id = $request->criteria_rating_id;
+            }
 
             // Get the magang to determine the job
             $magang = Magang::with('pelamar')->findOrFail($evaluasi->magang_id);
@@ -721,10 +730,13 @@ class EvaluasiMingguanMagangController extends Controller
 
             // Update scores using SMART method if job is Cook or Pastry Chef
             if ($jobId && in_array($jobId, ['JOB001', 'JOB004'])) {
-                $this->smartService->updateTotalScores($jobId, $periodeId);
+                if (!$isPreview) {
+                    // Only update database in non-preview mode
+                    $this->smartService->updateTotalScores($jobId, $periodeId);
 
-                // Invalidate cache for this magang
-                $this->smartService->invalidateCache($evaluasi->magang_id);
+                    // Invalidate cache for this magang
+                    $this->smartService->invalidateCache($evaluasi->magang_id);
+                }
             }
 
             // Get total score from the total_skor_minggu table
@@ -739,12 +751,19 @@ class EvaluasiMingguanMagangController extends Controller
                 Log::warning("No total score found for magang_id: {$evaluasi->magang_id}, minggu_ke: {$evaluasi->minggu_ke}");
             }
 
-            DB::commit();
+            if (!$isPreview) {
+                // Commit database changes in non-preview mode
+                DB::commit();
+            } else {
+                // Rollback in preview mode - no database changes
+                DB::rollBack();
+            }
 
             // Return success response with updated data
             return response()->json([
                 'success' => true,
-                'message' => 'Rating updated successfully',
+                'message' => $isPreview ? 'Rating preview generated' : 'Rating updated successfully',
+                'is_preview' => $isPreview,
                 'evaluation' => [
                     'evaluasi_id' => $evaluasi->evaluasi_id,
                     'criteria_rating_id' => $evaluasi->criteria_rating_id,

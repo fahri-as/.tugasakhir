@@ -420,4 +420,90 @@
             </div>
         </div>
     </div>
+
+    <!-- AJAX Refresh for SMART Analysis -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up auto-refresh for SMART analysis
+            const csrfToken = '{{ csrf_token() }}';
+            const evaluasiId = '{{ $evaluasi->evaluasi_id }}';
+            const magangId = '{{ $evaluasi->magang_id }}';
+            const weekNumber = {{ $evaluasi->minggu_ke }};
+
+            // Function to refresh SMART data
+            function refreshSmartData() {
+                // Show loading indicator
+                const smartContainer = document.querySelector('.bg-indigo-50');
+                if (smartContainer) {
+                    // Add loading indicator if it doesn't exist
+                    let loadingIndicator = document.getElementById('smart-loading-indicator');
+                    if (!loadingIndicator) {
+                        loadingIndicator = document.createElement('div');
+                        loadingIndicator.id = 'smart-loading-indicator';
+                        loadingIndicator.className = 'text-xs text-indigo-600 ml-2';
+                        loadingIndicator.textContent = 'Refreshing...';
+                        smartContainer.appendChild(loadingIndicator);
+                    } else {
+                        loadingIndicator.textContent = 'Refreshing...';
+                        loadingIndicator.classList.remove('hidden');
+                    }
+                }
+
+                // Make AJAX request to get updated data
+                fetch(`/api/evaluations?magang_id=${magangId}&week=${weekNumber}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Check if we got valid data
+                    if (data && data.evaluations && data.evaluations.length > 0) {
+                        // Refresh the page to show updated SMART analysis
+                        // In a more advanced implementation, we would update just the SMART analysis section
+                        // without reloading the page, but for simplicity we'll just reload the page
+                        location.reload();
+                    } else {
+                        hideLoadingIndicator();
+                        console.error('No evaluation data received');
+                    }
+                })
+                .catch(error => {
+                    hideLoadingIndicator();
+                    console.error('Error refreshing SMART data:', error);
+                });
+            }
+
+            function hideLoadingIndicator() {
+                const loadingIndicator = document.getElementById('smart-loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            // Set up refresh button
+            const actionButtons = document.querySelectorAll('.flex.space-x-4');
+            if (actionButtons.length > 0) {
+                const refreshButton = document.createElement('button');
+                refreshButton.className = 'bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded';
+                refreshButton.textContent = 'Refresh SMART Analysis';
+                refreshButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    refreshSmartData();
+                });
+
+                actionButtons[0].appendChild(refreshButton);
+            }
+
+            // Auto-refresh when the page loads (only if smart analysis exists)
+            if (document.querySelector('.bg-indigo-50')) {
+                refreshSmartData();
+            }
+
+            // Set up polling every 30 seconds
+            setInterval(refreshSmartData, 30000);
+        });
+    </script>
 </x-app-layout>

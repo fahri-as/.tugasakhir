@@ -113,6 +113,7 @@
             const originalCriteriaId = "{{ $evaluasi->criteria_id }}";
             const originalRatingId = "{{ $evaluasi->criteria_rating_id }}";
             const csrfToken = "{{ csrf_token() }}";
+            const evaluasiId = "{{ $evaluasi->evaluasi_id }}";
 
             // Function to load ratings for a specific criterion
             function loadCriteriaRatings() {
@@ -219,6 +220,61 @@
                 }
             }
 
+            // New function to preview smart analysis data (simulated update without saving)
+            function previewSmartAnalysis() {
+                const criteriaId = criteriaSelect.value || originalCriteriaId;
+                const ratingId = ratingSelect.value;
+
+                if (!criteriaId) return;
+
+                // Show status to user
+                const form = document.querySelector('form');
+                let statusDiv = document.getElementById('smart-preview-status');
+                if (!statusDiv) {
+                    statusDiv = document.createElement('div');
+                    statusDiv.id = 'smart-preview-status';
+                    statusDiv.className = 'text-xs text-gray-600 mt-2';
+                    form.appendChild(statusDiv);
+                }
+
+                statusDiv.textContent = 'Updating SMART analysis preview...';
+
+                // Make AJAX request to preview SMART data
+                fetch('/api/evaluations/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        evaluation_id: evaluasiId,
+                        criteria_rating_id: ratingId,
+                        preview_only: true // Flag to indicate this is just a preview
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        statusDiv.textContent = 'SMART analysis preview updated';
+                        statusDiv.className = 'text-xs text-green-600 mt-2';
+
+                        // Hide status after 3 seconds
+                        setTimeout(() => {
+                            statusDiv.textContent = '';
+                        }, 3000);
+                    } else {
+                        statusDiv.textContent = 'Error updating preview: ' + data.message;
+                        statusDiv.className = 'text-xs text-red-600 mt-2';
+                    }
+                })
+                .catch(error => {
+                    statusDiv.textContent = 'Error connecting to server';
+                    statusDiv.className = 'text-xs text-red-600 mt-2';
+                    console.error('Error updating preview:', error);
+                });
+            }
+
             // Preserve selection on form submission
             const form = document.querySelector('form');
             form.addEventListener('submit', function(e) {
@@ -242,7 +298,15 @@
             magangSelect.addEventListener('change', filterCriteria);
 
             // Load ratings when criterion selection changes
-            criteriaSelect.addEventListener('change', loadCriteriaRatings);
+            criteriaSelect.addEventListener('change', function() {
+                loadCriteriaRatings();
+                previewSmartAnalysis(); // Preview SMART analysis when criteria changes
+            });
+
+            // Update SMART preview when rating changes
+            ratingSelect.addEventListener('change', function() {
+                previewSmartAnalysis();
+            });
         });
 
         // Form validation function to ensure critical data is present

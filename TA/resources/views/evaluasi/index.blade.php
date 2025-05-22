@@ -113,7 +113,7 @@
                                                 </td>
                                                 @for($week = 1; $week <= $weekCount; $week++)
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                                                                                                    @php
+                                                    @php
                                                 // Get all evaluations for this intern for this week
                                                 $internEvaluations = [];
                                                 if (isset($evaluationsByWeek[$week][$intern->magang_id])) {
@@ -137,26 +137,35 @@
                                             @endphp
 
                                                         @if($isFullyEvaluated)
-                                                            <a href="javascript:void(0)" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors">
-                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                                </svg>
-                                                                Fully Evaluated
-                                                            </a>
+                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);">
+                                                                <span data-status class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Completed</span>
+                                                                <span class="mt-1 text-xs">
+                                                                    <span data-counter>{{ $ratedCriteria }}/{{ $totalCriteria }}</span> criteria
+                                                                </span>
+                                                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                                    <div class="progress-value bg-green-600 h-1.5 rounded-full" style="width: 100%"></div>
+                                                                </div>
+                                                            </span>
                                                         @elseif($isPartiallyEvaluated)
-                                                            <a href="javascript:void(0)" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors">
-                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                                                </svg>
-                                                                Partially Evaluated
-                                                            </a>
+                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);">
+                                                                <span data-status class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">In Progress</span>
+                                                                <span class="mt-1 text-xs">
+                                                                    <span data-counter>{{ $ratedCriteria }}/{{ $totalCriteria }}</span> criteria
+                                                                </span>
+                                                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                                    <div class="progress-value bg-yellow-600 h-1.5 rounded-full" style="width: {{ ($ratedCriteria / $totalCriteria) * 100 }}%"></div>
+                                                                </div>
+                                                            </span>
                                                         @else
-                                                            <a href="javascript:void(0)" onclick="currentPeriod = '{{ $selectedPeriodeId }}'; currentWeek = {{ $week }}; handleNotEvaluated(currentPeriod, currentWeek, '{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}');" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
-                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                                </svg>
-                                                                Not Evaluated
-                                                            </a>
+                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer" onclick="currentPeriod = '{{ $selectedPeriodeId }}'; currentWeek = {{ $week }}; handleNotEvaluated(currentPeriod, currentWeek, '{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}');">
+                                                                <span data-status class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">Not Started</span>
+                                                                <span class="mt-1 text-xs">
+                                                                    <span data-counter>0/{{ $totalCriteria }}</span> criteria
+                                                                </span>
+                                                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                                    <div class="progress-value bg-gray-400 h-1.5 rounded-full" style="width: 0%"></div>
+                                                                </div>
+                                                            </span>
                                                         @endif
                                                     </td>
                                                 @endfor
@@ -1173,12 +1182,213 @@
                         }
                     }
                 });
+
+                // Update SMART analysis if it's visible
+                const smartAnalysis = document.getElementById('smart-analysis');
+                if (smartAnalysis && !smartAnalysis.classList.contains('hidden')) {
+                    // After updating the rating, refresh the SMART analysis
+                    refreshSmartAnalysis();
+                }
+
+                // Update evaluation status overview if available
+                updateEvaluationStatusOverview();
             })
             .catch(error => {
                 console.error('Error updating rating:', error);
                 // Show error message
                 statusDiv.textContent = 'Error updating rating: ' + error.message;
                 statusDiv.className = 'text-xs text-red-600 mt-1';
+            });
+        }
+
+        // Function to refresh SMART analysis without page reload
+        function refreshSmartAnalysis() {
+            const smartAnalysis = document.getElementById('smart-analysis');
+            if (!smartAnalysis || smartAnalysis.classList.contains('hidden')) return;
+
+            // Add loading indicator
+            let loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'text-center py-4';
+            loadingIndicator.innerHTML = '<p class="text-gray-500">Refreshing SMART analysis...</p>';
+
+            // Add to normalized scores section
+            const normalizedScores = document.getElementById('normalized-scores');
+            if (normalizedScores) {
+                normalizedScores.innerHTML = '';
+                normalizedScores.appendChild(loadingIndicator.cloneNode(true));
+            }
+
+            // Add to weighted scores section
+            const weightedScores = document.getElementById('weighted-scores');
+            if (weightedScores) {
+                weightedScores.innerHTML = '';
+                weightedScores.appendChild(loadingIndicator);
+            }
+
+            // Get current intern and week from the page
+            const selectedInternId = document.querySelector('h2[data-intern-id]')?.dataset.internId;
+            const currentWeek = parseInt(document.getElementById('week-selector')?.value);
+
+            if (!selectedInternId || !currentWeek) {
+                console.error('Missing intern ID or week number for SMART refresh');
+                return;
+            }
+
+            // Make AJAX request to get updated SMART data
+            fetch(`/api/evaluations?magang_id=${selectedInternId}&week=${currentWeek}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // If we have smart data, update the sections
+                const smartResults = data.smartResults;
+                if (smartResults && Object.keys(smartResults).length > 0) {
+                    const jobId = Object.keys(smartResults)[0]; // Get first job ID (should only be one)
+                    const smartData = smartResults[jobId];
+
+                    // Update normalized scores
+                    if (normalizedScores) {
+                        let html = '<table class="w-full text-sm">';
+                        html += '<thead><tr><th class="text-left">Criteria</th><th class="text-right">Value</th></tr></thead>';
+                        html += '<tbody>';
+
+                        if (smartData.interns && smartData.interns.length > 0) {
+                            // Find the current intern in the results
+                            const internData = smartData.interns.find(intern => intern.magang_id === selectedInternId);
+
+                            if (internData && internData.score_details) {
+                                internData.score_details.forEach(detail => {
+                                    html += `<tr>
+                                        <td>${detail.criteria_name} (${detail.criteria_code})</td>
+                                        <td class="text-right">${parseFloat(detail.normalized_value).toFixed(4)}</td>
+                                    </tr>`;
+                                });
+                            }
+                        }
+
+                        html += '</tbody></table>';
+                        normalizedScores.innerHTML = html;
+                    }
+
+                    // Update weighted scores
+                    if (weightedScores) {
+                        let html = '<table class="w-full text-sm">';
+                        html += '<thead><tr><th class="text-left">Criteria</th><th class="text-right">Weight</th><th class="text-right">Contribution</th></tr></thead>';
+                        html += '<tbody>';
+
+                        if (smartData.interns && smartData.interns.length > 0) {
+                            // Find the current intern in the results
+                            const internData = smartData.interns.find(intern => intern.magang_id === selectedInternId);
+
+                            if (internData && internData.score_details) {
+                                internData.score_details.forEach(detail => {
+                                    html += `<tr>
+                                        <td>${detail.criteria_name} (${detail.criteria_code})</td>
+                                        <td class="text-right">${parseFloat(detail.weight).toFixed(4)}</td>
+                                        <td class="text-right">${parseFloat(detail.weighted_score).toFixed(4)}</td>
+                                    </tr>`;
+                                });
+
+                                // Add total row
+                                html += `<tr class="font-semibold border-t">
+                                    <td colspan="2" class="text-right">Total:</td>
+                                    <td class="text-right">${parseFloat(internData.total_score).toFixed(4)}</td>
+                                </tr>`;
+                            }
+                        }
+
+                        html += '</tbody></table>';
+                        weightedScores.innerHTML = html;
+                    }
+
+                    // Update any other SMART-related elements
+                    const totalSmartValue = document.getElementById('total-smart-value');
+                    const scaledSmartValue = document.getElementById('scaled-smart-value');
+
+                    if (totalSmartValue && scaledSmartValue && smartData.interns && smartData.interns.length > 0) {
+                        const internData = smartData.interns.find(intern => intern.magang_id === selectedInternId);
+
+                        if (internData) {
+                            totalSmartValue.textContent = parseFloat(internData.total_score).toFixed(4);
+                            scaledSmartValue.textContent = parseFloat(internData.total_score * 5).toFixed(2);
+                        }
+                    }
+                } else {
+                    // No SMART data found
+                    if (normalizedScores) {
+                        normalizedScores.innerHTML = '<p class="text-gray-500 text-sm italic">No SMART analysis data available</p>';
+                    }
+                    if (weightedScores) {
+                        weightedScores.innerHTML = '<p class="text-gray-500 text-sm italic">No SMART analysis data available</p>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing SMART analysis:', error);
+
+                // Show error message
+                if (normalizedScores) {
+                    normalizedScores.innerHTML = '<p class="text-red-500 text-sm">Error refreshing SMART analysis</p>';
+                }
+                if (weightedScores) {
+                    weightedScores.innerHTML = '<p class="text-red-500 text-sm">Error refreshing SMART analysis</p>';
+                }
+            });
+        }
+
+        // Function to update evaluation status overview
+        function updateEvaluationStatusOverview() {
+            // Make AJAX request to get updated status data
+            // This could be fetched from the existing API or a new endpoint
+            // For now, we'll just refresh the page elements based on the current data
+
+            // Update status cards if they exist
+            document.querySelectorAll('[data-status-card]').forEach(card => {
+                const magangId = card.dataset.magangId;
+                const weekNumber = card.dataset.week;
+
+                // Find all evaluations for this intern and week
+                const evaluations = weeklyEvaluations.filter(
+                    eval => eval.magang_id === magangId && eval.minggu_ke == weekNumber
+                );
+
+                if (evaluations.length > 0) {
+                    // Count how many evaluations have ratings
+                    const ratedCount = evaluations.filter(eval => eval.criteria_rating_id).length;
+                    const totalCount = evaluations.length;
+
+                    // Update progress
+                    const progressEl = card.querySelector('.progress-value');
+                    if (progressEl) {
+                        const percentage = totalCount ? Math.round((ratedCount / totalCount) * 100) : 0;
+                        progressEl.style.width = `${percentage}%`;
+                    }
+
+                    // Update text counter
+                    const counterEl = card.querySelector('[data-counter]');
+                    if (counterEl) {
+                        counterEl.textContent = `${ratedCount}/${totalCount}`;
+                    }
+
+                    // Update status text
+                    const statusEl = card.querySelector('[data-status]');
+                    if (statusEl) {
+                        if (ratedCount === 0) {
+                            statusEl.textContent = 'Not Started';
+                            statusEl.className = 'px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full';
+                        } else if (ratedCount < totalCount) {
+                            statusEl.textContent = 'In Progress';
+                            statusEl.className = 'px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full';
+                        } else {
+                            statusEl.textContent = 'Completed';
+                            statusEl.className = 'px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full';
+                        }
+                    }
+                }
             });
         }
 
