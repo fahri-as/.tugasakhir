@@ -152,15 +152,25 @@ Route::middleware('auth')->group(function () {
 
     // Add a temporary debug route
     Route::get('/test-evaluasi-dashboard', function() {
+        $jobId = 'JOB001';
+        $selectedPeriodeId = \App\Models\Periode::first()->periode_id ?? null;
+
+        // Get interns through proper relationship
+        $interns = \App\Models\Magang::with(['pelamar' => function($query) use ($jobId) {
+            $query->where('job_id', $jobId);
+        }])->whereHas('pelamar', function($query) use ($jobId) {
+            $query->where('job_id', $jobId);
+        })->get();
+
         return view('evaluasi.smart-dashboard', [
             'jobs' => \App\Models\Job::whereIn('job_id', ['JOB001', 'JOB004'])->get(),
             'periods' => \App\Models\Periode::all(),
-            'jobId' => 'JOB001',
-            'selectedPeriodeId' => \App\Models\Periode::first()->periode_id ?? null,
-            'criteria' => \App\Models\Criteria::where('job_id', 'JOB001')->get(),
-            'interns' => [],
+            'jobId' => $jobId,
+            'selectedPeriodeId' => $selectedPeriodeId,
+            'criteria' => \App\Models\Criteria::where('job_id', $jobId)->get(),
+            'interns' => $interns,
             'weekCount' => 4,
-            'weeklyRankings' => []
+            'weeklyRankings' => collect([])
         ]);
     })->name('test.evaluasi.dashboard');
 });
