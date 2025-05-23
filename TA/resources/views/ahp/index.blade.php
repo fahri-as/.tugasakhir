@@ -5,11 +5,11 @@
                 AHP Criteria Weighting for {{ $job->nama_job }}
             </h2>
             <nav class="flex space-x-4">
-                <a href="{{ route('dashboard') }}" class="text-sm bg-white px-3 py-2 rounded-md shadow-sm hover:bg-gray-50 flex items-center">
+                <a href="{{ route('criteria.index') }}" class="text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:from-blue-600 hover:to-blue-700 transition duration-300 flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
-                    Back to Dashboard
+                    Back to Criteria Management
                 </a>
             </nav>
         </div>
@@ -19,17 +19,17 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <!-- Introduction Card -->
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-8 shadow-sm">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">AHP Criteria Weighting Process</h3>
-                        <p class="text-gray-700 mb-4">
+                    <!-- Introduction Card with enhanced design -->
+                    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-8 mb-8 shadow-lg text-white">
+                        <h3 class="text-2xl font-bold mb-4">AHP Criteria Weighting Process</h3>
+                        <p class="text-lg mb-6 opacity-90">
                             Welcome to the Analytic Hierarchy Process (AHP) weighting system. This tool helps you determine the relative importance of different job criteria through pairwise comparisons.
                         </p>
-                        <div class="flex items-center text-sm text-gray-600">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center text-sm bg-white/10 rounded-lg p-4">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            Follow the steps below to set up your criteria weights
+                            <span class="font-medium">Follow the steps below to set up your criteria weights</span>
                         </div>
                     </div>
 
@@ -226,14 +226,14 @@
                         </div>
 
                         <div class="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                            <a href="{{ route('dashboard') }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <a href="{{ route('criteria.index') }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
                                 <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                                 </svg>
-                                Back to Dashboard
+                                Back to Criteria Management
                             </a>
-                            <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                                <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
+                                <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                 </svg>
                                 Calculate Weights
