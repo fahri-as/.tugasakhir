@@ -15,15 +15,21 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100">
+            <div class="transform hover:scale-105 transition-transform duration-300">
+                <a href="/" class="flex items-center justify-center">
+                    <x-application-logo class="w-24 h-24 fill-current text-gray-600" />
                 </a>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 overflow-hidden">
-                {{ $slot }}
+            <div class="w-full sm:max-w-md mt-6 px-8 py-6 overflow-hidden">
+                <div class="backdrop-blur-sm bg-white/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-xl p-6">
+                    {{ $slot }}
+                </div>
+            </div>
+
+            <div class="mt-8 text-center text-sm text-gray-600">
+                <p>&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</p>
             </div>
         </div>
     </body>
