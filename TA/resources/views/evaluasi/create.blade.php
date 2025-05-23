@@ -90,6 +90,9 @@
             const ratingSelect = document.getElementById('criteria_rating_id');
             const csrfToken = "{{ csrf_token() }}";
 
+            // Store all ratings by criteria ID
+            const allRatings = {};
+
             // Function to filter criteria based on selected intern's job
             function filterCriteria() {
                 // Get selected intern's option
@@ -117,49 +120,62 @@
                 }
             }
 
-            // Function to load ratings specific to the selected criterion
-            function loadCriteriaRatings() {
-                const criteriaId = criteriaSelect.value;
+            // Preload all ratings for all criteria
+            async function preloadAllRatings() {
+                // Get all criteria IDs
+                const criteriaIds = Array.from(criteriaSelect.options)
+                    .filter(option => option.value) // Filter out empty value options
+                    .map(option => option.value);
 
-                if (!criteriaId) {
-                    // If no criterion selected, clear and disable the rating dropdown
-                    ratingSelect.innerHTML = '<option value="">Not Rated Yet</option>';
-                    return;
+                // If no criteria, return
+                if (criteriaIds.length === 0) return;
+
+                // For each criteria, fetch ratings
+                const fetchPromises = criteriaIds.map(criteriaId =>
+                    fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Store ratings for this criteria
+                            allRatings[criteriaId] = data.ratings;
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Error loading ratings for criteria ${criteriaId}:`, error);
+                    })
+                );
+
+                // Wait for all fetches to complete
+                await Promise.all(fetchPromises);
+
+                // If there's a selected criteria, populate its ratings
+                if (criteriaSelect.value) {
+                    populateRatings(criteriaSelect.value);
                 }
+            }
 
-                // Show loading state
-                ratingSelect.innerHTML = '<option value="">Loading ratings...</option>';
+            // Function to populate ratings for a specific criterion from preloaded data
+            function populateRatings(criteriaId) {
+                // Clear the rating dropdown
+                ratingSelect.innerHTML = '<option value="">Not Rated Yet</option>';
 
-                // Make AJAX request to get ratings for this criterion
-                fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Clear the rating dropdown
-                        ratingSelect.innerHTML = '<option value="">Not Rated Yet</option>';
+                if (!criteriaId) return;
 
-                        // Add rating options
-                        data.ratings.forEach(rating => {
-                            const option = document.createElement('option');
-                            option.value = rating.id;
-                            option.textContent = `${rating.name} - Level: ${rating.rating_level}`;
-                            ratingSelect.appendChild(option);
-                        });
-                    } else {
-                        console.error('Error loading ratings:', data.message);
-                        ratingSelect.innerHTML = '<option value="">Error loading ratings</option>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading ratings:', error);
-                    ratingSelect.innerHTML = '<option value="">Error loading ratings</option>';
-                });
+                // If we have ratings for this criteria, populate them
+                if (allRatings[criteriaId]) {
+                    allRatings[criteriaId].forEach(rating => {
+                        const option = document.createElement('option');
+                        option.value = rating.id;
+                        option.textContent = `${rating.name} - Level: ${rating.rating_level}`;
+                        ratingSelect.appendChild(option);
+                    });
+                }
             }
 
             // Filter criteria on load
@@ -169,12 +185,12 @@
             magangSelect.addEventListener('change', filterCriteria);
 
             // Load ratings when criterion selection changes
-            criteriaSelect.addEventListener('change', loadCriteriaRatings);
+            criteriaSelect.addEventListener('change', function() {
+                populateRatings(this.value);
+            });
 
-            // Load ratings on page load if a criterion is already selected
-            if (criteriaSelect.value) {
-                loadCriteriaRatings();
-            }
+            // Preload all ratings when the page loads
+            preloadAllRatings();
         });
     </script>
 </x-app-layout>

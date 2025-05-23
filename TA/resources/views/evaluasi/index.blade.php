@@ -185,7 +185,7 @@
                         <div id="week-cards" class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-6">
                             @for($week = 1; $week <= $weekCount; $week++)
                                 <div class="bg-white shadow rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
-                                    onclick="console.log('Week card clicked: {{ $week }}'); loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }});">
+                                    onclick="console.log('Week card clicked: {{ $week }}', '{{ $selectedPeriodeId }}'); loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }});">
                                     <div class="p-4">
                                         <h3 class="text-lg font-medium text-gray-900">Week {{ $week }}</h3>
                                         <p class="mt-2 text-sm text-gray-600">
@@ -374,7 +374,7 @@
         let currentMagangId = '';
         let weeklyEvaluations = [];
         let smartResults = {};
-        let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         // Pre-loaded scores from PHP
         const preloadedScores = {
@@ -391,22 +391,131 @@
             @endforeach
         };
 
+        // Store all ratings by criteria ID
+        const allRatings = {};
+
+                // Function to preload all ratings for all criteria in the system
+                async function preloadAllRatings() {
+            try {
+                console.log('Starting preloadAllRatings');
+
+                // If we have criteria in the page already, let's add them to our list
+                const criteriaElements = document.querySelectorAll('[data-criteria-id]');
+                const criteriaIds = new Set();
+
+                criteriaElements.forEach(el => {
+                    const criteriaId = el.dataset.criteriaId;
+                    if (criteriaId) {
+                        criteriaIds.add(criteriaId);
+                    }
+                });
+
+                // Also add any criteria from weeklyEvaluations
+                if (Array.isArray(weeklyEvaluations)) {
+                    weeklyEvaluations.forEach(eval => {
+                        if (eval && eval.criteria_id) {
+                            criteriaIds.add(eval.criteria_id);
+                        }
+                    });
+                }
+
+                // Extract criteria IDs from any existing rows in the table
+                document.querySelectorAll('#criteria-tbody tr').forEach(row => {
+                    const ratingElement = row.querySelector('.rating-dropdown');
+                    if (ratingElement && ratingElement.dataset.criteriaId) {
+                        criteriaIds.add(ratingElement.dataset.criteriaId);
+                    }
+                });
+
+                // Extract criteria IDs from any existing table cells
+                const criteriaTexts = Array.from(document.querySelectorAll('td')).map(td => td.textContent);
+                const criteriaRegex = /\(K\d+\)/g;
+                criteriaTexts.forEach(text => {
+                    if (text) {
+                        const matches = text.match(criteriaRegex);
+                        if (matches) {
+                            matches.forEach(match => {
+                                // Extract the code (e.g., K1, K2) from the match
+                                const code = match.replace(/[()]/g, '');
+                                // If we find K1, K2, etc. add them to the set
+                                criteriaIds.add(code);
+                            });
+                        }
+                    }
+                });
+
+                // Add some common criteria ID patterns as fallback
+                for (let i = 1; i <= 10; i++) {
+                    criteriaIds.add(`K${i}`);
+                }
+
+                // If no criteria, log but continue as we'll fetch on demand later
+                if (criteriaIds.size === 0) {
+                    console.log('No criteria IDs found to preload - will fetch on demand');
+                } else {
+                    console.log(`Found ${criteriaIds.size} unique criteria IDs to preload`);
+
+                    // For each criteria, fetch ratings
+                    const fetchPromises = Array.from(criteriaIds).map(criteriaId =>
+                        fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Store ratings for this criteria
+                                allRatings[criteriaId] = data.ratings;
+                                console.log(`Loaded ${data.ratings.length} ratings for criteria ${criteriaId}`);
+                            }
+                        })
+                        .catch(error => {
+                            console.error(`Error loading ratings for criteria ${criteriaId}:`, error);
+                        })
+                    );
+
+                    // Wait for all fetches to complete
+                    await Promise.all(fetchPromises);
+                    console.log('All ratings preloaded successfully');
+                }
+            } catch (error) {
+                console.error('Error in preloadAllRatings:', error);
+            }
+        }
+
         // Define all necessary functions first
         function loadWeekEvaluations(periodeId, week) {
-            console.log('Loading week evaluations for period:', periodeId, 'week:', week);
-            currentWeek = week;
-            currentPeriod = periodeId;
+            console.log('loadWeekEvaluations called with period:', periodeId, 'week:', week);
+            try {
+                currentWeek = week;
+                currentPeriod = periodeId;
 
-            // Update the week title and create link
-            document.getElementById('week-title').textContent = `Week ${week} Evaluations`;
-            const createLink = document.getElementById('create-link');
-            createLink.href = `{{ route('evaluasi.create') }}?periode_id=${periodeId}&week=${week}`;
-            createLink.textContent = `Add Evaluation for Week ${week}`;
+                // Update the week title and create link
+                const weekTitle = document.getElementById('week-title');
+                if (weekTitle) {
+                    weekTitle.textContent = `Week ${week} Evaluations`;
+                }
 
-            // Hide week cards and show evaluation table
-            document.getElementById('week-cards').classList.add('hidden');
-            document.getElementById('evaluation-table-container').classList.remove('hidden');
-            document.getElementById('criteria-container').classList.add('hidden');
+                const createLink = document.getElementById('create-link');
+                if (createLink) {
+                    createLink.href = `{{ route('evaluasi.create') }}?periode_id=${periodeId}&week=${week}`;
+                    createLink.textContent = `Add Evaluation for Week ${week}`;
+                }
+
+                // Hide week cards and show evaluation table
+                const weekCards = document.getElementById('week-cards');
+                const evaluationTable = document.getElementById('evaluation-table-container');
+                const criteriaContainer = document.getElementById('criteria-container');
+
+                if (weekCards) weekCards.classList.add('hidden');
+                if (evaluationTable) evaluationTable.classList.remove('hidden');
+                if (criteriaContainer) criteriaContainer.classList.add('hidden');
+            } catch (error) {
+                console.error('Error in loadWeekEvaluations:', error);
+            }
 
             // Hide the intern summary if it exists
             const summaryContainer = document.getElementById('intern-week-summary');
@@ -416,7 +525,9 @@
 
             // Show loading indicator
             const tbody = document.getElementById('interns-tbody');
-            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">Loading...</td></tr>';
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">Loading...</td></tr>';
+            }
 
             // Fetch data for the selected week
             fetchWeekData(periodeId, week);
@@ -696,12 +807,14 @@
         }
 
         function fetchWeekData(periodeId, week) {
-            // Make an AJAX request to get the evaluations for this week
-            fetch(`{{ route('api.evaluations') }}?periode_id=${periodeId}&week=${week}`, {
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                }
-            })
+            console.log('Fetching week data for period:', periodeId, 'week:', week);
+            try {
+                // Make an AJAX request to get the evaluations for this week
+                fetch(`{{ route('api.evaluations') }}?periode_id=${periodeId}&week=${week}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -750,9 +863,18 @@
                 })
                 .catch(error => {
                     console.error('Error fetching evaluations:', error);
-                    document.getElementById('interns-tbody').innerHTML =
-                        `<tr><td colspan="4" class="px-6 py-4 text-center text-red-600">Error loading evaluations: ${error.message}</td></tr>`;
+                    const tbody = document.getElementById('interns-tbody');
+                    if (tbody) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-red-600">Error loading evaluations: ${error.message}</td></tr>`;
+                    }
                 });
+            } catch(error) {
+                console.error('Error in fetchWeekData:', error);
+                const tbody = document.getElementById('interns-tbody');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-red-600">Internal error: ${error.message}</td></tr>`;
+                }
+            }
         }
 
         function populateInternsTable(interns) {
@@ -942,7 +1064,7 @@
                 const ratingValue = eval.criteria_rating_scale ?
                                     eval.criteria_rating_scale.rating_level : 0;
 
-                // Create row with initial loading state for rating dropdown
+                // Create row with rating dropdown that will be populated
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="px-6 py-4 text-sm text-gray-900">${criteriaName}</td>
@@ -966,11 +1088,19 @@
                         <a href="{{ url('evaluasi') }}/${eval.evaluasi_id}/edit" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                     </td>
                 `;
+
+                // Add the row to the DOM
                 tbody.appendChild(row);
 
                 // Load ratings for this specific criterion
                 if (eval.criteria_id) {
-                    loadCriteriaRatings(row.querySelector('.rating-dropdown'), eval.criteria_id, eval.criteria_rating_id);
+                    // Get the dropdown from the appended row
+                    const dropdown = row.querySelector('.rating-dropdown');
+
+                    // Call the function to populate ratings with a small delay to ensure DOM is ready
+                    setTimeout(() => {
+                        populateRatingsDropdown(dropdown, eval.criteria_id, eval.criteria_rating_id);
+                    }, 10);
                 } else {
                     // For evaluations without a specific criterion, just show "Not Rated Yet" option
                     const dropdown = row.querySelector('.rating-dropdown');
@@ -980,6 +1110,11 @@
 
             // Add event listeners to the rating dropdowns
             document.querySelectorAll('.rating-dropdown').forEach(dropdown => {
+                // Ensure the dropdown has all its options loaded properly
+                if (dropdown.options.length <= 1 && dropdown.dataset.criteriaId) {
+                    populateRatingsDropdown(dropdown, dropdown.dataset.criteriaId, dropdown.dataset.currentRating);
+                }
+
                 dropdown.addEventListener('change', function() {
                     updateRating(this.dataset.evaluationId, this.value, this);
                 });
@@ -1392,42 +1527,81 @@
             });
         }
 
-        // Helper function to load ratings for a specific criterion
-        function loadCriteriaRatings(dropdown, criteriaId, currentRatingId) {
-            // Make an AJAX request to get ratings for this criterion
-            fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Build options HTML
-                    let optionsHtml = '<option value="">Not Rated Yet</option>';
+        // Helper function to populate ratings for a specific criterion from preloaded data
+        function populateRatingsDropdown(dropdown, criteriaId, currentRatingId) {
+            // Build options HTML
+            let optionsHtml = '<option value="">Not Rated Yet</option>';
 
-                    data.ratings.forEach(rating => {
-                        const selected = rating.id == currentRatingId ? 'selected' : '';
-                        optionsHtml += `<option value="${rating.id}" ${selected}>${rating.name} - Nilai: ${rating.rating_level}</option>`;
-                    });
+            console.log(`Populating ratings for criteria ${criteriaId}, current rating: ${currentRatingId}`);
 
-                    // Update dropdown options
-                    dropdown.innerHTML = optionsHtml;
-                } else {
-                    console.error('Error loading ratings:', data.message);
+            if (criteriaId && allRatings[criteriaId]) {
+                console.log(`Found ${allRatings[criteriaId].length} preloaded ratings`);
+                allRatings[criteriaId].forEach(rating => {
+                    const selected = rating.id == currentRatingId ? 'selected' : '';
+                    optionsHtml += `<option value="${rating.id}" ${selected}>${rating.name} - Nilai: ${rating.rating_level}</option>`;
+                });
+
+                // Update dropdown options
+                dropdown.innerHTML = optionsHtml;
+            } else {
+                console.log(`No preloaded ratings found, fetching now`);
+
+                // If we don't have the ratings preloaded, fetch them now
+                fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Store ratings for this criteria
+                        allRatings[criteriaId] = data.ratings;
+                        console.log(`Loaded ${data.ratings.length} ratings for criteria ${criteriaId}`);
+
+                        // Build options HTML
+                        let optionsHtml = '<option value="">Not Rated Yet</option>';
+
+                        data.ratings.forEach(rating => {
+                            const selected = rating.id == currentRatingId ? 'selected' : '';
+                            optionsHtml += `<option value="${rating.id}" ${selected}>${rating.name} - Nilai: ${rating.rating_level}</option>`;
+                        });
+
+                        // Update dropdown options
+                        dropdown.innerHTML = optionsHtml;
+                    } else {
+                        console.error('Error loading ratings:', data.message);
+                        dropdown.innerHTML = '<option value="">Error loading ratings</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading ratings:', error);
                     dropdown.innerHTML = '<option value="">Error loading ratings</option>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading ratings:', error);
-                dropdown.innerHTML = '<option value="">Error loading ratings</option>';
-            });
+                });
+            }
         }
 
-        // Auto-submit when period filter changes
+                // Auto-submit when period filter changes
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM content loaded');
+
+            // Initialize click handlers for week cards explicitly as a fallback
+            document.querySelectorAll('#week-cards > div').forEach(card => {
+                card.addEventListener('click', function() {
+                    const weekText = this.querySelector('h3').textContent;
+                    const week = parseInt(weekText.replace('Week ', ''));
+                    console.log('Week card clicked via event listener:', week);
+                    loadWeekEvaluations('{{ $selectedPeriodeId }}', week);
+                });
+            });
+
+            // Preload all ratings data
+            setTimeout(() => {
+                preloadAllRatings();
+            }, 100);
+
             const periodeFilter = document.getElementById('periode_filter');
             if (periodeFilter) {
                 periodeFilter.addEventListener('change', function() {

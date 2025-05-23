@@ -115,55 +115,78 @@
             const csrfToken = "{{ csrf_token() }}";
             const evaluasiId = "{{ $evaluasi->evaluasi_id }}";
 
-            // Function to load ratings for a specific criterion
-            function loadCriteriaRatings() {
-                const criteriaId = criteriaSelect.value || originalCriteriaId;
+            // Store all ratings by criteria ID
+            const allRatings = {};
 
+            // Function to load ratings for a specific criterion
+            async function preloadAllRatings() {
+                // Get all criteria IDs
+                const criteriaIds = Array.from(criteriaSelect.options)
+                    .filter(option => option.value) // Filter out empty value options
+                    .map(option => option.value);
+
+                // Add the original criteria ID if it's not in the list
+                if (originalCriteriaId && !criteriaIds.includes(originalCriteriaId)) {
+                    criteriaIds.push(originalCriteriaId);
+                }
+
+                // If no criteria, return
+                if (criteriaIds.length === 0) return;
+
+                // For each criteria, fetch ratings
+                const fetchPromises = criteriaIds.map(criteriaId =>
+                    fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Store ratings for this criteria
+                            allRatings[criteriaId] = data.ratings;
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Error loading ratings for criteria ${criteriaId}:`, error);
+                    })
+                );
+
+                // Wait for all fetches to complete
+                await Promise.all(fetchPromises);
+
+                // Populate ratings for the current criteria
+                populateRatings(criteriaSelect.value || originalCriteriaId);
+            }
+
+            // Function to populate ratings from preloaded data
+            function populateRatings(criteriaId) {
                 if (!criteriaId) {
                     // If no criterion selected, clear the rating dropdown
                     ratingSelect.innerHTML = '<option value="">Not Rated Yet</option>';
                     return;
                 }
 
-                // Show loading state
-                ratingSelect.innerHTML = '<option value="">Loading ratings...</option>';
+                // Clear the rating dropdown
+                ratingSelect.innerHTML = '<option value="">Not Rated Yet</option>';
 
-                // Make AJAX request to get ratings for this criterion
-                fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Clear the rating dropdown
-                        ratingSelect.innerHTML = '<option value="">Not Rated Yet</option>';
+                // If we have ratings for this criteria, populate them
+                if (allRatings[criteriaId]) {
+                    allRatings[criteriaId].forEach(rating => {
+                        const option = document.createElement('option');
+                        option.value = rating.id;
+                        option.textContent = `${rating.name} - Level: ${rating.rating_level}`;
 
-                        // Add rating options
-                        data.ratings.forEach(rating => {
-                            const option = document.createElement('option');
-                            option.value = rating.id;
-                            option.textContent = `${rating.name} - Level: ${rating.rating_level}`;
+                        // Select the current rating if it matches
+                        if (rating.id == originalRatingId) {
+                            option.selected = true;
+                        }
 
-                            // Select the current rating if it matches
-                            if (rating.id == originalRatingId) {
-                                option.selected = true;
-                            }
-
-                            ratingSelect.appendChild(option);
-                        });
-                    } else {
-                        console.error('Error loading ratings:', data.message);
-                        ratingSelect.innerHTML = '<option value="">Error loading ratings</option>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading ratings:', error);
-                    ratingSelect.innerHTML = '<option value="">Error loading ratings</option>';
-                });
+                        ratingSelect.appendChild(option);
+                    });
+                }
             }
 
             // Function to filter criteria based on selected intern's job
@@ -216,7 +239,7 @@
                     }
 
                     // After changing criteria, load the corresponding ratings
-                    loadCriteriaRatings();
+                    populateRatings(criteriaSelect.value || originalCriteriaId);
                 }
             }
 
@@ -291,15 +314,12 @@
             // Initial filtering
             filterCriteria();
 
-            // Initial loading of ratings
-            loadCriteriaRatings();
-
             // Filter when intern selection changes
             magangSelect.addEventListener('change', filterCriteria);
 
             // Load ratings when criterion selection changes
             criteriaSelect.addEventListener('change', function() {
-                loadCriteriaRatings();
+                populateRatings(this.value || originalCriteriaId);
                 previewSmartAnalysis(); // Preview SMART analysis when criteria changes
             });
 
@@ -307,6 +327,9 @@
             ratingSelect.addEventListener('change', function() {
                 previewSmartAnalysis();
             });
+
+            // Preload all ratings on page load
+            preloadAllRatings();
         });
 
         // Form validation function to ensure critical data is present
