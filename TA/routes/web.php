@@ -17,6 +17,7 @@ use App\Http\Controllers\CriteriaComparisonController;
 use App\Http\Controllers\ApplicantProgressController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Periode;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     $periodes = Periode::with('jobs')->get();
@@ -151,9 +152,10 @@ Route::middleware('auth')->group(function () {
         ->name('smart.intern.detail');
 
     // Add a temporary debug route
-    Route::get('/test-evaluasi-dashboard', function() {
-        $jobId = 'JOB001';
-        $selectedPeriodeId = \App\Models\Periode::first()->periode_id ?? null;
+    Route::get('/test-evaluasi-dashboard', function(Request $request) {
+        // Get job_id from request, default to JOB001 if not provided
+        $jobId = $request->input('job_id', 'JOB001');
+        $selectedPeriodeId = $request->input('periode_id', \App\Models\Periode::first()->periode_id ?? null);
 
         // Get interns through proper relationship
         $interns = \App\Models\Magang::with(['pelamar' => function($query) use ($jobId) {
@@ -163,7 +165,7 @@ Route::middleware('auth')->group(function () {
         })->get();
 
         return view('evaluasi.smart-dashboard', [
-            'jobs' => \App\Models\Job::whereIn('job_id', ['JOB001', 'JOB004'])->get(),
+            'jobs' => \App\Models\Job::all(), // Get all jobs instead of hardcoding
             'periods' => \App\Models\Periode::all(),
             'jobId' => $jobId,
             'selectedPeriodeId' => $selectedPeriodeId,
