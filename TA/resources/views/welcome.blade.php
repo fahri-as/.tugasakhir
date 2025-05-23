@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Job Application Portal</title>
+        <title>JIWARAGA Job Application Portal</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -128,14 +128,20 @@
                                 Go to Dashboard
                             </a>
                         @else
-                            <a href="{{ route('login') }}" class="btn-primary px-6 py-3 rounded-lg">
-                                <i class="fas fa-sign-in-alt mr-2"></i> Log in
+                            <a href="{{ route('login') }}" class="px-6 py-3 rounded-lg border border-gray-200 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition duration-300">
+                                <i class="fas fa-user-shield mr-2"></i> Admin Login
                             </a>
                         @endauth
-                        <a href="{{ route('applicant.progress.index') }}" class="btn-outline px-6 py-3 rounded-lg">
-                            <i class="fas fa-tasks mr-2"></i> Track Application
+                        <a href="{{ route('applicant.progress.index') }}" class="px-6 py-3 rounded-lg bg-gradient-to-r from-green-500 to-teal-400 text-white font-semibold hover:from-green-600 hover:to-teal-500 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300">
+                            <i class="fas fa-search-location mr-2"></i> Track Your Application
                         </a>
                     @endif
+                </div>
+
+                <div class="mt-10 animate-bounce">
+                    <a href="#application-form" class="text-white opacity-75 hover:opacity-100 transition duration-300">
+                        <i class="fas fa-chevron-down text-2xl"></i>
+                    </a>
                 </div>
             </div>
             <div class="wave-divider">
@@ -184,7 +190,7 @@
         </section>
 
         <!-- Application Form Section -->
-        <section class="py-16 bg-white">
+        <section id="application-form" class="py-16 bg-white">
             <div class="container mx-auto px-6">
                 <div class="text-center max-w-3xl mx-auto mb-12">
                     <h2 class="text-3xl font-bold mb-4">Apply For a Position</h2>
@@ -391,8 +397,8 @@
             <div class="container mx-auto px-6">
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="mb-4 md:mb-0">
-                        <h2 class="text-2xl font-bold">Job Application Portal</h2>
-                        <p class="text-gray-400 mt-2">Find your dream job with us</p>
+                        <h2 class="text-2xl font-bold">JIWARAGA Job Application Portal</h2>
+                        <p class="text-gray-400 mt-2">Find your job with us</p>
                     </div>
                     <div class="flex space-x-4">
                         <a href="#" class="hover:text-blue-400 transition-colors"><i class="fab fa-facebook-f text-xl"></i></a>
