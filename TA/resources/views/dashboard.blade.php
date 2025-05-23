@@ -253,7 +253,7 @@
                                     <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
                                         <i class="fas fa-comments text-indigo-600"></i>
                                     </div>
-                                    <h3 class="text-lg font-medium text-gray-900">Upcoming Interviews</h3>
+                                <h3 class="text-lg font-medium text-gray-900">Upcoming Interviews</h3>
                                 </div>
                                 <a href="{{ route('interview.index') }}" class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
                                     View All <i class="fas fa-arrow-right ml-1"></i>
@@ -316,7 +316,7 @@
                                     <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center mr-3">
                                         <i class="fas fa-tasks text-orange-600"></i>
                                     </div>
-                                    <h3 class="text-lg font-medium text-gray-900">Upcoming Skill Tests</h3>
+                                <h3 class="text-lg font-medium text-gray-900">Upcoming Skill Tests</h3>
                                 </div>
                                 <a href="{{ route('tes-kemampuan.index') }}" class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
                                     View All <i class="fas fa-arrow-right ml-1"></i>

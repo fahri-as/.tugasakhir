@@ -59,7 +59,7 @@
                                 <i class="fas fa-chart-line mr-2 text-gray-400"></i>
                                 Evaluations
                             </x-dropdown-link>
-                        
+
                         </x-slot>
                     </x-dropdown>
                 </div>

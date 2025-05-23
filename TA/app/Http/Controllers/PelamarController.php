@@ -54,8 +54,8 @@ public function index(Request $request)
         $query->orderBy($sortBy, $sortDir);
     }
 
-    // Get the filtered and sorted results
-    $pelamar = $query->get();
+    // Get the filtered and sorted results with pagination (15 items per page)
+    $pelamar = $query->paginate(15);
 
     return view('pelamar.index', compact('pelamar'));
 }
