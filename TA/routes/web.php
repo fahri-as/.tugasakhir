@@ -14,6 +14,7 @@ use App\Http\Controllers\SMARTEvaluasiController;
 use App\Http\Controllers\CriteriaController;
 use App\Http\Controllers\CriteriaRatingScaleController;
 use App\Http\Controllers\CriteriaComparisonController;
+use App\Http\Controllers\ApplicantProgressController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Periode;
 
@@ -24,6 +25,11 @@ Route::get('/', function () {
 
 // This route is accessible to everyone (public)
 Route::post('/apply', [PelamarController::class, 'store'])->name('pelamar.public.store');
+
+// Applicant Progress Tracking Routes (public)
+Route::get('/track-progress', [ApplicantProgressController::class, 'index'])->name('applicant.progress.index');
+Route::get('/track-progress/{periode_id}', [ApplicantProgressController::class, 'selectPeriod'])->name('applicant.progress.select-period');
+Route::post('/track-progress/{periode_id}', [ApplicantProgressController::class, 'trackProgress'])->name('applicant.progress.track');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

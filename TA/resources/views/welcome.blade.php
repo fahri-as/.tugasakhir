@@ -20,6 +20,12 @@
             </div>
             @if (Route::has('login'))
                 <nav class="flex items-center justify-end gap-4">
+                    <a
+                        href="{{ route('applicant.progress.index') }}"
+                        class="inline-block px-5 py-1.5 text-gray-800 border border-gray-300 hover:border-gray-400 rounded-md text-sm leading-normal"
+                    >
+                        Track Application
+                    </a>
                     @auth
                         <a
                             href="{{ url('/dashboard') }}"
