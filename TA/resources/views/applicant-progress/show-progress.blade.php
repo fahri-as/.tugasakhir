@@ -90,7 +90,7 @@
                     </div>
                 </div>
             </div>
-        </nav>
+            </nav>
 
         <!-- Hero Section -->
         <section class="tracking-hero py-8">
@@ -103,7 +103,7 @@
                 <p class="text-sm max-w-3xl mx-auto opacity-90 fade-in">
                     <span class="bg-white/20 rounded-md px-3 py-1">Application ID: {{ $pelamar->pelamar_id }}</span>
                 </p>
-            </div>
+                                        </div>
         </section>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -116,24 +116,24 @@
                             <div class="flex items-start">
                                 <div class="flex-shrink-0 bg-indigo-100 rounded-full p-3">
                                     <i class="fas fa-clipboard-check text-indigo-600 text-xl"></i>
-                                </div>
+                                        </div>
                                 <div class="ml-4">
                                     <h3 class="font-medium text-gray-900">Application Status</h3>
                                     <span class="text-sm font-medium px-3 py-1 rounded-full
                                         {{ $pelamar->status_seleksi === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
                                           ($pelamar->status_seleksi === 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800') }}">
-                                        {{ $pelamar->status_seleksi }}
-                                    </span>
+                                                {{ $pelamar->status_seleksi }}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
                         <!-- Position Card -->
                         <div class="bg-gradient-to-br from-green-50 to-teal-50 border border-green-100 rounded-lg p-6 card-hover">
                             <div class="flex items-start">
                                 <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
                                     <i class="fas fa-briefcase text-green-600 text-xl"></i>
-                                </div>
+                                        </div>
                                 <div class="ml-4">
                                     <h3 class="font-medium text-gray-900">Position Applied</h3>
                                     <p class="text-sm text-gray-800 font-medium">{{ $pelamar->job->nama_job }}</p>
@@ -167,27 +167,27 @@
                         </h3>
 
                         <div class="relative timeline-connector">
-                            <!-- Document Screening -->
-                            @php
-                                // Document screening is passed if the applicant has an interview, test or internship record
-                                $documentPassed = $pelamar->interview || $pelamar->tesKemampuan || $pelamar->magang;
-                                $documentRejected = $pelamar->status_seleksi === 'Rejected';
-                                $documentPending = !$documentPassed && !$documentRejected;
-                            @endphp
+                                <!-- Document Screening -->
+                                    @php
+                                        // Document screening is passed if the applicant has an interview, test or internship record
+                                        $documentPassed = $pelamar->interview || $pelamar->tesKemampuan || $pelamar->magang;
+                                        $documentRejected = $pelamar->status_seleksi === 'Rejected';
+                                        $documentPending = !$documentPassed && !$documentRejected;
+                                    @endphp
 
                             <div class="mb-10 ml-12 timeline-card">
                                 <span class="absolute flex items-center justify-center w-12 h-12 rounded-full -left-6 ring-8
                                     {{ $documentPassed ? 'bg-green-500 ring-green-100 text-white' :
                                        ($documentRejected ? 'bg-red-500 ring-red-100 text-white' :
                                        'bg-yellow-500 ring-yellow-100 text-white') }}">
-                                    @if($documentPassed)
+                                        @if($documentPassed)
                                         <i class="fas fa-check"></i>
-                                    @elseif($documentRejected)
+                                        @elseif($documentRejected)
                                         <i class="fas fa-times"></i>
-                                    @else
+                                        @else
                                         <i class="fas fa-hourglass-half fa-spin"></i>
-                                    @endif
-                                </span>
+                                        @endif
+                                    </span>
 
                                 <div class="p-6 bg-white rounded-lg shadow-sm border-l-4
                                     {{ $documentPassed ? 'border-l-green-500' :
@@ -200,8 +200,8 @@
                                             Document Screening
                                         </h4>
                                         <time class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                            {{ $pelamar->created_at->format('d M Y') }}
-                                        </time>
+                                        {{ $pelamar->created_at->format('d M Y') }}
+                                    </time>
                                     </div>
 
                                     <p class="mb-2 text-sm text-gray-600">
@@ -230,30 +230,30 @@
                                 </div>
                             </div>
 
-                            <!-- Interview -->
-                            @if($pelamar->interview || $pelamar->tesKemampuan || $pelamar->magang)
-                            @php
-                                // Interview is passed if the applicant has a test or internship record
-                                $interviewPassed = ($pelamar->interview && $pelamar->interview->hasil === 'Lulus') ||
-                                                   $pelamar->tesKemampuan ||
-                                                   $pelamar->magang;
-                                $interviewFailed = $pelamar->interview && $pelamar->interview->hasil === 'Gagal';
-                                $interviewPending = $pelamar->interview && !$interviewPassed && !$interviewFailed;
-                            @endphp
+                                <!-- Interview -->
+                                @if($pelamar->interview || $pelamar->tesKemampuan || $pelamar->magang)
+                                    @php
+                                        // Interview is passed if the applicant has a test or internship record
+                                        $interviewPassed = ($pelamar->interview && $pelamar->interview->hasil === 'Lulus') ||
+                                                           $pelamar->tesKemampuan ||
+                                                           $pelamar->magang;
+                                        $interviewFailed = $pelamar->interview && $pelamar->interview->hasil === 'Gagal';
+                                        $interviewPending = $pelamar->interview && !$interviewPassed && !$interviewFailed;
+                                    @endphp
 
                             <div class="mb-10 ml-12 timeline-card">
                                 <span class="absolute flex items-center justify-center w-12 h-12 rounded-full -left-6 ring-8
                                     {{ $interviewPassed ? 'bg-green-500 ring-green-100 text-white' :
                                        ($interviewFailed ? 'bg-red-500 ring-red-100 text-white' :
                                        'bg-blue-500 ring-blue-100 text-white') }}">
-                                    @if($interviewPassed)
+                                        @if($interviewPassed)
                                         <i class="fas fa-check"></i>
-                                    @elseif($interviewFailed)
+                                        @elseif($interviewFailed)
                                         <i class="fas fa-times"></i>
-                                    @else
+                                        @else
                                         <i class="fas fa-user-tie"></i>
-                                    @endif
-                                </span>
+                                        @endif
+                                    </span>
 
                                 <div class="p-6 bg-white rounded-lg shadow-sm border-l-4
                                     {{ $interviewPassed ? 'border-l-green-500' :
@@ -266,8 +266,8 @@
                                             Interview
                                         </h4>
                                         <time class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                            {{ $pelamar->interview && $pelamar->interview->tanggal_wawancara ? $pelamar->interview->tanggal_wawancara->format('d M Y') : 'Scheduled' }}
-                                        </time>
+                                        {{ $pelamar->interview && $pelamar->interview->tanggal_wawancara ? $pelamar->interview->tanggal_wawancara->format('d M Y') : 'Scheduled' }}
+                                    </time>
                                     </div>
 
                                     <p class="mb-2 text-sm text-gray-600">
@@ -299,30 +299,30 @@
                                     </div>
                                 </div>
                             </div>
-                            @endif
+                                @endif
 
-                            <!-- Skills Test -->
-                            @if($pelamar->tesKemampuan || $pelamar->magang)
-                            @php
-                                // Test is passed if the applicant has an internship record or has passed the test
-                                $testPassed = ($pelamar->tesKemampuan && $pelamar->tesKemampuan->hasil === 'Lulus') || $pelamar->magang;
-                                $testFailed = $pelamar->tesKemampuan && $pelamar->tesKemampuan->hasil === 'Gagal';
-                                $testPending = $pelamar->tesKemampuan && !$testPassed && !$testFailed;
-                            @endphp
+                                <!-- Skills Test -->
+                                @if($pelamar->tesKemampuan || $pelamar->magang)
+                                    @php
+                                        // Test is passed if the applicant has an internship record or has passed the test
+                                        $testPassed = ($pelamar->tesKemampuan && $pelamar->tesKemampuan->hasil === 'Lulus') || $pelamar->magang;
+                                        $testFailed = $pelamar->tesKemampuan && $pelamar->tesKemampuan->hasil === 'Gagal';
+                                        $testPending = $pelamar->tesKemampuan && !$testPassed && !$testFailed;
+                                    @endphp
 
                             <div class="mb-10 ml-12 timeline-card">
                                 <span class="absolute flex items-center justify-center w-12 h-12 rounded-full -left-6 ring-8
                                     {{ $testPassed ? 'bg-green-500 ring-green-100 text-white' :
                                        ($testFailed ? 'bg-red-500 ring-red-100 text-white' :
                                        'bg-blue-500 ring-blue-100 text-white') }}">
-                                    @if($testPassed)
+                                        @if($testPassed)
                                         <i class="fas fa-check"></i>
-                                    @elseif($testFailed)
+                                        @elseif($testFailed)
                                         <i class="fas fa-times"></i>
-                                    @else
+                                        @else
                                         <i class="fas fa-clipboard-list"></i>
-                                    @endif
-                                </span>
+                                        @endif
+                                    </span>
 
                                 <div class="p-6 bg-white rounded-lg shadow-sm border-l-4
                                     {{ $testPassed ? 'border-l-green-500' :
@@ -335,8 +335,8 @@
                                             Skills Test
                                         </h4>
                                         <time class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                            {{ $pelamar->tesKemampuan && $pelamar->tesKemampuan->tanggal_tes ? $pelamar->tesKemampuan->tanggal_tes->format('d M Y') : 'Scheduled' }}
-                                        </time>
+                                        {{ $pelamar->tesKemampuan && $pelamar->tesKemampuan->tanggal_tes ? $pelamar->tesKemampuan->tanggal_tes->format('d M Y') : 'Scheduled' }}
+                                    </time>
                                     </div>
 
                                     <p class="mb-2 text-sm text-gray-600">
@@ -383,29 +383,29 @@
                                     </div>
                                 </div>
                             </div>
-                            @endif
+                                @endif
 
-                            <!-- Internship -->
-                            @if($pelamar->magang)
-                            @php
-                                $isCompleted = $pelamar->magang->status_seleksi === 'Completed';
-                                $isTerminated = $pelamar->magang->status_seleksi === 'Terminated';
-                                $isActive = $pelamar->magang->status_seleksi === 'Active';
-                            @endphp
+                                <!-- Internship -->
+                                @if($pelamar->magang)
+                                    @php
+                                        $isCompleted = $pelamar->magang->status_seleksi === 'Completed';
+                                        $isTerminated = $pelamar->magang->status_seleksi === 'Terminated';
+                                        $isActive = $pelamar->magang->status_seleksi === 'Active';
+                                    @endphp
 
                             <div class="ml-12 timeline-card">
                                 <span class="absolute flex items-center justify-center w-12 h-12 rounded-full -left-6 ring-8
                                     {{ $isCompleted ? 'bg-green-500 ring-green-100 text-white' :
                                        ($isTerminated ? 'bg-red-500 ring-red-100 text-white' :
                                        'bg-blue-500 ring-blue-100 text-white') }}">
-                                    @if($isCompleted)
+                                        @if($isCompleted)
                                         <i class="fas fa-check"></i>
-                                    @elseif($isTerminated)
+                                        @elseif($isTerminated)
                                         <i class="fas fa-times"></i>
-                                    @else
+                                        @else
                                         <i class="fas fa-building"></i>
-                                    @endif
-                                </span>
+                                        @endif
+                                    </span>
 
                                 <div class="p-6 bg-white rounded-lg shadow-sm border-l-4
                                     {{ $isCompleted ? 'border-l-green-500' :
@@ -418,8 +418,8 @@
                                             Internship
                                         </h4>
                                         <time class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                            {{ $pelamar->magang->jadwal_mulai ? $pelamar->magang->jadwal_mulai->format('d M Y') . ' - ' . ($pelamar->magang->tanggal_selesai ? $pelamar->magang->tanggal_selesai->format('d M Y') : 'Present') : 'Scheduled' }}
-                                        </time>
+                                        {{ $pelamar->magang->jadwal_mulai ? $pelamar->magang->jadwal_mulai->format('d M Y') . ' - ' . ($pelamar->magang->tanggal_selesai ? $pelamar->magang->tanggal_selesai->format('d M Y') : 'Present') : 'Scheduled' }}
+                                    </time>
                                     </div>
 
                                     <p class="mb-2 text-sm text-gray-600">
@@ -502,7 +502,7 @@
                                     @endif
                                 </div>
                             </div>
-                            @endif
+                                @endif
                         </div>
                     </div>
                 </div>

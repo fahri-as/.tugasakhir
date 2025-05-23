@@ -69,7 +69,7 @@
                     </div>
                 </div>
             </div>
-        </nav>
+            </nav>
 
         <!-- Hero Section -->
         <section class="tracking-hero py-12 mb-8">
@@ -90,17 +90,17 @@
         </section>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-            @if (session('success'))
+                @if (session('success'))
                 <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md fade-in">
-                    {{ session('success') }}
-                </div>
-            @endif
+                        {{ session('success') }}
+                    </div>
+                @endif
 
-            @if (session('error'))
+                @if (session('error'))
                 <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md fade-in">
-                    {{ session('error') }}
-                </div>
-            @endif
+                        {{ session('error') }}
+                    </div>
+                @endif
 
             <div class="bg-white shadow-md rounded-lg overflow-hidden slide-in-bottom">
                 <div class="p-6">
@@ -110,8 +110,8 @@
                     </h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        @foreach($periodes as $periode)
-                            <a href="{{ route('applicant.progress.select-period', $periode->periode_id) }}"
+                            @foreach($periodes as $periode)
+                                <a href="{{ route('applicant.progress.select-period', $periode->periode_id) }}"
                                class="block bg-white border rounded-lg shadow-sm hover:shadow-md card-hover">
                                 <div class="p-6">
                                     <div class="flex items-center justify-between mb-4">
@@ -138,12 +138,12 @@
                                             <i class="fas fa-search mr-2"></i> Track Application
                                         </span>
                                     </div>
-                                </div>
-                            </a>
-                        @endforeach
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
-            </div>
         </div>
 
         <!-- Footer -->

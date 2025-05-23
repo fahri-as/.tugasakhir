@@ -86,7 +86,7 @@
                     </div>
                 </div>
             </div>
-        </nav>
+            </nav>
 
         <!-- Hero Section -->
         <section class="tracking-hero py-12 mb-8">
@@ -103,17 +103,17 @@
         </section>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 flex-grow">
-            @if (session('success'))
+                @if (session('success'))
                 <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md fade-in">
-                    {{ session('success') }}
-                </div>
-            @endif
+                        {{ session('success') }}
+                    </div>
+                @endif
 
-            @if (session('error'))
+                @if (session('error'))
                 <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md fade-in">
-                    {{ session('error') }}
-                </div>
-            @endif
+                        {{ session('error') }}
+                    </div>
+                @endif
 
             <div class="bg-white shadow-md rounded-lg overflow-hidden slide-in-bottom">
                 <div class="p-6">
@@ -155,13 +155,13 @@
                                         required
                                     />
                                     <div class="absolute inset-y-0 right-0 flex items-center">
-                                        <button
-                                            type="submit"
+                                    <button
+                                        type="submit"
                                             class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-r-md btn-primary flex items-center"
-                                        >
+                                    >
                                             <i class="fas fa-search-location mr-1"></i>
                                             Track
-                                        </button>
+                                    </button>
                                     </div>
                                 </div>
                                 <p class="mt-2 text-sm text-gray-500 text-center">
