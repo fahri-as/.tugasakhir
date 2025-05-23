@@ -1,17 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Weekly Evaluation') }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                <i class="fas fa-edit text-indigo-600 mr-2"></i> {{ __('Edit Weekly Evaluation') }}
+            </h2>
+            <a href="{{ route('evaluasi.show', $evaluasi) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Details
+            </a>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     @if(session('error'))
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('error') }}</span>
+                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-md mb-4 flex items-center transform transition-all duration-300 hover:bg-red-50" role="alert">
+                            <i class="fas fa-exclamation-circle text-red-500 mr-3 text-lg"></i>
+                            <span>{{ session('error') }}</span>
                         </div>
                     @endif
 
@@ -23,81 +29,137 @@
                         <input type="hidden" name="debug_id" value="{{ $evaluasi->evaluasi_id }}">
                         <input type="hidden" name="debug_timestamp" value="{{ time() }}">
 
-                        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                            <!-- Magang (Intern) Selection -->
-                            <div>
-                                <label for="magang_id" class="block text-sm font-medium text-gray-700">Intern</label>
-                                <select id="magang_id" name="magang_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('magang_id') border-red-500 @enderror" required>
-                                    <option value="">Select Intern</option>
-                                    @foreach($magang as $intern)
-                                        <option value="{{ $intern->magang_id }}" @if(old('magang_id', $evaluasi->magang_id) == $intern->magang_id) selected @endif>
-                                            {{ $intern->pelamar->nama }} - {{ $intern->pelamar->job->nama_job ?? 'No Job' }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('magang_id')
-                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Criteria Selection -->
-                            <div>
-                                <label for="criteria_id" class="block text-sm font-medium text-gray-700">Criteria (Optional)</label>
-                                <select id="criteria_id" name="criteria_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('criteria_id') border-red-500 @enderror">
-                                    <option value="">No specific criteria</option>
-                                    @foreach($criteria as $criteriaItem)
-                                        <option value="{{ $criteriaItem->criteria_id }}"
-                                                @if(old('criteria_id', $evaluasi->criteria_id) == $criteriaItem->criteria_id) selected @endif
-                                                data-job-id="{{ $criteriaItem->job_id }}">
-                                            {{ $criteriaItem->name }} ({{ $criteriaItem->code }}) - {{ $criteriaItem->job->nama_job }}
-                                        </option>
-                                    @endforeach
-                                </select>
-
-                                <!-- Hidden input to preserve the original criteria_id if no new one is selected -->
-                                <input type="hidden" name="original_criteria_id" value="{{ $evaluasi->criteria_id }}">
-
-                                @error('criteria_id')
-                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                                @enderror
-                                <p class="text-sm text-gray-500 mt-1">Current criteria: <strong>{{ $evaluasi->criteria->name ?? 'No specific criteria' }}</strong></p>
-                            </div>
-
-                            <!-- Rating Selection -->
-                            <div>
-                                <label for="criteria_rating_id" class="block text-sm font-medium text-gray-700">Rating</label>
-                                <select id="criteria_rating_id" name="criteria_rating_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('criteria_rating_id') border-red-500 @enderror">
-                                    <option value="">Not Rated Yet</option>
-                                </select>
-                                @error('criteria_rating_id')
-                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Week Number -->
-                            <div>
-                                <label for="minggu_ke" class="block text-sm font-medium text-gray-700">Week Number</label>
-                                <input type="number" id="minggu_ke" name="minggu_ke" min="1" value="{{ old('minggu_ke', $evaluasi->minggu_ke) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('minggu_ke') border-red-500 @enderror" required>
-                                @error('minggu_ke')
-                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                                @enderror
+                        <!-- Current Evaluation Info -->
+                        <div class="mb-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4 border border-indigo-100 shadow-sm">
+                            <div class="flex items-center">
+                                <div class="bg-indigo-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-info-circle text-indigo-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Editing Evaluation</h3>
+                                    <p class="text-sm text-gray-600">ID: {{ $evaluasi->evaluasi_id }} | Created: {{ $evaluasi->created_at->format('d M Y H:i') }}</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mt-6 flex items-center space-x-3">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                Update Evaluation
-                            </button>
-                            <a href="{{ route('evaluasi.show', $evaluasi) }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
-                                Cancel
-                            </a>
+                        <!-- Evaluation Information Section -->
+                        <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-5 rounded-lg border border-gray-200 shadow-sm mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
+                                <i class="fas fa-clipboard-check text-indigo-600 mr-2"></i> Evaluation Information
+                            </h3>
+
+                            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <!-- Magang (Intern) Selection -->
+                                <div class="transform transition duration-200 hover:-translate-y-1">
+                                    <label for="magang_id" class="block text-sm font-medium text-gray-700 mb-1">Intern</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-user-graduate text-gray-400"></i>
+                                        </div>
+                                        <select id="magang_id" name="magang_id" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('magang_id') border-red-500 @enderror" required>
+                                            <option value="">Select Intern</option>
+                                            @foreach($magang as $intern)
+                                                <option value="{{ $intern->magang_id }}" @if(old('magang_id', $evaluasi->magang_id) == $intern->magang_id) selected @endif>
+                                                    {{ $intern->pelamar->nama }} - {{ $intern->pelamar->job->nama_job ?? 'No Job' }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('magang_id')
+                                        <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- Week Number -->
+                                <div class="transform transition duration-200 hover:-translate-y-1">
+                                    <label for="minggu_ke" class="block text-sm font-medium text-gray-700 mb-1">Week Number</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-calendar-week text-gray-400"></i>
+                                        </div>
+                                        <input type="number" id="minggu_ke" name="minggu_ke" min="1" value="{{ old('minggu_ke', $evaluasi->minggu_ke) }}" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('minggu_ke') border-red-500 @enderror" required>
+                                    </div>
+                                    @error('minggu_ke')
+                                        <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Criteria & Rating Section -->
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-5 rounded-lg border border-indigo-100 shadow-sm mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
+                                <i class="fas fa-tasks text-indigo-600 mr-2"></i> Evaluation Criteria
+                            </h3>
+
+                            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <!-- Criteria Selection -->
+                                <div class="transform transition duration-200 hover:-translate-y-1">
+                                    <label for="criteria_id" class="block text-sm font-medium text-gray-700 mb-1">Criteria (Optional)</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-list-ul text-gray-400"></i>
+                                        </div>
+                                        <select id="criteria_id" name="criteria_id" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('criteria_id') border-red-500 @enderror">
+                                            <option value="">No specific criteria</option>
+                                            @foreach($criteria as $criteriaItem)
+                                                <option value="{{ $criteriaItem->criteria_id }}"
+                                                        @if(old('criteria_id', $evaluasi->criteria_id) == $criteriaItem->criteria_id) selected @endif
+                                                        data-job-id="{{ $criteriaItem->job_id }}">
+                                                    {{ $criteriaItem->name }} ({{ $criteriaItem->code }}) - {{ $criteriaItem->job->nama_job }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Hidden input to preserve the original criteria_id if no new one is selected -->
+                                    <input type="hidden" name="original_criteria_id" value="{{ $evaluasi->criteria_id }}">
+
+                                    @error('criteria_id')
+                                        <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                    @enderror
+                                    <p class="text-sm text-gray-500 mt-1 bg-yellow-50 p-2 rounded-md border border-yellow-200">
+                                        <i class="fas fa-info-circle text-yellow-600 mr-1"></i>
+                                        Current criteria: <strong>{{ $evaluasi->criteria->name ?? 'No specific criteria' }}</strong>
+                                    </p>
+                                </div>
+
+                                <!-- Rating Selection -->
+                                <div class="transform transition duration-200 hover:-translate-y-1">
+                                    <label for="criteria_rating_id" class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-star text-gray-400"></i>
+                                        </div>
+                                        <select id="criteria_rating_id" name="criteria_rating_id" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('criteria_rating_id') border-red-500 @enderror">
+                                            <option value="">Not Rated Yet</option>
+                                        </select>
+                                    </div>
+                                    @error('criteria_rating_id')
+                                        <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                    @enderror
+                                    <div id="smart-preview-status" class="hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
                             <form action="{{ route('evaluasi.destroy', $evaluasi) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this evaluation?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                    Delete
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-red-600 hover:to-rose-700 active:bg-red-800 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
+                                    <i class="fas fa-trash mr-2"></i> Delete
                                 </button>
                             </form>
+
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ route('evaluasi.show', $evaluasi) }}" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105">
+                                    <i class="fas fa-times mr-2"></i> Cancel
+                                </a>
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-600 hover:to-blue-700 active:bg-blue-800 focus:outline-none focus:border-blue-700 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
+                                    <i class="fas fa-save mr-2"></i> Update Evaluation
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -132,6 +194,9 @@
 
                 // If no criteria, return
                 if (criteriaIds.length === 0) return;
+
+                // Show loading state
+                ratingSelect.innerHTML = '<option value="">Loading ratings...</option>';
 
                 // For each criteria, fetch ratings
                 const fetchPromises = criteriaIds.map(criteriaId =>
@@ -251,16 +316,10 @@
                 if (!criteriaId) return;
 
                 // Show status to user
-                const form = document.querySelector('form');
-                let statusDiv = document.getElementById('smart-preview-status');
-                if (!statusDiv) {
-                    statusDiv = document.createElement('div');
-                    statusDiv.id = 'smart-preview-status';
-                    statusDiv.className = 'text-xs text-gray-600 mt-2';
-                    form.appendChild(statusDiv);
-                }
-
+                const statusDiv = document.getElementById('smart-preview-status');
                 statusDiv.textContent = 'Updating SMART analysis preview...';
+                statusDiv.className = 'text-xs text-gray-600 mt-2';
+                statusDiv.classList.remove('hidden');
 
                 // Make AJAX request to preview SMART data
                 fetch('/api/evaluations/update', {
@@ -285,6 +344,7 @@
                         // Hide status after 3 seconds
                         setTimeout(() => {
                             statusDiv.textContent = '';
+                            statusDiv.classList.add('hidden');
                         }, 3000);
                     } else {
                         statusDiv.textContent = 'Error updating preview: ' + data.message;
@@ -369,5 +429,3 @@
         }
     </script>
 </x-app-layout>
-
-

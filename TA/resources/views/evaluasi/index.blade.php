@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Weekly Evaluations') }}
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                <i class="fas fa-chart-line text-indigo-600 mr-2"></i> {{ __('Weekly Evaluations') }}
             </h2>
-            <a href="{{ route('evaluasi.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                Create New Evaluation
+            <a href="{{ route('evaluasi.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-600 hover:to-purple-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
+                <i class="fas fa-plus-circle mr-2"></i> Create New Evaluation
             </a>
         </div>
     </x-slot>
@@ -13,32 +13,115 @@
     <!-- CSRF Token for AJAX Requests -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <div class="py-12">
+    <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Stats Overview -->
+            @php
+                $totalEvaluations = 0;
+                $completedEvaluations = 0;
+                $pendingEvaluations = 0;
+
+                foreach($evaluationsByWeek as $week => $interns) {
+                    foreach($interns as $internId => $evals) {
+                        $totalCriteria = count($evals);
+                        $ratedCriteria = 0;
+
+                        foreach($evals as $eval) {
+                            if (!empty($eval->criteria_rating_id)) {
+                                $ratedCriteria++;
+                            }
+                        }
+
+                        if ($totalCriteria > 0) {
+                            if ($ratedCriteria == $totalCriteria) {
+                                $completedEvaluations++;
+                            } else if ($ratedCriteria == 0) {
+                                $pendingEvaluations++;
+                            }
+                            $totalEvaluations++;
+                        }
+                    }
+                }
+            @endphp
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <!-- Total Evaluations -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                    <div class="rounded-full h-12 w-12 flex items-center justify-center bg-blue-100 text-blue-600 mr-4">
+                        <i class="fas fa-clipboard-list text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Evaluations</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ $totalEvaluations }}</p>
+                    </div>
+                </div>
+
+                <!-- Completed -->
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                    <div class="rounded-full h-12 w-12 flex items-center justify-center bg-green-100 text-green-600 mr-4">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Completed</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ $completedEvaluations }}</p>
+                    </div>
+                </div>
+
+                <!-- Pending -->
+                <div class="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                    <div class="rounded-full h-12 w-12 flex items-center justify-center bg-yellow-100 text-yellow-600 mr-4">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Pending</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ $pendingEvaluations }}</p>
+                    </div>
+                </div>
+
+                <!-- Total Weeks -->
+                <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                    <div class="rounded-full h-12 w-12 flex items-center justify-center bg-purple-100 text-purple-600 mr-4">
+                        <i class="fas fa-calendar-week text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Weeks</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ $weekCount }}</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <!-- Period Filter -->
-                    <div class="mb-6">
+                    <div class="mb-6 bg-gradient-to-r from-gray-50 to-blue-50 p-5 rounded-lg shadow-sm border border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-filter text-indigo-600 mr-2"></i> Filter by Period
+                        </h3>
                         <form action="{{ route('evaluasi.index') }}" method="GET" class="flex flex-wrap items-end space-x-4">
                             <div class="flex-grow">
-                                <label for="periode_filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Period</label>
-                                <select id="periode_filter" name="periode_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                    @foreach($periods as $period)
-                                        <option value="{{ $period->periode_id }}" {{ $selectedPeriodeId == $period->periode_id ? 'selected' : '' }}>
-                                            {{ $period->nama_periode }} ({{ $period->tanggal_mulai->format('d M Y') }} - {{ $period->tanggal_selesai->format('d M Y') }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label for="periode_filter" class="block text-sm font-medium text-gray-700 mb-1">Select Period</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <i class="fas fa-calendar-alt text-gray-400"></i>
+                                    </div>
+                                    <select id="periode_filter" name="periode_id" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        @foreach($periods as $period)
+                                            <option value="{{ $period->periode_id }}" {{ $selectedPeriodeId == $period->periode_id ? 'selected' : '' }}>
+                                                {{ $period->nama_periode }} ({{ $period->tanggal_mulai->format('d M Y') }} - {{ $period->tanggal_selesai->format('d M Y') }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
 
                             <div>
-                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                    Filter
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm hover:shadow transform hover:scale-105">
+                                    <i class="fas fa-search mr-2"></i> Filter
                                 </button>
 
                                 @if(request()->has('periode_id'))
-                                    <a href="{{ route('evaluasi.index') }}" class="ml-2 inline-flex items-center px-4 py-2 bg-gray-200 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                        Reset
+                                    <a href="{{ route('evaluasi.index') }}" class="ml-2 inline-flex items-center px-4 py-2 bg-gray-200 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105">
+                                        <i class="fas fa-undo mr-2"></i> Reset
                                     </a>
                                 @endif
                             </div>
@@ -46,10 +129,12 @@
                     </div>
 
                     <!-- SMART Dashboard Links -->
-                    <div class="bg-white shadow rounded-lg p-4 mb-6">
-                        <h2 class="text-lg font-medium mb-3">SMART Weekly Evaluation Dashboards</h2>
+                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-5 mb-6 shadow-sm border border-indigo-100">
+                        <h2 class="text-lg font-medium mb-3 flex items-center">
+                            <i class="fas fa-brain text-indigo-600 mr-2"></i> SMART Weekly Evaluation Dashboards
+                        </h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <a href="{{ route('test.evaluasi.dashboard', ['job_id' => 'JOB001']) }}" class="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition duration-150">
+                            <a href="{{ route('test.evaluasi.dashboard', ['job_id' => 'JOB001']) }}" class="flex items-center p-4 bg-white border border-indigo-200 rounded-lg hover:bg-indigo-50 transition duration-150 transform hover:-translate-y-1 hover:shadow-md">
                                 <div class="bg-indigo-100 p-3 rounded-full mr-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -61,7 +146,7 @@
                                 </div>
                             </a>
 
-                            <a href="{{ route('test.evaluasi.dashboard', ['job_id' => 'JOB004']) }}" class="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition duration-150">
+                            <a href="{{ route('test.evaluasi.dashboard', ['job_id' => 'JOB004']) }}" class="flex items-center p-4 bg-white border border-pink-200 rounded-lg hover:bg-pink-50 transition duration-150 transform hover:-translate-y-1 hover:shadow-md">
                                 <div class="bg-pink-100 p-3 rounded-full mr-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -78,8 +163,10 @@
                     <!-- Weekly Evaluation Status Overview -->
                     @if($weekCount > 0)
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-900">Evaluation Status Overview</h3>
-                            <button id="toggle-evaluation-status" class="inline-flex items-center px-3 py-1.5 bg-indigo-100 border border-indigo-300 rounded-md text-xs text-indigo-700 uppercase tracking-widest hover:bg-indigo-200 transition duration-150">
+                            <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                                <i class="fas fa-th-large text-indigo-600 mr-2"></i> Evaluation Status Overview
+                            </h3>
+                            <button id="toggle-evaluation-status" class="inline-flex items-center px-3 py-1.5 bg-indigo-100 border border-indigo-300 rounded-md text-xs text-indigo-700 uppercase tracking-widest hover:bg-indigo-200 transition duration-150 transform hover:scale-105">
                                 <svg id="chevron-down" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
@@ -89,56 +176,72 @@
                                 <span id="status-toggle-text">Hide Overview</span>
                             </button>
                         </div>
-                        <div id="weekly-evaluation-status" class="bg-white shadow rounded-lg mb-6 overflow-hidden">
+                        <div id="weekly-evaluation-status" class="bg-white shadow-sm rounded-lg mb-6 overflow-hidden border border-gray-200">
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                    <thead>
                                         <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intern Name</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Position</th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user text-gray-400 mr-2"></i> Intern Name
+                                                </span>
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-briefcase text-gray-400 mr-2"></i> Job Position
+                                                </span>
+                                            </th>
                                             @for($week = 1; $week <= $weekCount; $week++)
-                                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Week {{ $week }}</th>
+                                                <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Week {{ $week }}</th>
                                             @endfor
-                                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center justify-center">
+                                                    <i class="fas fa-cog text-gray-400 mr-2"></i> Actions
+                                                </span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach($allInterns as $intern)
-                                            <tr class="hover:bg-gray-50">
+                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {{ $intern->pelamar->nama }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $intern->pelamar->job->nama_job ?? 'N/A' }}
+                                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                        {{ $intern->pelamar->job->nama_job ?? 'N/A' }}
+                                                    </span>
                                                 </td>
                                                 @for($week = 1; $week <= $weekCount; $week++)
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                                                    @php
-                                                // Get all evaluations for this intern for this week
-                                                $internEvaluations = [];
-                                                if (isset($evaluationsByWeek[$week][$intern->magang_id])) {
-                                                    $internEvaluations = $evaluationsByWeek[$week][$intern->magang_id];
-                                                }
+                                                        @php
+                                                            // Get all evaluations for this intern for this week
+                                                            $internEvaluations = [];
+                                                            if (isset($evaluationsByWeek[$week][$intern->magang_id])) {
+                                                                $internEvaluations = $evaluationsByWeek[$week][$intern->magang_id];
+                                                            }
 
-                                                // Check how many criteria have ratings
-                                                $totalCriteria = count($internEvaluations);
-                                                $ratedCriteria = 0;
+                                                            // Check how many criteria have ratings
+                                                            $totalCriteria = count($internEvaluations);
+                                                            $ratedCriteria = 0;
 
-                                                foreach ($internEvaluations as $eval) {
-                                                    if (!empty($eval->criteria_rating_id)) {
-                                                        $ratedCriteria++;
-                                                    }
-                                                }
+                                                            foreach ($internEvaluations as $eval) {
+                                                                if (!empty($eval->criteria_rating_id)) {
+                                                                    $ratedCriteria++;
+                                                                }
+                                                            }
 
-                                                // Determine status based on rated criteria
-                                                $isFullyEvaluated = $totalCriteria > 0 && $ratedCriteria == $totalCriteria;
-                                                $isPartiallyEvaluated = $totalCriteria > 0 && $ratedCriteria > 0 && $ratedCriteria < $totalCriteria;
-                                                $isNotEvaluated = $totalCriteria == 0 || $ratedCriteria == 0;
-                                            @endphp
+                                                            // Determine status based on rated criteria
+                                                            $isFullyEvaluated = $totalCriteria > 0 && $ratedCriteria == $totalCriteria;
+                                                            $isPartiallyEvaluated = $totalCriteria > 0 && $ratedCriteria > 0 && $ratedCriteria < $totalCriteria;
+                                                            $isNotEvaluated = $totalCriteria == 0 || $ratedCriteria == 0;
+                                                        @endphp
 
                                                         @if($isFullyEvaluated)
-                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);">
-                                                                <span data-status class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Completed</span>
+                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer transform transition duration-200 hover:-translate-y-1" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);">
+                                                                <span data-status class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                                                                    <i class="fas fa-check-circle mr-1"></i> Completed
+                                                                </span>
                                                                 <span class="mt-1 text-xs">
                                                                     <span data-counter>{{ $ratedCriteria }}/{{ $totalCriteria }}</span> criteria
                                                                 </span>
@@ -147,8 +250,10 @@
                                                                 </div>
                                                             </span>
                                                         @elseif($isPartiallyEvaluated)
-                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);">
-                                                                <span data-status class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">In Progress</span>
+                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer transform transition duration-200 hover:-translate-y-1" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);">
+                                                                <span data-status class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                                                                    <i class="fas fa-clock mr-1"></i> In Progress
+                                                                </span>
                                                                 <span class="mt-1 text-xs">
                                                                     <span data-counter>{{ $ratedCriteria }}/{{ $totalCriteria }}</span> criteria
                                                                 </span>
@@ -157,8 +262,10 @@
                                                                 </div>
                                                             </span>
                                                         @else
-                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer" onclick="currentPeriod = '{{ $selectedPeriodeId }}'; currentWeek = {{ $week }}; handleNotEvaluated(currentPeriod, currentWeek, '{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}');">
-                                                                <span data-status class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">Not Started</span>
+                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer transform transition duration-200 hover:-translate-y-1" onclick="currentPeriod = '{{ $selectedPeriodeId }}'; currentWeek = {{ $week }}; handleNotEvaluated(currentPeriod, currentWeek, '{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}');">
+                                                                <span data-status class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">
+                                                                    <i class="fas fa-times-circle mr-1"></i> Not Started
+                                                                </span>
                                                                 <span class="mt-1 text-xs">
                                                                     <span data-counter>0/{{ $totalCriteria }}</span> criteria
                                                                 </span>
@@ -170,8 +277,8 @@
                                                     </td>
                                                 @endfor
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                                                    <button class="text-blue-600 hover:text-blue-900" onclick="loadInternWeekSummary('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}')">
-                                                        View All Weeks
+                                                    <button class="text-blue-600 hover:text-blue-900 transform transition duration-200 hover:scale-110" onclick="loadInternWeekSummary('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}')">
+                                                        <i class="fas fa-eye"></i>
                                                     </button>
                                                 </td>
                                             </tr>
@@ -184,12 +291,17 @@
                         <!-- Week Selection Cards -->
                         <div id="week-cards" class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-6">
                             @for($week = 1; $week <= $weekCount; $week++)
-                                <div class="bg-white shadow rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+                                <div class="bg-gradient-to-r from-white to-gray-50 shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-all cursor-pointer overflow-hidden transform hover:-translate-y-1 duration-300"
                                     onclick="console.log('Week card clicked: {{ $week }}', '{{ $selectedPeriodeId }}'); loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }});">
                                     <div class="p-4">
-                                        <h3 class="text-lg font-medium text-gray-900">Week {{ $week }}</h3>
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h3 class="text-lg font-medium text-gray-900">Week {{ $week }}</h3>
+                                            <div class="bg-indigo-100 p-2 rounded-full">
+                                                <i class="fas fa-calendar-week text-indigo-600"></i>
+                                            </div>
+                                        </div>
                                         <p class="mt-2 text-sm text-gray-600">
-                                                                                            @php
+                                            @php
                                                 // Count interns with evaluations for this week
                                                 $evaluatedCount = 0;
                                                 $partialCount = 0;
@@ -221,66 +333,89 @@
 
                                                 $pendingCount = $totalCount - $evaluatedCount - $partialCount;
                                             @endphp
-                                            <span class="font-medium text-green-700">{{ $evaluatedCount }}</span> fully evaluated
+                                            <span class="inline-flex items-center text-xs">
+                                                <i class="fas fa-check-circle text-green-600 mr-1"></i>
+                                                <span class="font-medium text-green-700">{{ $evaluatedCount }}</span> completed
+                                            </span>
                                             @if($partialCount > 0)
-                                                · <span class="font-medium text-yellow-700">{{ $partialCount }}</span> partially evaluated
+                                                <span class="inline-flex items-center text-xs ml-2">
+                                                    <i class="fas fa-clock text-yellow-600 mr-1"></i>
+                                                    <span class="font-medium text-yellow-700">{{ $partialCount }}</span> partial
+                                                </span>
                                             @endif
                                             @if($pendingCount > 0)
-                                                · <span class="font-medium text-red-700">{{ $pendingCount }}</span> not evaluated
+                                                <span class="inline-flex items-center text-xs ml-2">
+                                                    <i class="fas fa-times-circle text-red-600 mr-1"></i>
+                                                    <span class="font-medium text-red-700">{{ $pendingCount }}</span> pending
+                                                </span>
                                             @endif
                                         </p>
                                     </div>
-                                    <div class="bg-gray-50 px-4 py-2 border-t">
-                                        <span class="text-xs text-indigo-600 font-medium">Click to view details</span>
+                                    <div class="bg-indigo-50 px-4 py-2 border-t border-indigo-100">
+                                        <span class="text-xs text-indigo-600 font-medium flex items-center">
+                                            <i class="fas fa-mouse-pointer mr-1"></i> Click to view details
+                                        </span>
                                     </div>
                                 </div>
                             @endfor
                         </div>
                     @else
-                        <div class="bg-yellow-50 border border-yellow-100 rounded-lg p-4 mb-6">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-yellow-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-yellow-700">
-                                        No weeks defined for this period. Please select a different period or update the week duration in period settings.
-                                    </p>
-                                </div>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    No weeks defined for this period. Please select a different period or update the week duration in period settings.
+                                </p>
                             </div>
                         </div>
                     @endif
 
+                    <!-- Rest of the content remains the same but with enhanced styling -->
                     <!-- Evaluation Data Table (initially hidden, shown when a week is selected) -->
                     <div id="evaluation-table-container" class="hidden">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 id="week-title" class="text-lg font-medium text-gray-900">Week # Evaluations</h3>
-                            <button onclick="showWeekCards()" class="inline-flex items-center px-3 py-1.5 bg-gray-200 border border-gray-300 rounded-md text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition duration-150">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                                </svg>
-                                Back to Weeks
+                            <h3 id="week-title" class="text-lg font-medium text-gray-900 flex items-center">
+                                <i class="fas fa-calendar-week text-indigo-600 mr-2"></i> Week # Evaluations
+                            </h3>
+                            <button onclick="showWeekCards()" class="inline-flex items-center px-3 py-1.5 bg-gray-200 border border-gray-300 rounded-md text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition duration-150 transform hover:scale-105">
+                                <i class="fas fa-arrow-left mr-1"></i> Back to Weeks
                             </button>
                         </div>
 
-                        <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
                             <div class="overflow-x-auto">
                                 <table id="interns-table" class="min-w-full divide-y divide-gray-200">
                                     <thead>
                                         <tr>
-                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intern Name</th>
-                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job</th>
-                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SMART Score</th>
-                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user text-gray-400 mr-2"></i> Intern Name
+                                                </span>
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-briefcase text-gray-400 mr-2"></i> Job
+                                                </span>
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-star text-gray-400 mr-2"></i> SMART Score
+                                                </span>
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-cog text-gray-400 mr-2"></i> Actions
+                                                </span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody id="interns-tbody" class="bg-white divide-y divide-gray-200">
                                         <!-- Intern data will be loaded here via AJAX -->
                                         <tr>
                                             <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                                                Select a week to view evaluations
+                                                <i class="fas fa-spinner fa-spin mr-2"></i> Select a week to view evaluations
                                             </td>
                                         </tr>
                                     </tbody>
@@ -288,10 +423,11 @@
                             </div>
                         </div>
 
-                        <div id="no-interns" class="hidden bg-white shadow rounded-lg text-center py-8 mt-4">
-                            <p class="text-gray-500">No interns evaluated for this week yet.</p>
-                            <a href="{{ route('evaluasi.create') }}?periode_id={{ $selectedPeriodeId }}&week=" id="create-link" class="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                Add Evaluation for Week #
+                        <div id="no-interns" class="hidden bg-white shadow-sm rounded-lg text-center py-8 mt-4 border border-gray-200">
+                            <i class="fas fa-user-slash text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-500 mb-4">No interns evaluated for this week yet.</p>
+                            <a href="{{ route('evaluasi.create') }}?periode_id={{ $selectedPeriodeId }}&week=" id="create-link" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
+                                <i class="fas fa-plus-circle mr-2"></i> Add Evaluation for Week #
                             </a>
                         </div>
                     </div>
@@ -299,34 +435,51 @@
                     <!-- Criteria Evaluations for Selected Intern (hidden by default) -->
                     <div id="criteria-container" class="hidden mt-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 id="intern-title" class="text-lg font-medium text-gray-900">Evaluations for [Intern Name]</h3>
-                            <button onclick="showInternsTable()" class="inline-flex items-center px-3 py-1.5 bg-gray-200 border border-gray-300 rounded-md text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 transition duration-150">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                                </svg>
-                                Back to Interns List
+                            <h3 id="intern-title" class="text-lg font-medium text-gray-900 flex items-center">
+                                <i class="fas fa-user-graduate text-indigo-600 mr-2"></i> Evaluations for [Intern Name]
+                            </h3>
+                            <button onclick="showInternsTable()" class="inline-flex items-center px-3 py-1.5 bg-gray-200 border border-gray-300 rounded-md text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 transition duration-150 transform hover:scale-105">
+                                <i class="fas fa-arrow-left mr-1"></i> Back to Interns List
                             </button>
                         </div>
 
-                        <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
                             <div class="overflow-x-auto">
                                 <table id="criteria-table" class="min-w-full divide-y divide-gray-200">
                                     <thead>
                                         <tr>
-                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criteria</th>
-                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                                            <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-tasks text-gray-400 mr-2"></i> Criteria
+                                                </span>
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-star text-gray-400 mr-2"></i> Rating
+                                                </span>
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-chart-line text-gray-400 mr-2"></i> Score
+                                                </span>
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-cog text-gray-400 mr-2"></i> Actions
+                                                </span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody id="criteria-tbody" class="bg-white divide-y divide-gray-200">
                                         <!-- Criteria evaluations will be loaded here -->
                                     </tbody>
                                     <tfoot>
-                                        <tr class="bg-gray-50">
-                                            <td class="px-6 py-4 font-medium">Total Score</td>
+                                        <tr class="bg-gradient-to-r from-indigo-50 to-blue-50">
+                                            <td class="px-6 py-4 font-medium flex items-center">
+                                                <i class="fas fa-calculator text-indigo-600 mr-2"></i> Total Score
+                                            </td>
                                             <td></td>
-                                            <td id="total-score" class="px-6 py-4 font-medium">0.00</td>
+                                            <td id="total-score" class="px-6 py-4 font-medium text-indigo-700 text-lg">0.00</td>
                                             <td></td>
                                         </tr>
                                     </tfoot>
@@ -335,30 +488,32 @@
                         </div>
 
                         <!-- SMART Analysis (if Cook or Pastry Chef) -->
-                        <div id="smart-analysis" class="hidden mt-4 bg-white shadow rounded-lg overflow-hidden">
-                            <div class="bg-indigo-50 px-6 py-4 border-b">
-                                <h3 class="font-semibold text-indigo-900">SMART Analysis</h3>
+                        <div id="smart-analysis" class="hidden mt-4 bg-gradient-to-r from-indigo-50 to-purple-50 shadow-sm rounded-lg overflow-hidden border border-indigo-100">
+                            <div class="bg-gradient-to-r from-indigo-100 to-purple-100 px-6 py-4 border-b border-indigo-200">
+                                <h3 class="font-semibold text-indigo-900 flex items-center">
+                                    <i class="fas fa-brain text-indigo-700 mr-2"></i> SMART Analysis
+                                </h3>
                                 <p class="text-xs text-indigo-700">This analysis is only available for Cook and Pastry Chef positions</p>
                             </div>
-                            <div class="p-6">
+                            <div class="p-6 bg-white">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                    <div>
-                                        <h4 class="text-md font-medium mb-2">Normalized Scores (0-1 scale)</h4>
-                                        <div id="normalized-scores" class="bg-gray-50 p-4 rounded">
+                                    <div class="transform transition duration-200 hover:-translate-y-1">
+                                        <h4 class="text-md font-medium mb-2 flex items-center">
+                                            <i class="fas fa-balance-scale text-indigo-600 mr-2"></i> Normalized Scores (0-1 scale)
+                                        </h4>
+                                        <div id="normalized-scores" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                             <!-- Will be populated via JS -->
                                         </div>
                                     </div>
-                                    <div>
-                                        <h4 class="text-md font-medium mb-2">Weighted Contribution</h4>
-                                        <div id="weighted-scores" class="bg-gray-50 p-4 rounded">
+                                    <div class="transform transition duration-200 hover:-translate-y-1">
+                                        <h4 class="text-md font-medium mb-2 flex items-center">
+                                            <i class="fas fa-percentage text-purple-600 mr-2"></i> Weighted Contribution
+                                        </h4>
+                                        <div id="weighted-scores" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                             <!-- Will be populated via JS -->
                                         </div>
                                     </div>
                                 </div>
-
-
-
-
                             </div>
                         </div>
                     </div>
@@ -367,7 +522,7 @@
         </div>
     </div>
 
-    <!-- JavaScript for handling the evaluations display -->
+    <!-- JavaScript remains the same -->
     <script>
         let currentWeek = 0;
         let currentPeriod = '';
