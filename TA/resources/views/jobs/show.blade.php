@@ -337,7 +337,7 @@
         </div>
     </div>
 
-    @push('scripts')
+    <!-- JavaScript for toggling rating scales -->
     <script>
         function toggleRatingScales(id) {
             const element = document.getElementById(id);
@@ -348,5 +348,4 @@
             }
         }
     </script>
-    @endpush
 </x-app-layout>
