@@ -61,6 +61,11 @@ class MagangController extends Controller
             });
         }
 
+        // Filter by selected statuses if status filter is applied
+        if ($request->filled('statuses') && is_array($request->statuses)) {
+            $query->whereIn('status_seleksi', $request->statuses);
+        }
+
         // Handle sorting
         $sortBy = $request->input('sort_by', 'total_skor');
         $sortDir = $request->input('sort_dir', 'desc');
@@ -97,7 +102,8 @@ class MagangController extends Controller
             $query->orderBy('total_skor', 'desc');
         }
 
-        $magang = $query->get();
+        // Use pagination instead of get()
+        $magang = $query->paginate(10)->withQueryString();
 
         // Get all available periods
         $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();
