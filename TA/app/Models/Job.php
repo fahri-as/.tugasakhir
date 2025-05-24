@@ -49,4 +49,24 @@ class Job extends Model
     {
         return $this->hasMany(Criteria::class, 'job_id', 'job_id');
     }
+
+    /**
+     * Get all interview criteria for this job
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function interviewCriteria(): HasMany
+    {
+        return $this->hasMany(InterviewCriteria::class, 'job_id', 'job_id');
+    }
+
+    /**
+     * Get all skill test criteria for this job
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tesKemampuanCriteria(): HasMany
+    {
+        return $this->hasMany(TesKemampuanCriteria::class, 'job_id', 'job_id');
+    }
 }

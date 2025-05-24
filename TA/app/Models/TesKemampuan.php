@@ -19,13 +19,14 @@ class TesKemampuan extends Model
         'catatan',
         'jadwal',
         'skor',
-        'status_seleksi', // Added status_seleksi field
+        'status_seleksi',
+        'criteria_id'
     ];
 
     protected $casts = [
         'skor' => 'integer',
         'jadwal' => 'datetime',
-        'status_seleksi' => 'string', // Added status_seleksi cast
+        'status_seleksi' => 'string',
     ];
 
     public function pelamar(): BelongsTo
@@ -36,5 +37,49 @@ class TesKemampuan extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+
+    public function criteria(): BelongsTo
+    {
+        return $this->belongsTo(TesKemampuanCriteria::class, 'criteria_id', 'criteria_id');
+    }
+
+    /**
+     * Get the rating scale for the current score
+     *
+     * @return TesKemampuanRatingScale|null The rating scale that matches the score
+     */
+    public function getRatingScale()
+    {
+        if (!$this->criteria_id || !$this->skor) {
+            return null;
+        }
+
+        return TesKemampuanRatingScale::where('criteria_id', $this->criteria_id)
+            ->where('min_score', '<=', $this->skor)
+            ->where('max_score', '>=', $this->skor)
+            ->first();
+    }
+
+    /**
+     * Get the rating level based on the current score
+     *
+     * @return int|null The rating level (1-5)
+     */
+    public function getRatingLevel()
+    {
+        $ratingScale = $this->getRatingScale();
+        return $ratingScale ? $ratingScale->rating_level : null;
+    }
+
+    /**
+     * Get the rating description for the current score
+     *
+     * @return string|null The rating description
+     */
+    public function getRatingDescription()
+    {
+        $ratingScale = $this->getRatingScale();
+        return $ratingScale ? $ratingScale->description : null;
     }
 }

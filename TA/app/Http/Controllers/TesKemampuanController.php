@@ -9,6 +9,8 @@ use App\Models\Magang;
 use App\Models\Interview;
 use App\Models\Periode;
 use App\Models\Job;
+use App\Models\TesKemampuanCriteria;
+use App\Models\TesKemampuanRatingScale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
@@ -22,7 +24,7 @@ class TesKemampuanController extends Controller
     public function index(Request $request)
     {
         // Start with base query
-        $query = TesKemampuan::with(['pelamar', 'pelamar.job', 'pelamar.periode', 'user']);
+        $query = TesKemampuan::with(['pelamar', 'pelamar.job', 'pelamar.periode', 'user', 'criteria']);
 
         // Check if we need to filter by period
         if ($request->filled('periode_id')) {
@@ -87,6 +89,13 @@ class TesKemampuanController extends Controller
         }
 
         $tesKemampuan = $query->get();
+
+        // Get rating levels and descriptions for each test
+        foreach ($tesKemampuan as $tes) {
+            $tes->rating_level = $tes->getRatingLevel();
+            $tes->rating_description = $tes->getRatingDescription();
+        }
+
         return view('tes-kemampuan.index', compact('tesKemampuan'));
     }
 
@@ -100,7 +109,19 @@ class TesKemampuanController extends Controller
         })->get();
 
         $users = User::all();
-        return view('tes-kemampuan.create', compact('pelamar', 'users'));
+
+        // Load all available job criteria
+        $jobCriteria = [];
+        $jobs = Job::all();
+
+        foreach ($jobs as $job) {
+            $criteria = TesKemampuanCriteria::where('job_id', $job->job_id)->get();
+            if ($criteria->count() > 0) {
+                $jobCriteria[$job->job_id] = $criteria;
+            }
+        }
+
+        return view('tes-kemampuan.create', compact('pelamar', 'users', 'jobCriteria'));
     }
 
     public function store(Request $request)
@@ -112,7 +133,8 @@ class TesKemampuanController extends Controller
             'catatan' => 'nullable',
             'jadwal_tanggal' => 'required|date',
             'jadwal_waktu' => 'required',
-            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang'
+            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang',
+            'criteria_id' => 'nullable|exists:tes_kemampuan_criteria,criteria_id'
         ]);
 
         // Combine date and time into a single datetime field
@@ -143,6 +165,22 @@ class TesKemampuanController extends Controller
             }
         }
 
+        // Get the pelamar's job and find appropriate criteria if not provided
+        $pelamar = Pelamar::with('job')->findOrFail($request->pelamar_id);
+
+        // If no criteria ID is provided, try to find the default one for this job
+        $criteriaId = $request->criteria_id;
+
+        if (!$criteriaId && $pelamar->job_id) {
+            $defaultCriteria = TesKemampuanCriteria::where('job_id', $pelamar->job_id)
+                ->where('name', 'Kemampuan Teknis')
+                ->first();
+
+            if ($defaultCriteria) {
+                $criteriaId = $defaultCriteria->criteria_id;
+            }
+        }
+
         $tesKemampuan = new TesKemampuan();
         $tesKemampuan->tes_id = $tesId;
         $tesKemampuan->pelamar_id = $request->pelamar_id;
@@ -151,45 +189,9 @@ class TesKemampuanController extends Controller
         $tesKemampuan->catatan = $request->catatan;
         $tesKemampuan->jadwal = $jadwalDateTime;
         $tesKemampuan->status_seleksi = $request->status_seleksi;
+        $tesKemampuan->criteria_id = $criteriaId;
         $tesKemampuan->save();
 
-        // If status is Magang, create/update Magang record
-        if ($request->status_seleksi == 'Magang') {
-            // Check if magang record already exists
-            $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
-
-            if (!$magang) {
-                // Generate a unique ID for the new magang record
-                try {
-                    // Find the highest ID numerically by extracting the number part
-                    $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
-                        ->orderBy('id_num', 'desc')
-                        ->first();
-
-                    $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
-                    $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
-
-                    // Double-check that this ID doesn't already exist
-                    while (Magang::where('magang_id', $magangId)->exists()) {
-                        $nextMagangId++;
-                        $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
-                    }
-                } catch (\Exception $e) {
-                    // Fallback if there's an issue
-                    $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
-                }
-
-                Magang::create([
-                    'magang_id' => $magangId,
-                    'pelamar_id' => $request->pelamar_id,
-                    'user_id' => $request->user_id,
-                    'status_seleksi' => 'Pending', // Default to Pending in Magang
-                    'jadwal_mulai' => null // Include the new column
-                ]);
-            }
-        }
-
-        // If we need to update the interview status
         if ($request->has('update_interview_status') && $request->update_interview_status === 'yes') {
             // Find and update the interview for this applicant
             $interview = Interview::where('pelamar_id', $request->pelamar_id)->first();
@@ -226,15 +228,47 @@ class TesKemampuanController extends Controller
 
     public function show(TesKemampuan $tesKemampuan)
     {
-        $tesKemampuan->load(['pelamar', 'pelamar.job', 'pelamar.periode', 'user']);
-        return view('tes-kemampuan.show', compact('tesKemampuan'));
+        $tesKemampuan->load(['pelamar', 'pelamar.job', 'pelamar.periode', 'user', 'criteria']);
+
+        // Get rating information
+        $ratingScale = $tesKemampuan->getRatingScale();
+        $ratingLevel = $tesKemampuan->getRatingLevel();
+        $ratingDescription = $tesKemampuan->getRatingDescription();
+
+        return view('tes-kemampuan.show', compact('tesKemampuan', 'ratingScale', 'ratingLevel', 'ratingDescription'));
     }
 
     public function edit(TesKemampuan $tesKemampuan)
     {
         $pelamar = Pelamar::all();
         $users = User::all();
-        return view('tes-kemampuan.edit', compact('tesKemampuan', 'pelamar', 'users'));
+
+        // Load the test with related data
+        $tesKemampuan->load(['pelamar', 'pelamar.job', 'criteria']);
+
+        // Get all criteria for the pelamar's job
+        $jobId = $tesKemampuan->pelamar->job_id;
+        $allCriteria = TesKemampuanCriteria::where('job_id', $jobId)->get();
+
+        // Get all rating scales for the current criteria
+        $ratingScales = [];
+        if ($tesKemampuan->criteria_id) {
+            $ratingScales = TesKemampuanRatingScale::where('criteria_id', $tesKemampuan->criteria_id)
+                ->orderBy('rating_level')
+                ->get();
+        }
+
+        // Get current rating information
+        $currentRatingScale = $tesKemampuan->getRatingScale();
+
+        return view('tes-kemampuan.edit', compact(
+            'tesKemampuan',
+            'pelamar',
+            'users',
+            'allCriteria',
+            'ratingScales',
+            'currentRatingScale'
+        ));
     }
 
     public function update(Request $request, TesKemampuan $tesKemampuan)
@@ -245,7 +279,8 @@ class TesKemampuanController extends Controller
             'skor' => 'required|integer|between:0,100',
             'catatan' => 'nullable',
             'jadwal' => 'required|date',
-            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang'
+            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang',
+            'criteria_id' => 'nullable|exists:tes_kemampuan_criteria,criteria_id'
         ]);
 
         $tesKemampuan->pelamar_id = $request->pelamar_id;
@@ -254,74 +289,73 @@ class TesKemampuanController extends Controller
         $tesKemampuan->catatan = $request->catatan;
         $tesKemampuan->jadwal = $request->jadwal;
         $tesKemampuan->status_seleksi = $request->status_seleksi;
+
+        // Update criteria ID if provided
+        if ($request->filled('criteria_id')) {
+            $tesKemampuan->criteria_id = $request->criteria_id;
+        }
+
         $tesKemampuan->save();
 
         // If status is changed to Magang, create/update Magang record
-        if ($request->status_seleksi == 'Magang') {
-            // Check if magang record already exists
-            $magang = Magang::where('pelamar_id', $request->pelamar_id)->first();
-
-            if (!$magang) {
-                // Generate a unique ID for the new magang record
-                try {
-                    // Find the highest ID numerically by extracting the number part
-                    $maxMagangId = Magang::selectRaw('CAST(SUBSTRING(magang_id, 4) AS UNSIGNED) as id_num')
-                        ->orderBy('id_num', 'desc')
-                        ->first();
-
-                    $nextMagangId = $maxMagangId ? $maxMagangId->id_num + 1 : 1;
-                    $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
-
-                    // Double-check that this ID doesn't already exist
-                    while (Magang::where('magang_id', $magangId)->exists()) {
-                        $nextMagangId++;
-                        $magangId = 'MAG' . str_pad($nextMagangId, 3, '0', STR_PAD_LEFT);
-                    }
-                } catch (\Exception $e) {
-                    // Fallback if there's an issue
-                    $magangId = 'MAG' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
-                }
-
-                Magang::create([
-                    'magang_id' => $magangId,
-                    'pelamar_id' => $request->pelamar_id,
-                    'user_id' => $request->user_id,
-                    'status_seleksi' => 'Pending', // Default to Pending in Magang
-                    'jadwal_mulai' => null // Include the new column
-                ]);
-            }
-        }
-
-        // Send email notification if requested
-        if ($request->has('send_email') && $request->send_email == '1') {
+        if ($request->status_seleksi === 'Magang') {
             $pelamar = Pelamar::findOrFail($request->pelamar_id);
-            $emailSent = true;
-            $emailType = '';
 
-            try {
-                if ($request->status_seleksi == 'Lulus') {
-                    // Create a datetime object from the contract discussion date and time if provided
-                    $kontrakJadwal = null;
-                    if ($request->has('kontrak_tanggal') && $request->has('kontrak_waktu')) {
-                        $kontrakDateTime = $request->kontrak_tanggal . ' ' . $request->kontrak_waktu . ':00';
-                        $kontrakJadwal = \Carbon\Carbon::parse($kontrakDateTime);
+            // Create or update the Magang record
+            $magang = Magang::firstOrNew(['pelamar_id' => $pelamar->pelamar_id]);
 
-                        // Pass the datetime to the template
-                        Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan, $kontrakJadwal));
-                    } else {
-                        Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan));
-                    }
-                    $emailType = 'lulus';
-                } elseif ($request->status_seleksi == 'Tidak Lulus') {
-                    Mail::to($pelamar->email)->send(new SkillTestFailed($pelamar, $tesKemampuan));
-                    $emailType = 'tidak lulus';
+            // Only set these values if it's a new record
+            if (!$magang->exists) {
+                // Generate a unique ID for new magang records
+                $lastMagang = Magang::orderBy('magang_id', 'desc')->first();
+
+                if ($lastMagang) {
+                    // Extract the numeric part and increment
+                    $lastId = intval(substr($lastMagang->magang_id, 3));
+                    $newId = 'MAG' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
+                } else {
+                    // If no existing magang, start with MAG001
+                    $newId = 'MAG001';
                 }
-            } catch (\Exception $e) {
-                Log::error('Failed to send skill test ' . $emailType . ' email: ' . $e->getMessage());
-                $emailSent = false;
+
+                $magang->magang_id = $newId;
+                $magang->user_id = $request->user_id;
+                $magang->status_seleksi = 'Sedang Berjalan';
+
+                // Set default start date to today if not provided
+                if (!$magang->jadwal_mulai) {
+                    $magang->jadwal_mulai = now();
+                }
             }
 
-            // Check if we were redirected from the show page
+            $magang->save();
+
+            // Update pelamar status
+            $pelamar->status_seleksi = 'Sedang Berjalan';
+            $pelamar->save();
+
+            // Determine which email to send based on test status
+            $emailType = null;
+            $emailSent = false;
+
+            if ($tesKemampuan->status_seleksi === 'Lulus' || $tesKemampuan->status_seleksi === 'Magang') {
+                $emailType = 'passed';
+                try {
+                    Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan, $magang));
+                    $emailSent = true;
+                } catch (\Exception $e) {
+                    Log::error('Failed to send test passed email: ' . $e->getMessage());
+                }
+            } elseif ($tesKemampuan->status_seleksi === 'Tidak Lulus') {
+                $emailType = 'failed';
+                try {
+                    Mail::to($pelamar->email)->send(new SkillTestFailed($pelamar, $tesKemampuan));
+                    $emailSent = true;
+                } catch (\Exception $e) {
+                    Log::error('Failed to send test failed email: ' . $e->getMessage());
+                }
+            }
+
             if ($request->has('redirect') && $request->redirect === 'show') {
                 $successMessage = 'Test status updated successfully';
 
