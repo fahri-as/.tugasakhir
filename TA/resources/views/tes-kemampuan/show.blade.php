@@ -612,7 +612,6 @@
                         contractModal.classList.add('hidden');
                     });
                 }
-
                 // Close modal if clicked outside
                 window.addEventListener('click', function(event) {
                     if (event.target === contractModal) {

@@ -154,7 +154,6 @@
             const formattedDate = today.toISOString().split('T')[0];
             document.getElementById('jadwal_tanggal').setAttribute('min', formattedDate);
             document.getElementById('jadwal_tanggal').value = formattedDate;
-
             // Set default time to current time + 1 hour
             const hour = today.getHours() + 1;
             const formattedHour = hour.toString().padStart(2, '0');
