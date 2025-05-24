@@ -15,6 +15,8 @@ use App\Http\Controllers\CriteriaController;
 use App\Http\Controllers\CriteriaRatingScaleController;
 use App\Http\Controllers\CriteriaComparisonController;
 use App\Http\Controllers\ApplicantProgressController;
+use App\Http\Controllers\InterviewRatingScaleController;
+use App\Http\Controllers\TesKemampuanRatingScaleController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Periode;
 use Illuminate\Http\Request;
@@ -114,6 +116,26 @@ Route::middleware('auth')->group(function () {
     Route::put('/criteria-rating-scales/{ratingScale}', [CriteriaRatingScaleController::class, 'update'])->name('criteria-rating-scales.update');
     Route::delete('/criteria-rating-scales/{ratingScale}', [CriteriaRatingScaleController::class, 'destroy'])->name('criteria-rating-scales.destroy');
     Route::get('/criteria/{criteriaId}/rating-scales', [CriteriaRatingScaleController::class, 'getByCriteria'])->name('criteria.rating-scales');
+
+    // Interview Rating Scale Routes
+    Route::get('/interview-rating-scales', [InterviewRatingScaleController::class, 'index'])->name('interview-rating-scales.index');
+    Route::get('/interview-rating-scales/create', [InterviewRatingScaleController::class, 'create'])->name('interview-rating-scales.create');
+    Route::post('/interview-rating-scales', [InterviewRatingScaleController::class, 'store'])->name('interview-rating-scales.store');
+    Route::get('/interview-rating-scales/{ratingScale}', [InterviewRatingScaleController::class, 'show'])->name('interview-rating-scales.show');
+    Route::get('/interview-rating-scales/{ratingScale}/edit', [InterviewRatingScaleController::class, 'edit'])->name('interview-rating-scales.edit');
+    Route::put('/interview-rating-scales/{ratingScale}', [InterviewRatingScaleController::class, 'update'])->name('interview-rating-scales.update');
+    Route::delete('/interview-rating-scales/{ratingScale}', [InterviewRatingScaleController::class, 'destroy'])->name('interview-rating-scales.destroy');
+    Route::get('/interview-criteria/{criteriaId}/rating-scales', [InterviewRatingScaleController::class, 'getByCriteria'])->name('interview-criteria.rating-scales');
+
+    // Tes Kemampuan Rating Scale Routes
+    Route::get('/tes-kemampuan-rating-scales', [TesKemampuanRatingScaleController::class, 'index'])->name('tes-kemampuan-rating-scales.index');
+    Route::get('/tes-kemampuan-rating-scales/create', [TesKemampuanRatingScaleController::class, 'create'])->name('tes-kemampuan-rating-scales.create');
+    Route::post('/tes-kemampuan-rating-scales', [TesKemampuanRatingScaleController::class, 'store'])->name('tes-kemampuan-rating-scales.store');
+    Route::get('/tes-kemampuan-rating-scales/{ratingScale}', [TesKemampuanRatingScaleController::class, 'show'])->name('tes-kemampuan-rating-scales.show');
+    Route::get('/tes-kemampuan-rating-scales/{ratingScale}/edit', [TesKemampuanRatingScaleController::class, 'edit'])->name('tes-kemampuan-rating-scales.edit');
+    Route::put('/tes-kemampuan-rating-scales/{ratingScale}', [TesKemampuanRatingScaleController::class, 'update'])->name('tes-kemampuan-rating-scales.update');
+    Route::delete('/tes-kemampuan-rating-scales/{ratingScale}', [TesKemampuanRatingScaleController::class, 'destroy'])->name('tes-kemampuan-rating-scales.destroy');
+    Route::get('/tes-kemampuan-criteria/{criteriaId}/rating-scales', [TesKemampuanRatingScaleController::class, 'getByCriteria'])->name('tes-kemampuan-criteria.rating-scales');
 
     // Criteria Comparison Routes
     Route::get('/criteria-comparisons', [CriteriaComparisonController::class, 'index'])->name('criteria-comparisons.index');
