@@ -193,6 +193,10 @@ class TesKemampuanController extends Controller
         $tesKemampuan->criteria_id = $criteriaId;
         $tesKemampuan->save();
 
+        // Update the pelamar status to "Tes Kemampuan"
+        $pelamar->status_seleksi = 'Tes Kemampuan';
+        $pelamar->save();
+
         if ($request->has('update_interview_status') && $request->update_interview_status === 'yes') {
             // Find and update the interview for this applicant
             $interview = Interview::where('pelamar_id', $request->pelamar_id)->first();

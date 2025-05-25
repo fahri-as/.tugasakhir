@@ -262,7 +262,7 @@ class MagangController extends Controller
 
             // Update the applicant status
             $pelamar = Pelamar::findOrFail($request->pelamar_id);
-            $pelamar->status_seleksi = 'Sedang Berjalan';
+            $pelamar->status_seleksi = 'Magang';
             $pelamar->save();
 
             // Update test status
@@ -707,8 +707,8 @@ class MagangController extends Controller
             // Reset pelamar status
             $pelamar = Pelamar::find($pelamarId);
             if ($pelamar) {
-                if ($pelamar->status_seleksi === 'Sedang Berjalan') {
-                    $pelamar->status_seleksi = 'Pending';
+                if ($pelamar->status_seleksi === 'Magang') {
+                    $pelamar->status_seleksi = 'Tes Kemampuan';
                     $pelamar->save();
                     Log::info("Reset pelamar status for ID: {$pelamarId}");
                 }
