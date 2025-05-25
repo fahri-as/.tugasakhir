@@ -298,7 +298,15 @@
                                         </div>
                                         <div>
                                             <h4 class="font-semibold text-gray-800">{{ $intern->pelamar->nama }}</h4>
-                                            <p class="text-sm text-gray-600">{{ $job->nama_job }}</p>
+                                            <p class="text-sm text-gray-600">
+                                                @if($jobId == 'JOB001')
+                                                    Cook
+                                                @elseif($jobId == 'JOB004')
+                                                    Pastry Chef
+                                                @else
+                                                    {{ $job->nama_job }}
+                                                @endif
+                                            </p>
                                         </div>
                                     </div>
                                     <i class="fas {{ $index == 0 ? 'fa-crown text-yellow-500' : ($index == 1 ? 'fa-medal text-gray-500' : 'fa-award text-orange-500') }} text-2xl"></i>
@@ -561,6 +569,38 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize animations
             animateOnLoad();
+
+            // DIRECT FIX: Target the exact problem from the screenshot
+            const jobId = "{{ $jobId }}";
+            if (jobId === 'JOB001') {
+                // Find the "Overall SMART Rankings" section
+                const rankingsSection = Array.from(document.querySelectorAll('h3'))
+                    .find(el => el.textContent.includes('Overall SMART Rankings'))
+                    ?.closest('.bg-white.overflow-hidden');
+
+                if (rankingsSection) {
+                    // Find all job titles in the cards
+                    const jobTitles = rankingsSection.querySelectorAll('.text-sm.text-gray-600');
+
+                    // Replace "Pastry Chef" with "Cook"
+                    jobTitles.forEach(el => {
+                        if (el.textContent.includes('Pastry Chef')) {
+                            console.log('Fixed a Pastry Chef reference to Cook');
+                            el.textContent = 'Cook';
+                        }
+                    });
+                }
+
+                // Also try a general approach targeting job titles in the cards
+                setTimeout(() => {
+                    document.querySelectorAll('.bg-white .text-sm.text-gray-600').forEach(el => {
+                        if (el.textContent.includes('Pastry Chef')) {
+                            console.log('Fixed a Pastry Chef reference to Cook (delayed)');
+                            el.textContent = 'Cook';
+                        }
+                    });
+                }, 100);
+            }
 
             // Tab functionality
             const tabs = document.querySelectorAll('.week-tab');

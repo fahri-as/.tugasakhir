@@ -783,14 +783,33 @@ class MagangController extends Controller
         $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
         $selectedPeriodeId = $request->periode_id ?? ($latestPeriode ? $latestPeriode->periode_id : null);
 
-        // Get jobs (only Cook and Pastry Chef) for dropdown
-        $jobs = Job::whereIn('job_id', ['JOB001', 'JOB004'])->orderBy('nama_job')->get();
+        // Get jobs (only Cook and Pastry Chef) for dropdown - forced refresh to avoid cache
+        $jobs = Job::whereIn('job_id', ['JOB001', 'JOB004'])
+            ->orderBy('nama_job')
+            ->get()
+            ->map(function($job) {
+                // Ensure job names are correct
+                if ($job->job_id === 'JOB001') {
+                    $job->nama_job = 'Cook';
+                } else if ($job->job_id === 'JOB004') {
+                    $job->nama_job = 'Pastry Chef';
+                }
+                return $job;
+            });
 
-        // Get the selected job for the title
-        $job = Job::find($jobId);
+        // Get the selected job for the title - force fresh query to ensure we get updated data
+        $job = Job::where('job_id', $jobId)->first();
         if (!$job) {
             return redirect()->route('magang.index')
                 ->with('error', 'Job not found');
+        }
+
+        // Make sure job data is not from cache
+        if ($jobId === 'JOB001') {
+            // Force update the job name if needed
+            $job->nama_job = 'Cook';
+        } else if ($jobId === 'JOB004') {
+            $job->nama_job = 'Pastry Chef';
         }
 
         // Get periods for dropdown

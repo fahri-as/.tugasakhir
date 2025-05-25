@@ -517,15 +517,13 @@ class SMARTCalculationService
      * Get weekly total scores for an intern from the database
      *
      * @param string $magangId
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
     public function getWeeklyTotalScores($magangId)
     {
         $weeklyScores = TotalSkorMingguMagang::where('magang_id', $magangId)
             ->orderBy('minggu_ke')
-            ->get()
-            ->pluck('total_skor', 'minggu_ke')
-            ->toArray();
+            ->get();
 
         return $weeklyScores;
     }
