@@ -890,7 +890,7 @@
             } else {
                 // Build accordion for each week
                 weeks.forEach(week => {
-                                        const weekEvals = evaluationsByWeek[week];
+                    const weekEvals = evaluationsByWeek[week];
                     const totalScore = weekEvals[0].total_score || 0;
                     const hasScore = parseFloat(totalScore) > 0;
 
@@ -925,10 +925,28 @@
 
                     // Add rows for each criteria
                     weekEvals.forEach(eval => {
-                        const criteriaName = eval.criteria ? eval.criteria.nama_criteria : 'Unknown Criteria';
-                        const ratingName = eval.criteriaRatingScale ? eval.criteriaRatingScale.rating_name : 'Not rated';
-                        const ratingLevel = eval.criteriaRatingScale ? eval.criteriaRatingScale.rating_level : 0;
-                        const contributes = ratingLevel > 0;
+                        // Fix: Updated property access to match the structure used elsewhere in the code
+                        // Use the same structure as in showInternEvaluations function
+                        let criteriaName = 'Unknown Criteria';
+                        if (eval.criteria) {
+                            criteriaName = eval.criteria.name || eval.criteria.nama_criteria || eval.criteria.code || 'Unknown Criteria';
+                            // Add code if available
+                            if (eval.criteria.code) {
+                                criteriaName += ` (${eval.criteria.code})`;
+                            }
+                        }
+
+                        // Fix: Updated rating property access to match the structure used in the API response
+                        let ratingName = 'Not rated';
+                        let ratingLevel = 0;
+                        let contributes = false;
+
+                        if (eval.criteria_rating_scale) {
+                            ratingName = eval.criteria_rating_scale.rating_name || eval.criteria_rating_scale.name || 'Not rated';
+                            ratingLevel = eval.criteria_rating_scale.rating_level || 0;
+                            contributes = ratingLevel > 0;
+                        }
+
                         const editUrl = '{{ url("evaluasi") }}/' + eval.evaluasi_id + '/edit';
 
                         weeksHtml += `
