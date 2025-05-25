@@ -339,21 +339,34 @@
             <!-- Action Buttons -->
             <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
                 <div class="flex flex-wrap gap-4 justify-center">
-                    <form action="{{ route('magang.updateStatus', $magang) }}" method="POST" class="inline">
-                        @csrf
-                        @method('PATCH')
-                        @if($magang->status_seleksi === 'Sedang Berjalan')
-                            <input type="hidden" name="status_seleksi" value="Lulus">
-                            <button type="submit" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
-                                <i class="fas fa-check-circle mr-2"></i> Mark as Completed
-                            </button>
-                        @elseif($magang->status_seleksi === 'Pending')
+                    @if($magang->status_seleksi === 'Sedang Berjalan')
+                        <a href="{{ route('magang.pass', $magang) }}"
+                           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md"
+                           onclick="return confirm('Are you sure you want to mark this intern as passed? This will send an email notification.')">
+                            <i class="fas fa-check-circle mr-2"></i> Mark as Passed
+                        </a>
+
+                        <a href="{{ route('magang.fail', $magang) }}"
+                           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-red-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md"
+                           onclick="return confirm('Are you sure you want to mark this intern as failed? This will send an email notification.')">
+                            <i class="fas fa-times-circle mr-2"></i> Mark as Failed
+                        </a>
+                    @elseif($magang->status_seleksi === 'Pending')
+                        <form action="{{ route('magang.updateStatus', $magang) }}" method="POST" class="inline">
+                            @csrf
+                            @method('PATCH')
                             <input type="hidden" name="status_seleksi" value="Sedang Berjalan">
                             <button type="submit" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
                                 <i class="fas fa-play-circle mr-2"></i> Start Internship
                             </button>
-                        @endif
-                    </form>
+                        </form>
+                    @elseif($magang->status_seleksi === 'Lulus' || $magang->status_seleksi === 'Tidak Lulus')
+                        <a href="{{ route('magang.resetToPending', $magang) }}"
+                           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-amber-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-yellow-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md"
+                           onclick="return confirm('Are you sure you want to reset this internship to pending status?')">
+                            <i class="fas fa-redo-alt mr-2"></i> Reset to Sedang Berjalan
+                        </a>
+                    @endif
 
                     <form action="{{ route('magang.destroy', $magang) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this internship record? This will also delete all associated evaluations.');">
                         @csrf

@@ -950,7 +950,7 @@ class MagangController extends Controller
 
             // Update pelamar status
             $pelamar = $magang->pelamar;
-            $pelamar->status_seleksi = 'Lulus';
+            $pelamar->status_seleksi = 'Selesai';
             $pelamar->save();
 
             // Send email notification
@@ -995,7 +995,7 @@ class MagangController extends Controller
 
             // Update pelamar status
             $pelamar = $magang->pelamar;
-            $pelamar->status_seleksi = 'Tidak Lulus';
+            $pelamar->status_seleksi = 'Selesai';
             $pelamar->save();
 
             // Send email notification
@@ -1035,12 +1035,12 @@ class MagangController extends Controller
     {
         try {
             // Update the internship status
-            $magang->status_seleksi = 'Pending';
+            $magang->status_seleksi = 'Sedang Berjalan';
             $magang->save();
 
             // Update pelamar status
             $pelamar = $magang->pelamar;
-            $pelamar->status_seleksi = 'Pending';
+            $pelamar->status_seleksi = 'Magang';
             $pelamar->save();
 
             $successMessage = 'Internship status has been reset to Pending';
