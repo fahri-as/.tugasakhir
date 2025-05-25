@@ -120,9 +120,11 @@ Route::middleware(['auth', CheckRole::class.':admin'])->group(function () {
     Route::resource('magang', MagangController::class)->except(['index', 'show']);
     Route::patch('magang/{magang}/status', [MagangController::class, 'updateStatus'])
         ->name('magang.updateStatus');
-    // Add the new route for scheduling internship start and creating evaluations
+    Route::get('/magang/{magang}/pass', [MagangController::class, 'markAsPassed'])->name('magang.pass');
+    Route::get('/magang/{magang}/fail', [MagangController::class, 'markAsFailed'])->name('magang.fail');
+    Route::get('/magang/{magang}/pending', [MagangController::class, 'resetToPending'])->name('magang.resetToPending');
     Route::post('magang/schedule-start/{tesKemampuan}', [MagangController::class, 'scheduleStart'])
-        ->name('magang.schedule-start');
+        ->name('magang.scheduleStart');
 
     // Criteria routes
     Route::resource('criteria', CriteriaController::class);

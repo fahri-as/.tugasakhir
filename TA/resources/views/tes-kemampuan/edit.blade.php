@@ -130,6 +130,24 @@
                                     @enderror
                                 </div>
 
+                                <!-- Debug Information -->
+                                {{-- <div class="bg-blue-50 p-2 my-2 rounded text-xs border border-blue-200">
+                                    <strong class="font-medium">Debug Info:</strong>
+                                    <p>Rating Scales Count: {{ count($ratingScales) }}</p>
+                                    <p>Current Rating Scale: {{ $currentRatingScale ? $currentRatingScale->id : 'None' }}</p>
+                                    <p>Criteria ID: {{ $tesKemampuan->criteria_id }}</p>
+                                    <details class="mt-1">
+                                        <summary class="cursor-pointer text-blue-600 hover:text-blue-800">Show Rating Scales</summary>
+                                        <ul class="mt-1 pl-4">
+                                            @forelse ($ratingScales as $scale)
+                                                <li>ID: {{ $scale->id }} - {{ $scale->name }} (Level {{ $scale->rating_level }}) - {{ $scale->min_score }}-{{ $scale->max_score }}</li>
+                                            @empty
+                                                <li class="text-red-600">No rating scales available</li>
+                                            @endforelse
+                                        </ul>
+                                    </details>
+                                </div> --}}
+
                                 <div class="transform transition duration-200 hover:-translate-y-1">
                                     <label for="specific_score" class="block text-sm font-medium text-gray-700 mb-1">Specific Score</label>
                                     <div class="relative">
@@ -259,19 +277,32 @@
             const scoreBar = document.getElementById('score-bar');
             const scoreRangeInfo = document.getElementById('score-range-info');
 
+            console.log('Initial pelamar ID:', pelamarSelect.value);
+            console.log('Initial rating scales count:', ratingScaleSelect.options.length);
+
             // Function to load rating scales based on the selected pelamar's job
             pelamarSelect.addEventListener('change', function() {
                 const pelamarId = this.value;
+                console.log('Pelamar changed to:', pelamarId);
 
                 // Send an AJAX request to get criteria and rating scales for this pelamar's job
-                fetch(`/tes-kemampuan/get-rating-scales-for-pelamar/${pelamarId}`)
-                    .then(response => response.json())
+                const apiUrl = `/tes-kemampuan/get-rating-scales-for-pelamar/${pelamarId}`;
+                console.log('Fetching rating scales from:', apiUrl);
+
+                fetch(apiUrl)
+                    .then(response => {
+                        console.log('API response status:', response.status);
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('API response data:', data);
+
                         // Clear current options
                         ratingScaleSelect.innerHTML = '<option value="">-- Select Rating Scale --</option>';
 
                         // Add new options
                         if (data.ratingScales && data.ratingScales.length > 0) {
+                            console.log('Adding', data.ratingScales.length, 'rating scales');
                             data.ratingScales.forEach(scale => {
                                 const option = document.createElement('option');
                                 option.value = scale.id;
@@ -282,14 +313,23 @@
                                 option.dataset.name = scale.name;
                                 ratingScaleSelect.appendChild(option);
                             });
+                            console.log('Rating scales updated, now has', ratingScaleSelect.options.length, 'options');
+                        } else {
+                            console.warn('No rating scales received from API');
                         }
                     })
-                    .catch(error => console.error('Error fetching rating scales for pelamar:', error));
+                    .catch(error => {
+                        console.error('Error fetching rating scales for pelamar:', error);
+                        // Add error message to the UI
+                        scoreRangeInfo.textContent = 'Error loading rating scales. Please try again or contact support.';
+                        scoreRangeInfo.classList.add('text-red-600');
+                    });
             });
 
             // Function to update the score when rating scale changes
             ratingScaleSelect.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
+                console.log('Rating scale changed:', selectedOption ? selectedOption.value : 'none selected');
 
                 if (selectedOption && selectedOption.value) {
                     // Get the min and max scores for this rating scale
@@ -297,8 +337,11 @@
                     const maxScore = parseInt(selectedOption.dataset.maxScore);
                     const scaleName = selectedOption.dataset.name;
 
+                    console.log('Selected scale:', scaleName, 'with range', minScore, 'to', maxScore);
+
                     // Update the score range info
                     scoreRangeInfo.textContent = `For "${scaleName}", enter a score between ${minScore} and ${maxScore}`;
+                    scoreRangeInfo.classList.remove('text-red-600');
 
                     // Set the min and max attributes of the specific score input
                     specificScoreInput.min = minScore;
@@ -369,6 +412,8 @@
 
             // Initialize the score range info if a rating scale is already selected
             if (ratingScaleSelect.selectedIndex > 0) {
+                console.log('Initial rating scale is selected:', ratingScaleSelect.options[ratingScaleSelect.selectedIndex].value);
+
                 const selectedOption = ratingScaleSelect.options[ratingScaleSelect.selectedIndex];
                 const minScore = parseInt(selectedOption.dataset.minScore);
                 const maxScore = parseInt(selectedOption.dataset.maxScore);
@@ -377,6 +422,13 @@
                 scoreRangeInfo.textContent = `For "${scaleName}", enter a score between ${minScore} and ${maxScore}`;
                 specificScoreInput.min = minScore;
                 specificScoreInput.max = maxScore;
+            } else {
+                console.log('No rating scale is initially selected');
+
+                // Debug: List all available options
+                for (let i = 0; i < ratingScaleSelect.options.length; i++) {
+                    console.log(`Option ${i}:`, ratingScaleSelect.options[i].value, ratingScaleSelect.options[i].text);
+                }
             }
         });
     </script>

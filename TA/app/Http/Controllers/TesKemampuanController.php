@@ -255,6 +255,14 @@ class TesKemampuanController extends Controller
         $jobId = $tesKemampuan->pelamar->job_id;
         $allCriteria = TesKemampuanCriteria::where('job_id', $jobId)->get();
 
+        // Log untuk debugging
+        Log::info('Edit TesKemampuan: ', [
+            'tes_id' => $tesKemampuan->tes_id,
+            'criteria_id' => $tesKemampuan->criteria_id,
+            'job_id' => $jobId,
+            'criteria_count' => count($allCriteria)
+        ]);
+
         // If no criteria is set, try to set a default one
         if (!$tesKemampuan->criteria_id && count($allCriteria) > 0) {
             // Find a criteria with rating scales
@@ -262,6 +270,7 @@ class TesKemampuanController extends Controller
                 $hasRatingScales = TesKemampuanRatingScale::where('criteria_id', $criteria->criteria_id)->exists();
                 if ($hasRatingScales) {
                     $tesKemampuan->criteria_id = $criteria->criteria_id;
+                    Log::info('Found criteria with rating scales', ['criteria_id' => $criteria->criteria_id]);
                     break;
                 }
             }
@@ -269,6 +278,7 @@ class TesKemampuanController extends Controller
             // If no criteria with rating scales found, just use the first one
             if (!$tesKemampuan->criteria_id && count($allCriteria) > 0) {
                 $tesKemampuan->criteria_id = $allCriteria->first()->criteria_id;
+                Log::info('Using first criteria', ['criteria_id' => $tesKemampuan->criteria_id]);
             }
         }
 
@@ -278,6 +288,19 @@ class TesKemampuanController extends Controller
             $ratingScales = TesKemampuanRatingScale::where('criteria_id', $tesKemampuan->criteria_id)
                 ->orderBy('rating_level')
                 ->get();
+            Log::info('Found rating scales', ['count' => count($ratingScales)]);
+        } else {
+            // Jika tidak ada criteria_id, ambil rating scales dari criteria pertama
+            if (count($allCriteria) > 0) {
+                $firstCriteria = $allCriteria->first();
+                $tesKemampuan->criteria_id = $firstCriteria->criteria_id;
+                $ratingScales = TesKemampuanRatingScale::where('criteria_id', $firstCriteria->criteria_id)
+                    ->orderBy('rating_level')
+                    ->get();
+                Log::info('Using first criteria for rating scales', ['criteria_id' => $firstCriteria->criteria_id, 'count' => count($ratingScales)]);
+            } else {
+                Log::warning('No criteria available for job_id: ' . $jobId);
+            }
         }
 
         // Get current rating information
@@ -446,19 +469,55 @@ class TesKemampuanController extends Controller
         $pelamar = Pelamar::with('job')->findOrFail($pelamarId);
         $jobId = $pelamar->job_id;
 
-        // Get criteria for this job
-        $criteria = TesKemampuanCriteria::where('job_id', $jobId)->first();
+        Log::info('Getting rating scales for pelamar', [
+            'pelamar_id' => $pelamarId,
+            'job_id' => $jobId
+        ]);
 
+        // Get all criteria for this job
+        $allCriteria = TesKemampuanCriteria::where('job_id', $jobId)->get();
+
+        // First try to find a criteria with rating scales
+        $criteria = null;
         $ratingScales = [];
-        if ($criteria) {
+
+        foreach ($allCriteria as $c) {
+            $hasScales = TesKemampuanRatingScale::where('criteria_id', $c->criteria_id)->exists();
+            if ($hasScales) {
+                $criteria = $c;
+                $ratingScales = TesKemampuanRatingScale::where('criteria_id', $c->criteria_id)
+                    ->orderBy('rating_level')
+                    ->get();
+                Log::info('Found criteria with rating scales', [
+                    'criteria_id' => $c->criteria_id,
+                    'scales_count' => count($ratingScales)
+                ]);
+                break;
+            }
+        }
+
+        // If no criteria with scales found, use the first one
+        if (!$criteria && $allCriteria->count() > 0) {
+            $criteria = $allCriteria->first();
             $ratingScales = TesKemampuanRatingScale::where('criteria_id', $criteria->criteria_id)
                 ->orderBy('rating_level')
                 ->get();
+            Log::info('Using first criteria', [
+                'criteria_id' => $criteria->criteria_id,
+                'scales_count' => count($ratingScales)
+            ]);
+        }
+
+        // If still no criteria, log warning
+        if (!$criteria) {
+            Log::warning('No criteria found for job', ['job_id' => $jobId]);
         }
 
         return response()->json([
             'criteria' => $criteria,
-            'ratingScales' => $ratingScales
+            'ratingScales' => $ratingScales,
+            'job_id' => $jobId,
+            'criteria_count' => $allCriteria->count()
         ]);
     }
 

@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\InternshipScheduled;
+use App\Mail\InternshipPassed;
+use App\Mail\InternshipFailed;
 use App\Models\TotalSkorMingguMagang;
 
 class MagangController extends Controller
@@ -931,5 +933,124 @@ class MagangController extends Controller
             'criteriaContributions',
             'criteria'
         ));
+    }
+
+    /**
+     * Mark an internship as passed and send email notification
+     *
+     * @param Magang $magang
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function markAsPassed(Magang $magang)
+    {
+        try {
+            // Update the internship status
+            $magang->status_seleksi = 'Lulus';
+            $magang->save();
+
+            // Update pelamar status
+            $pelamar = $magang->pelamar;
+            $pelamar->status_seleksi = 'Lulus';
+            $pelamar->save();
+
+            // Send email notification
+            $emailSent = true;
+
+            try {
+                Mail::to($pelamar->email)->send(new InternshipPassed($pelamar, $magang));
+            } catch (\Exception $e) {
+                Log::error('Failed to send internship passed email: ' . $e->getMessage());
+                $emailSent = false;
+            }
+
+            $successMessage = 'Internship status has been updated to Passed';
+
+            if ($emailSent) {
+                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+            } else {
+                $successMessage .= '. Email notification could not be sent.';
+            }
+
+            return redirect()->route('magang.show', $magang)
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            return redirect()->route('magang.show', $magang)
+                ->with('error', 'Failed to update internship status: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Mark an internship as failed and send email notification
+     *
+     * @param Magang $magang
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function markAsFailed(Magang $magang)
+    {
+        try {
+            // Update the internship status
+            $magang->status_seleksi = 'Tidak Lulus';
+            $magang->save();
+
+            // Update pelamar status
+            $pelamar = $magang->pelamar;
+            $pelamar->status_seleksi = 'Tidak Lulus';
+            $pelamar->save();
+
+            // Send email notification
+            $emailSent = true;
+
+            try {
+                Mail::to($pelamar->email)->send(new InternshipFailed($pelamar, $magang));
+            } catch (\Exception $e) {
+                Log::error('Failed to send internship failed email: ' . $e->getMessage());
+                $emailSent = false;
+            }
+
+            $successMessage = 'Internship status has been updated to Failed';
+
+            if ($emailSent) {
+                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+            } else {
+                $successMessage .= '. Email notification could not be sent.';
+            }
+
+            return redirect()->route('magang.show', $magang)
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            return redirect()->route('magang.show', $magang)
+                ->with('error', 'Failed to update internship status: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reset internship status to pending
+     *
+     * @param Magang $magang
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function resetToPending(Magang $magang)
+    {
+        try {
+            // Update the internship status
+            $magang->status_seleksi = 'Pending';
+            $magang->save();
+
+            // Update pelamar status
+            $pelamar = $magang->pelamar;
+            $pelamar->status_seleksi = 'Pending';
+            $pelamar->save();
+
+            $successMessage = 'Internship status has been reset to Pending';
+
+            return redirect()->route('magang.show', $magang)
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            return redirect()->route('magang.show', $magang)
+                ->with('error', 'Failed to reset internship status: ' . $e->getMessage());
+        }
     }
 }

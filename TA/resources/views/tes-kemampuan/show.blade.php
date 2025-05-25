@@ -307,7 +307,7 @@
                     <i class="fas fa-graduation-cap text-blue-500 mr-2"></i> Schedule Internship Start
                 </h3>
                 <div class="mt-2 px-7 py-3">
-                    <form id="internshipForm" action="{{ route('magang.schedule-start', ['tesKemampuan' => $tesKemampuan->tes_id]) }}" method="POST">
+                    <form id="internshipForm" action="{{ route('magang.scheduleStart', ['tesKemampuan' => $tesKemampuan->tes_id]) }}" method="POST">
                         @csrf
                         <!-- Hidden fields for applicant data -->
                         <input type="hidden" name="pelamar_id" value="{{ $tesKemampuan->pelamar_id }}">
