@@ -152,7 +152,24 @@
                                                         {{ in_array($job->job_id, (array)$selectedJobs) ? 'checked' : '' }}>
                                                 </div>
                                                 <div class="ml-2 text-sm">
-                                                    <label for="job_{{ $job->job_id }}" class="font-medium text-gray-700">{{ $job->nama_job }}</label>
+                                                    <label for="job_{{ $job->job_id }}" class="font-medium text-gray-700 flex items-center">
+                                                        @if($job->job_id == 'JOB001')
+                                                            <i class="fas fa-utensils text-orange-500 mr-1"></i>
+                                                        @elseif($job->job_id == 'JOB004')
+                                                            <i class="fas fa-birthday-cake text-pink-500 mr-1"></i>
+                                                        @elseif(strpos(strtolower($job->nama_job), 'chef') !== false)
+                                                            <i class="fas fa-hat-chef text-green-500 mr-1"></i>
+                                                        @elseif(strpos(strtolower($job->nama_job), 'waiter') !== false)
+                                                            <i class="fas fa-concierge-bell text-blue-500 mr-1"></i>
+                                                        @elseif(strpos(strtolower($job->nama_job), 'barista') !== false)
+                                                            <i class="fas fa-coffee text-brown-500 mr-1"></i>
+                                                        @elseif(strpos(strtolower($job->nama_job), 'manager') !== false)
+                                                            <i class="fas fa-user-tie text-gray-500 mr-1"></i>
+                                                        @else
+                                                            <i class="fas fa-briefcase text-indigo-500 mr-1"></i>
+                                                        @endif
+                                                        {{ $job->nama_job }}
+                                                    </label>
                                                 </div>
                                             </div>
                                         @endforeach
