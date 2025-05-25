@@ -913,9 +913,14 @@
                                 <div class="p-4">
                                     <div class="flex justify-between items-center mb-3">
                                         <h5 class="font-medium">Criteria Evaluations</h5>
-                                        <a href="{{ url('evaluasi') }}/${weekEvals[0].evaluasi_id}/edit" class="inline-flex items-center px-3 py-1.5 bg-indigo-100 border border-indigo-300 rounded-md text-xs text-indigo-700 hover:bg-indigo-200 transition duration-150">
-                                            <i class="fas fa-edit mr-1"></i> Edit Evaluations
-                                        </a>
+                                        <div class="space-x-2">
+                                            <a href="{{ url('evaluasi') }}/${weekEvals[0].evaluasi_id}" class="inline-flex items-center px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-md text-xs text-blue-700 hover:bg-blue-200 transition duration-150">
+                                                <i class="fas fa-eye mr-1"></i> View Details
+                                            </a>
+                                            <a href="{{ url('evaluasi') }}/${weekEvals[0].evaluasi_id}/edit" class="inline-flex items-center px-3 py-1.5 bg-indigo-100 border border-indigo-300 rounded-md text-xs text-indigo-700 hover:bg-indigo-200 transition duration-150">
+                                                <i class="fas fa-edit mr-1"></i> Edit Evaluations
+                                            </a>
+                                        </div>
                                     </div>
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
