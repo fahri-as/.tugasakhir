@@ -141,13 +141,42 @@
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
+                                        @php
+                                            // Define color map for criteria codes
+                                            $colorMap = [
+                                                'K1' => 'blue',
+                                                'K2' => 'green',
+                                                'K3' => 'indigo',
+                                                'K4' => 'purple',
+                                                'K5' => 'red',
+                                                'K6' => 'yellow',
+                                                'K7' => 'pink',
+                                                'K8' => 'teal',
+                                                'K9' => 'amber',
+                                                'K10' => 'emerald'
+                                            ];
+
+                                            // Fallback function to get color for codes not in the map
+                                            function getColorForCode($code, $colorMap) {
+                                                if (isset($colorMap[$code])) {
+                                                    return $colorMap[$code];
+                                                }
+
+                                                // Fallback colors
+                                                $fallbackColors = ['blue', 'green', 'indigo', 'purple', 'red', 'yellow', 'pink', 'teal', 'amber', 'emerald'];
+                                                $index = crc32($code) % count($fallbackColors);
+                                                return $fallbackColors[$index];
+                                            }
+                                        @endphp
+
                                         @foreach($criteria as $rowCriterion)
                                             @foreach($criteria as $colCriterion)
                                                 @if($rowCriterion->criteria_id != $colCriterion->criteria_id && $rowCriterion->code < $colCriterion->code)
                                                     <tr class="hover:bg-gray-50 transition-colors duration-200">
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                             <div class="flex items-center">
-                                                                <span class="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                                                                @php $rowColor = getColorForCode($rowCriterion->code, $colorMap); @endphp
+                                                                <span class="px-2.5 py-1 bg-{{ $rowColor }}-100 text-{{ $rowColor }}-800 text-xs font-medium rounded">
                                                                     {{ $rowCriterion->code }}
                                                                 </span>
                                                                 <span class="ml-2">{{ Str::limit($rowCriterion->name, 25) }}</span>
@@ -158,7 +187,8 @@
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                             <div class="flex items-center">
-                                                                <span class="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded">
+                                                                @php $colColor = getColorForCode($colCriterion->code, $colorMap); @endphp
+                                                                <span class="px-2.5 py-1 bg-{{ $colColor }}-100 text-{{ $colColor }}-800 text-xs font-medium rounded">
                                                                     {{ $colCriterion->code }}
                                                                 </span>
                                                                 <span class="ml-2">{{ Str::limit($colCriterion->name, 25) }}</span>
