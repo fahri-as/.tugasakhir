@@ -77,11 +77,8 @@
                                 <i class="fas fa-briefcase text-gray-400"></i>
                             </div>
                             <select id="job_id" name="job_id" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                @foreach($jobs as $job)
-                                    <option value="{{ $job->job_id }}" {{ $jobId == $job->job_id ? 'selected' : '' }}>
-                                        {{ $job->nama_job }}
-                                    </option>
-                                @endforeach
+                                <option value="JOB001" {{ $jobId == 'JOB001' ? 'selected' : '' }}>Cook</option>
+                                <option value="JOB004" {{ $jobId == 'JOB004' ? 'selected' : '' }}>Pastry Chef</option>
                             </select>
                         </div>
                     </div>

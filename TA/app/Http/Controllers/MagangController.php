@@ -857,6 +857,9 @@ class MagangController extends Controller
             ]);
         }
 
+        // Get current job
+        $job = $jobs->where('job_id', $jobId)->first();
+
         // Filter interns based on job and role
         $internsQuery = Magang::with(['pelamar' => function($query) use ($jobId) {
             $query->where('job_id', $jobId);
@@ -913,15 +916,20 @@ class MagangController extends Controller
             $criteriaContributions[$intern->magang_id] = $contribution;
         }
 
+        // Get criteria for the selected job
+        $criteria = \App\Models\Criteria::where('job_id', $jobId)->orderBy('code')->get();
+
         return view('magang.smart-dashboard', compact(
             'jobs',
             'jobId',
+            'job',
             'interns',
             'periods',
             'selectedPeriodeId',
             'weekCount',
             'weeklyRankings',
-            'criteriaContributions'
+            'criteriaContributions',
+            'criteria'
         ));
     }
 }

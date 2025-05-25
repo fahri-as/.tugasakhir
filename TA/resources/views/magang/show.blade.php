@@ -76,32 +76,7 @@
             </div>
 
             <!-- SMART Dashboard Links -->
-            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-5 mb-6 shadow-sm border border-indigo-100">
-                <h2 class="text-lg font-medium mb-3 flex items-center">
-                    <i class="fas fa-brain text-indigo-600 mr-2"></i> SMART Analysis Dashboards
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <a href="{{ route('magang.smartDashboard', ['job_id' => 'JOB001']) }}" class="flex items-center p-4 bg-white border border-indigo-200 rounded-lg hover:bg-indigo-50 transition duration-150 transform hover:-translate-y-1 hover:shadow-md">
-                        <div class="bg-orange-100 p-3 rounded-full mr-4">
-                            <i class="fas fa-utensils h-6 w-6 text-orange-600"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold">Cook Position Dashboard</h3>
-                            <p class="text-sm text-gray-500">View SMART analysis for Cook position</p>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('magang.smartDashboard', ['job_id' => 'JOB004']) }}" class="flex items-center p-4 bg-white border border-pink-200 rounded-lg hover:bg-pink-50 transition duration-150 transform hover:-translate-y-1 hover:shadow-md">
-                        <div class="bg-pink-100 p-3 rounded-full mr-4">
-                            <i class="fas fa-birthday-cake h-6 w-6 text-pink-600"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold">Pastry Chef Dashboard</h3>
-                            <p class="text-sm text-gray-500">View SMART analysis for Pastry Chef position</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
+            
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <!-- Basic Information Card -->

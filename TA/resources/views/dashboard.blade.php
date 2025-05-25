@@ -11,9 +11,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 @php
                     $activeApplicants = \App\Models\Pelamar::where('status_seleksi', '!=', 'Rejected')->count();
-                    $activeInterns = \App\Models\Magang::where('status_seleksi', 'Active')->count();
+                    $activeInterns = \App\Models\Magang::where('status_seleksi', 'Sedang Berjalan')->count();
                     $upcomingInterviews = \App\Models\Interview::where('jadwal', '>=', now())->count();
-                    $totalPositions = \App\Models\Job::count();
+                    $upcomingTests = \App\Models\TesKemampuan::where('jadwal', '>=', now())->count();
+                    // $totalPositions = \App\Models\Job::count();
                 @endphp
 
                 <!-- Active Applications -->
@@ -52,11 +53,11 @@
                 <!-- Total Positions -->
                 <div class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 rounded-lg shadow-sm p-6 flex items-center transform hover:-translate-y-1 transition-all duration-300">
                     <div class="rounded-full h-12 w-12 flex items-center justify-center bg-amber-100 text-amber-600">
-                        <i class="fas fa-briefcase text-xl"></i>
+                        <i class="fas fa-calendar-check text-xl"></i>
                     </div>
                     <div class="pl-4">
-                        <p class="text-sm text-gray-600">Total Positions</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ $totalPositions }}</p>
+                        <p class="text-sm text-gray-600">Upcoming Skill Tests</p>
+                        <p class="text-2xl font-bold text-gray-800">{{ $upcomingTests }}</p>
                     </div>
                 </div>
             </div>
