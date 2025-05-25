@@ -118,38 +118,52 @@
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40 sticky left-0 bg-gradient-to-r from-gray-50 to-gray-100 z-10">
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 <span class="flex items-center">
-                                                    <i class="fas fa-list text-gray-400 mr-2"></i> Criteria
+                                                    <i class="fas fa-cube text-gray-400 mr-2"></i> Criteria A
                                                 </span>
                                             </th>
-                                            @foreach($criteria as $criterion)
-                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <div class="flex flex-col items-center">
-                                                        <span class="mb-1 font-bold">{{ $criterion->code }}</span>
-                                                        <span class="text-[10px] text-gray-400 font-normal">{{ Str::limit($criterion->name, 20) }}</span>
-                                                    </div>
-                                                </th>
-                                            @endforeach
+                                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center justify-center">
+                                                    <i class="fas fa-exchange-alt text-gray-400 mr-2"></i> Comparison
+                                                </span>
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-cube text-gray-400 mr-2"></i> Criteria B
+                                                </span>
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-sort-amount-up text-gray-400 mr-2"></i> Value
+                                                </span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach($criteria as $rowCriterion)
-                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
-                                                <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-white z-10">
-                                                    <div class="flex flex-col">
-                                                        <span class="text-sm font-medium text-gray-900">{{ $rowCriterion->code }}</span>
-                                                        <span class="text-xs text-gray-500">{{ Str::limit($rowCriterion->name, 25) }}</span>
-                                                    </div>
-                                                </td>
-
-                                                @foreach($criteria as $colCriterion)
-                                                    @if($rowCriterion->criteria_id == $colCriterion->criteria_id)
-                                                        <td class="px-6 py-4 whitespace-nowrap text-center bg-gray-50">
-                                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800">1</span>
-                                                            <input type="hidden" name="comparison[{{ $rowCriterion->criteria_id }}][{{ $colCriterion->criteria_id }}]" value="1">
+                                            @foreach($criteria as $colCriterion)
+                                                @if($rowCriterion->criteria_id != $colCriterion->criteria_id && $rowCriterion->code < $colCriterion->code)
+                                                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            <div class="flex items-center">
+                                                                <span class="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                                                                    {{ $rowCriterion->code }}
+                                                                </span>
+                                                                <span class="ml-2">{{ Str::limit($rowCriterion->name, 25) }}</span>
+                                                            </div>
                                                         </td>
-                                                    @elseif($rowCriterion->code < $colCriterion->code)
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                                            <i class="fas fa-arrow-right text-indigo-500"></i>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                            <div class="flex items-center">
+                                                                <span class="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded">
+                                                                    {{ $colCriterion->code }}
+                                                                </span>
+                                                                <span class="ml-2">{{ Str::limit($colCriterion->name, 25) }}</span>
+                                                            </div>
+                                                        </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             @php
                                                                 $key = $rowCriterion->criteria_id . '_' . $colCriterion->criteria_id;
@@ -168,22 +182,9 @@
                                                                 @endfor
                                                             </select>
                                                         </td>
-                                                    @else
-                                                        <td class="px-6 py-4 whitespace-nowrap text-center bg-gray-50">
-                                                            @php
-                                                                $key = $colCriterion->criteria_id . '_' . $rowCriterion->criteria_id;
-                                                            @endphp
-                                                            @if(isset($comparisons[$key]) && $comparisons[$key]->value > 0)
-                                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600">
-                                                                    1/{{ round(floatval($comparisons[$key]->value)) }}
-                                                                </span>
-                                                            @else
-                                                                <span class="text-gray-400">-</span>
-                                                            @endif
-                                                        </td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
                                         @endforeach
                                     </tbody>
                                 </table>
