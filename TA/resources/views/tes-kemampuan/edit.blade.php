@@ -16,9 +16,14 @@
                 <div class="p-6 bg-white border-b border-gray-200">
 
 
-                    <form action="{{ route('tes-kemampuan.update', $tesKemampuan) }}" method="POST" class="space-y-6">
+                    <form action="{{ route('tes-kemampuan.update', $tesKemampuan) }}" method="POST" class="space-y-6" id="update-form">
                         @csrf
                         @method('PUT')
+
+                        <!-- Debug info to verify score value -->
+                        {{-- <div class="bg-yellow-100 p-2 mb-2 rounded text-xs border border-yellow-200" id="debug-info">
+                            Current score value: <span id="current-score">{{ old('skor', $tesKemampuan->skor) }}</span>
+                        </div> --}}
 
                         <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg border border-gray-200 shadow-sm mb-6">
                             <h4 class="text-md font-medium text-gray-800 mb-3 flex items-center">
@@ -118,6 +123,7 @@
                                                     data-max-score="{{ $scale->max_score }}"
                                                     data-rating-level="{{ $scale->rating_level }}"
                                                     data-name="{{ $scale->name }}"
+                                                    data-description="{{ $scale->description }}"
                                                     @selected($currentRatingScale && $currentRatingScale->id == $scale->id)>
                                                     {{ $scale->name }} (Level {{ $scale->rating_level }}) - {{ $scale->min_score }}-{{ $scale->max_score }}
                                                 </option>
@@ -130,43 +136,38 @@
                                     @enderror
                                 </div>
 
-                                <!-- Debug Information -->
-                                {{-- <div class="bg-blue-50 p-2 my-2 rounded text-xs border border-blue-200">
-                                    <strong class="font-medium">Debug Info:</strong>
-                                    <p>Rating Scales Count: {{ count($ratingScales) }}</p>
-                                    <p>Current Rating Scale: {{ $currentRatingScale ? $currentRatingScale->id : 'None' }}</p>
-                                    <p>Criteria ID: {{ $tesKemampuan->criteria_id }}</p>
-                                    <details class="mt-1">
-                                        <summary class="cursor-pointer text-blue-600 hover:text-blue-800">Show Rating Scales</summary>
-                                        <ul class="mt-1 pl-4">
-                                            @forelse ($ratingScales as $scale)
-                                                <li>ID: {{ $scale->id }} - {{ $scale->name }} (Level {{ $scale->rating_level }}) - {{ $scale->min_score }}-{{ $scale->max_score }}</li>
-                                            @empty
-                                                <li class="text-red-600">No rating scales available</li>
-                                            @endforelse
-                                        </ul>
-                                    </details>
-                                </div> --}}
+                                <!-- Rating Scale Details Section -->
+                                <div class="sm:col-span-2 mt-4 mb-4" id="rating-scale-details">
+                                    <div class="bg-white p-4 rounded-lg border border-purple-200 shadow-sm">
+                                        <h5 class="font-medium text-purple-700 mb-2 flex items-center">
+                                            <i class="fas fa-info-circle mr-2"></i> <span id="rating-scale-name">Rating Scale Details</span>
+                                        </h5>
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full mr-2">Level <span id="rating-level">-</span></span>
+                                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Score Range: <span id="score-range">-</span></span>
+                                        </div>
+                                        <div class="text-sm text-gray-700 mt-2">
+                                            <p id="rating-description">Select a rating scale to see details.</p>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="transform transition duration-200 hover:-translate-y-1">
-                                    <label for="specific_score" class="block text-sm font-medium text-gray-700 mb-1">Specific Score</label>
+                                    <label for="skor" class="block text-sm font-medium text-gray-700 mb-1">Specific Score</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-calculator text-gray-400"></i>
                                         </div>
-                                        <input type="number" name="specific_score" id="specific_score" value="{{ old('skor', $tesKemampuan->skor) }}" min="0" max="100" required class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                        <input type="number" name="skor" id="skor" value="{{ old('skor', $tesKemampuan->skor) }}" min="0" max="100" required class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
                                         <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                             <span class="text-gray-500 text-sm">/100</span>
                                         </div>
                                     </div>
                                     <p class="mt-1 text-xs text-gray-500" id="score-range-info">Enter a score between the min and max of the selected rating scale</p>
-                                    @error('specific_score')
+                                    @error('skor')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
-
-                                <!-- Hidden score input that will be set based on the selected rating scale -->
-                                <input type="hidden" name="skor" id="skor" value="{{ old('skor', $tesKemampuan->skor) }}">
 
                                 <div class="sm:col-span-2 transform transition duration-200 hover:-translate-y-1">
                                     <label for="catatan" class="block text-sm font-medium text-gray-700 mb-1">Test Notes</label>
@@ -254,12 +255,17 @@
                         </div>
 
                         <div class="flex items-center gap-4 pt-4">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-purple-600 hover:to-indigo-700 active:bg-purple-800 focus:outline-none focus:border-purple-700 focus:ring ring-purple-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
+                            <button type="submit" id="update-button" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-purple-600 hover:to-indigo-700 active:bg-purple-800 focus:outline-none focus:border-purple-700 focus:ring ring-purple-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
                                 <i class="fas fa-save mr-2"></i> Update Test
                             </button>
                             <a href="{{ route('tes-kemampuan.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-400 focus:outline-none focus:border-gray-400 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105">
                                 <i class="fas fa-times mr-2"></i> Cancel
                             </a>
+
+                            <!-- Display current score value for debugging -->
+                            {{-- <span class="text-sm text-gray-500" id="current-score-display">
+                                Current score: {{ old('skor', $tesKemampuan->skor) }}
+                            </span> --}}
                         </div>
                     </form>
                 </div>
@@ -271,14 +277,66 @@
         document.addEventListener('DOMContentLoaded', function() {
             const pelamarSelect = document.getElementById('pelamar_id');
             const ratingScaleSelect = document.getElementById('rating_scale');
-            const specificScoreInput = document.getElementById('specific_score');
             const scoreInput = document.getElementById('skor');
             const scoreDisplay = document.getElementById('score-display');
             const scoreBar = document.getElementById('score-bar');
             const scoreRangeInfo = document.getElementById('score-range-info');
+            const updateForm = document.getElementById('update-form');
+            const updateButton = document.getElementById('update-button');
+            const currentScoreDisplay = document.getElementById('current-score-display');
+            const currentScoreDebug = document.getElementById('current-score');
+            const debugInfo = document.getElementById('debug-info');
 
-            console.log('Initial pelamar ID:', pelamarSelect.value);
-            console.log('Initial rating scales count:', ratingScaleSelect.options.length);
+            // Rating scale details elements
+            const ratingScaleDetails = document.getElementById('rating-scale-details');
+            const ratingScaleName = document.getElementById('rating-scale-name');
+            const ratingLevel = document.getElementById('rating-level');
+            const scoreRange = document.getElementById('score-range');
+            const ratingDescription = document.getElementById('rating-description');
+
+            // Hide rating scale details by default if no option is initially selected
+            if (ratingScaleSelect.selectedIndex <= 0) {
+                ratingScaleDetails.style.display = 'none';
+            }
+
+            // Add direct event listener to the update button for additional debugging
+            updateButton.addEventListener('click', function() {
+                console.log('Update button clicked, current score value:', scoreInput.value);
+                if (currentScoreDebug) {
+                    currentScoreDebug.textContent = scoreInput.value;
+                }
+                currentScoreDisplay.textContent = 'Current score: ' + scoreInput.value;
+
+                // Force update the hidden input value
+                if (scoreInput) {
+                    console.log('Score input exists with value:', scoreInput.value);
+                } else {
+                    console.error('Score input element not found!');
+                }
+            });
+
+            // Add submit event listener to form
+            updateForm.addEventListener('submit', function(e) {
+                // Log form data for debugging
+                console.log('Form submitted with score:', scoreInput.value);
+                if (currentScoreDebug) {
+                    currentScoreDebug.textContent = scoreInput.value;
+                }
+
+                // Check if score input exists and has a value
+                if (!scoreInput || !scoreInput.value) {
+                    console.error('Score input is missing or empty!');
+                    alert('Error: Score is missing. Please select a rating scale and enter a valid score.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Set the score value again right before submission
+                console.log('Final score being submitted:', scoreInput.value);
+
+                // Continue with form submission
+                return true;
+            });
 
             // Function to load rating scales based on the selected pelamar's job
             pelamarSelect.addEventListener('change', function() {
@@ -297,6 +355,11 @@
                     .then(data => {
                         console.log('API response data:', data);
 
+                        // Update criteria id field
+                        if (data.criteria) {
+                            document.getElementById('criteria_id').value = data.criteria.criteria_id;
+                        }
+
                         // Clear current options
                         ratingScaleSelect.innerHTML = '<option value="">-- Select Rating Scale --</option>';
 
@@ -311,12 +374,16 @@
                                 option.dataset.maxScore = scale.max_score;
                                 option.dataset.ratingLevel = scale.rating_level;
                                 option.dataset.name = scale.name;
+                                option.dataset.description = scale.description;
                                 ratingScaleSelect.appendChild(option);
                             });
                             console.log('Rating scales updated, now has', ratingScaleSelect.options.length, 'options');
                         } else {
                             console.warn('No rating scales received from API');
                         }
+
+                        // Hide rating scale details when pelamar changes
+                        ratingScaleDetails.style.display = 'none';
                     })
                     .catch(error => {
                         console.error('Error fetching rating scales for pelamar:', error);
@@ -336,6 +403,8 @@
                     const minScore = parseInt(selectedOption.dataset.minScore);
                     const maxScore = parseInt(selectedOption.dataset.maxScore);
                     const scaleName = selectedOption.dataset.name;
+                    const scaleLevel = selectedOption.dataset.ratingLevel;
+                    const scaleDescription = selectedOption.dataset.description;
 
                     console.log('Selected scale:', scaleName, 'with range', minScore, 'to', maxScore);
 
@@ -343,28 +412,42 @@
                     scoreRangeInfo.textContent = `For "${scaleName}", enter a score between ${minScore} and ${maxScore}`;
                     scoreRangeInfo.classList.remove('text-red-600');
 
-                    // Set the min and max attributes of the specific score input
-                    specificScoreInput.min = minScore;
-                    specificScoreInput.max = maxScore;
+                    // Set the min and max attributes of the score input
+                    scoreInput.min = minScore;
+                    scoreInput.max = maxScore;
 
-                    // Set the specific score to the middle of the range as a suggestion
+                    // Set the score to the middle of the range as a suggestion
                     const avgScore = Math.round((minScore + maxScore) / 2);
-                    specificScoreInput.value = avgScore;
-
-                    // Update the hidden score input
                     scoreInput.value = avgScore;
+                    if (currentScoreDebug) {
+                        currentScoreDebug.textContent = avgScore;
+                    }
+                    currentScoreDisplay.textContent = 'Current score: ' + avgScore;
 
                     // Update the score display
                     updateScoreDisplay(avgScore);
+
+                    // Update and show rating scale details
+                    ratingScaleName.textContent = scaleName;
+                    ratingLevel.textContent = scaleLevel;
+                    scoreRange.textContent = `${minScore}-${maxScore}`;
+                    ratingDescription.textContent = scaleDescription || 'No description available';
+                    ratingScaleDetails.style.display = 'block';
+                } else {
+                    // Hide rating scale details if no option is selected
+                    ratingScaleDetails.style.display = 'none';
                 }
             });
 
-            // Function to update the score when the specific score input changes
-            specificScoreInput.addEventListener('input', function() {
+            // Function to update the score when the score input changes
+            scoreInput.addEventListener('input', function() {
                 const score = parseInt(this.value) || 0;
 
-                // Update the hidden score input
-                scoreInput.value = score;
+                // Update debug display
+                if (currentScoreDebug) {
+                    currentScoreDebug.textContent = score;
+                }
+                currentScoreDisplay.textContent = 'Current score: ' + score;
 
                 // Update the score display
                 updateScoreDisplay(score);
@@ -380,12 +463,15 @@
                 if (selectedOption && selectedOption.value) {
                     const minScore = parseInt(selectedOption.dataset.minScore);
                     const maxScore = parseInt(selectedOption.dataset.maxScore);
-                    const currentScore = parseInt(specificScoreInput.value);
+                    const currentScore = parseInt(scoreInput.value);
 
                     if (currentScore < minScore || currentScore > maxScore) {
-                        specificScoreInput.setCustomValidity(`Score must be between ${minScore} and ${maxScore} for the selected rating scale`);
+                        scoreInput.setCustomValidity(`Score must be between ${minScore} and ${maxScore} for the selected rating scale`);
+                        scoreRangeInfo.textContent = `Score must be between ${minScore} and ${maxScore}`;
+                        scoreRangeInfo.classList.add('text-red-600');
                     } else {
-                        specificScoreInput.setCustomValidity('');
+                        scoreInput.setCustomValidity('');
+                        scoreRangeInfo.classList.remove('text-red-600');
                     }
                 }
             }
@@ -418,17 +504,39 @@
                 const minScore = parseInt(selectedOption.dataset.minScore);
                 const maxScore = parseInt(selectedOption.dataset.maxScore);
                 const scaleName = selectedOption.dataset.name;
+                const scaleLevel = selectedOption.dataset.ratingLevel;
+                const scaleDescription = selectedOption.dataset.description;
 
                 scoreRangeInfo.textContent = `For "${scaleName}", enter a score between ${minScore} and ${maxScore}`;
-                specificScoreInput.min = minScore;
-                specificScoreInput.max = maxScore;
+                scoreInput.min = minScore;
+                scoreInput.max = maxScore;
+
+                // Initialize rating scale details if a scale is already selected
+                ratingScaleName.textContent = scaleName;
+                ratingLevel.textContent = scaleLevel;
+                scoreRange.textContent = `${minScore}-${maxScore}`;
+                ratingDescription.textContent = scaleDescription || 'No description available';
+                ratingScaleDetails.style.display = 'block';
             } else {
                 console.log('No rating scale is initially selected');
 
-                // Debug: List all available options
-                for (let i = 0; i < ratingScaleSelect.options.length; i++) {
-                    console.log(`Option ${i}:`, ratingScaleSelect.options[i].value, ratingScaleSelect.options[i].text);
+                // Hide rating scale details by default
+                ratingScaleDetails.style.display = 'none';
+            }
+
+            // Initialize debug displays
+            if (scoreInput && scoreInput.value) {
+                if (currentScoreDebug) {
+                    currentScoreDebug.textContent = scoreInput.value;
                 }
+                currentScoreDisplay.textContent = 'Current score: ' + scoreInput.value;
+            }
+
+            // Trigger the rating scale change event to initialize the rating scale details
+            if (ratingScaleSelect.selectedIndex > 0) {
+                // Create and dispatch a change event
+                const event = new Event('change');
+                ratingScaleSelect.dispatchEvent(event);
             }
         });
     </script>

@@ -322,47 +322,70 @@ class TesKemampuanController extends Controller
             'pelamar_id' => 'required|exists:pelamar,pelamar_id',
             'user_id' => 'required|exists:user,user_id',
             'skor' => 'required|integer|between:0,100',
-            'specific_score' => 'required|integer|between:0,100',
             'catatan' => 'nullable',
             'jadwal' => 'required|date',
-            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang',
             'criteria_id' => 'nullable|exists:tes_kemampuan_criteria,criteria_id',
             'rating_scale' => 'nullable|exists:tes_kemampuan_rating_scales,id'
+        ]);
+
+        // Log untuk debugging
+        \Illuminate\Support\Facades\Log::info('Update TesKemampuan - Request Data:', [
+            'tes_id' => $tesKemampuan->tes_id,
+            'pelamar_id' => $request->pelamar_id,
+            'skor' => $request->skor,
+            'criteria_id' => $request->criteria_id,
+            'rating_scale' => $request->rating_scale
         ]);
 
         $tesKemampuan->pelamar_id = $request->pelamar_id;
         $tesKemampuan->user_id = $request->user_id;
         $tesKemampuan->catatan = $request->catatan;
         $tesKemampuan->jadwal = $request->jadwal;
-        $tesKemampuan->status_seleksi = $request->status_seleksi;
 
         // Update criteria ID if provided
         if ($request->filled('criteria_id')) {
             $tesKemampuan->criteria_id = $request->criteria_id;
         }
 
-        // If a rating scale is selected, validate the specific score is within the range
+        // Directly update the score from the input
+        $tesKemampuan->skor = $request->skor;
+
+        // If a rating scale is selected, validate the score is within the range
         if ($request->filled('rating_scale')) {
             $ratingScale = TesKemampuanRatingScale::findOrFail($request->rating_scale);
 
-            // Validate specific score is within the rating scale range
-            if ($request->specific_score < $ratingScale->min_score || $request->specific_score > $ratingScale->max_score) {
+            // Validate score is within the rating scale range
+            if ($request->skor < $ratingScale->min_score || $request->skor > $ratingScale->max_score) {
                 return redirect()->back()
                     ->withInput()
-                    ->withErrors(['specific_score' => "Score must be between {$ratingScale->min_score} and {$ratingScale->max_score} for the selected rating scale"]);
+                    ->withErrors(['skor' => "Score must be between {$ratingScale->min_score} and {$ratingScale->max_score} for the selected rating scale"]);
             }
-
-            // Use the specific score provided by the user
-            $tesKemampuan->skor = $request->specific_score;
-        } else {
-            // If no rating scale is selected, just use the provided score
-            $tesKemampuan->skor = $request->skor;
         }
 
-        $tesKemampuan->save();
+        // Jangan ubah status jika tidak perlu
+        if ($request->filled('status_seleksi')) {
+            $tesKemampuan->status_seleksi = $request->status_seleksi;
+        }
+
+        // Log before save
+        \Illuminate\Support\Facades\Log::info('Before saving TesKemampuan:', [
+            'tes_id' => $tesKemampuan->tes_id,
+            'skor' => $tesKemampuan->skor,
+            'criteria_id' => $tesKemampuan->criteria_id
+        ]);
+
+        $saved = $tesKemampuan->save();
+
+        // Log after save
+        \Illuminate\Support\Facades\Log::info('After saving TesKemampuan:', [
+            'tes_id' => $tesKemampuan->tes_id,
+            'skor' => $tesKemampuan->skor,
+            'criteria_id' => $tesKemampuan->criteria_id,
+            'saved' => $saved
+        ]);
 
         // If status is changed to Magang, create/update Magang record
-        if ($request->status_seleksi === 'Magang') {
+        if ($request->filled('status_seleksi') && $request->status_seleksi === 'Magang') {
             $pelamar = Pelamar::findOrFail($request->pelamar_id);
 
             // Create or update the Magang record

@@ -108,6 +108,8 @@
                                             @foreach($qualifikasiRatings as $rating)
                                                 <option value="{{ $rating->id }}"
                                                     data-rating-level="{{ $rating->rating_level }}"
+                                                    data-name="{{ $rating->name }}"
+                                                    data-description="{{ $rating->description }}"
                                                     @selected($interview->kualifikasi_skor == $rating->rating_level)>
                                                     {{ $rating->name }} ({{ $rating->rating_level }}/5)
                                                 </option>
@@ -118,6 +120,21 @@
                                     @error('kualifikasi_skor')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
+
+                                    <!-- Qualification Rating Scale Details -->
+                                    <div class="mt-2 mb-3" id="qualification-rating-details" style="display: none;">
+                                        <div class="bg-white p-3 rounded-lg border border-purple-200 shadow-sm">
+                                            <h6 class="text-sm font-medium text-purple-700 mb-1 flex items-center">
+                                                <i class="fas fa-info-circle mr-1"></i> <span id="qualification-rating-name">Rating Details</span>
+                                            </h6>
+                                            <div class="flex items-center mb-1">
+                                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">Level <span id="qualification-rating-level">-</span>/5</span>
+                                            </div>
+                                            <div class="text-xs text-gray-700 mt-1">
+                                                <p id="qualification-rating-description">Select a rating to see details.</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="transform transition duration-200 hover:-translate-y-1">
@@ -131,6 +148,8 @@
                                             @foreach($komunikasiRatings as $rating)
                                                 <option value="{{ $rating->id }}"
                                                     data-rating-level="{{ $rating->rating_level }}"
+                                                    data-name="{{ $rating->name }}"
+                                                    data-description="{{ $rating->description }}"
                                                     @selected($interview->komunikasi_skor == $rating->rating_level)>
                                                     {{ $rating->name }} ({{ $rating->rating_level }}/5)
                                                 </option>
@@ -141,6 +160,21 @@
                                     @error('komunikasi_skor')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
+
+                                    <!-- Communication Rating Scale Details -->
+                                    <div class="mt-2 mb-3" id="communication-rating-details" style="display: none;">
+                                        <div class="bg-white p-3 rounded-lg border border-purple-200 shadow-sm">
+                                            <h6 class="text-sm font-medium text-purple-700 mb-1 flex items-center">
+                                                <i class="fas fa-info-circle mr-1"></i> <span id="communication-rating-name">Rating Details</span>
+                                            </h6>
+                                            <div class="flex items-center mb-1">
+                                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">Level <span id="communication-rating-level">-</span>/5</span>
+                                            </div>
+                                            <div class="text-xs text-gray-700 mt-1">
+                                                <p id="communication-rating-description">Select a rating to see details.</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="transform transition duration-200 hover:-translate-y-1">
@@ -154,6 +188,8 @@
                                             @foreach($sikapRatings as $rating)
                                                 <option value="{{ $rating->id }}"
                                                     data-rating-level="{{ $rating->rating_level }}"
+                                                    data-name="{{ $rating->name }}"
+                                                    data-description="{{ $rating->description }}"
                                                     @selected($interview->sikap_skor == $rating->rating_level)>
                                                     {{ $rating->name }} ({{ $rating->rating_level }}/5)
                                                 </option>
@@ -164,6 +200,21 @@
                                     @error('sikap_skor')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
+
+                                    <!-- Attitude Rating Scale Details -->
+                                    <div class="mt-2 mb-3" id="attitude-rating-details" style="display: none;">
+                                        <div class="bg-white p-3 rounded-lg border border-purple-200 shadow-sm">
+                                            <h6 class="text-sm font-medium text-purple-700 mb-1 flex items-center">
+                                                <i class="fas fa-info-circle mr-1"></i> <span id="attitude-rating-name">Rating Details</span>
+                                            </h6>
+                                            <div class="flex items-center mb-1">
+                                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">Level <span id="attitude-rating-level">-</span>/5</span>
+                                            </div>
+                                            <div class="text-xs text-gray-700 mt-1">
+                                                <p id="attitude-rating-description">Select a rating to see details.</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -228,6 +279,22 @@
 
             const totalScoreDisplay = document.getElementById('total-score-display');
 
+            // Rating details elements
+            const qualificationDetails = document.getElementById('qualification-rating-details');
+            const qualificationName = document.getElementById('qualification-rating-name');
+            const qualificationLevel = document.getElementById('qualification-rating-level');
+            const qualificationDescription = document.getElementById('qualification-rating-description');
+
+            const communicationDetails = document.getElementById('communication-rating-details');
+            const communicationName = document.getElementById('communication-rating-name');
+            const communicationLevel = document.getElementById('communication-rating-level');
+            const communicationDescription = document.getElementById('communication-rating-description');
+
+            const attitudeDetails = document.getElementById('attitude-rating-details');
+            const attitudeName = document.getElementById('attitude-rating-name');
+            const attitudeLevel = document.getElementById('attitude-rating-level');
+            const attitudeDescription = document.getElementById('attitude-rating-description');
+
             // Function to update scores based on rating selection
             function updateScoreFromRating(ratingSelect, scoreInput) {
                 const selectedOption = ratingSelect.options[ratingSelect.selectedIndex];
@@ -249,18 +316,52 @@
                 totalScoreDisplay.textContent = totalScore.toFixed(2) + '/5';
             }
 
+            // Function to update rating details display
+            function updateRatingDetails(ratingSelect, detailsElement, nameElement, levelElement, descriptionElement) {
+                const selectedOption = ratingSelect.options[ratingSelect.selectedIndex];
+
+                if (selectedOption && selectedOption.value) {
+                    const ratingName = selectedOption.dataset.name;
+                    const ratingLevel = selectedOption.dataset.ratingLevel;
+                    const ratingDescription = selectedOption.dataset.description || 'No description available';
+
+                    nameElement.textContent = ratingName;
+                    levelElement.textContent = ratingLevel;
+                    descriptionElement.textContent = ratingDescription;
+                    detailsElement.style.display = 'block';
+                } else {
+                    detailsElement.style.display = 'none';
+                }
+            }
+
             // Add event listeners to rating selects
             qualifikasiRating.addEventListener('change', function() {
                 updateScoreFromRating(this, qualifikasiScore);
+                updateRatingDetails(this, qualificationDetails, qualificationName, qualificationLevel, qualificationDescription);
             });
 
             komunikasiRating.addEventListener('change', function() {
                 updateScoreFromRating(this, komunikasiScore);
+                updateRatingDetails(this, communicationDetails, communicationName, communicationLevel, communicationDescription);
             });
 
             sikapRating.addEventListener('change', function() {
                 updateScoreFromRating(this, sikapScore);
+                updateRatingDetails(this, attitudeDetails, attitudeName, attitudeLevel, attitudeDescription);
             });
+
+            // Initialize rating details display if ratings are already selected
+            if (qualifikasiRating.selectedIndex > 0) {
+                updateRatingDetails(qualifikasiRating, qualificationDetails, qualificationName, qualificationLevel, qualificationDescription);
+            }
+
+            if (komunikasiRating.selectedIndex > 0) {
+                updateRatingDetails(komunikasiRating, communicationDetails, communicationName, communicationLevel, communicationDescription);
+            }
+
+            if (sikapRating.selectedIndex > 0) {
+                updateRatingDetails(sikapRating, attitudeDetails, attitudeName, attitudeLevel, attitudeDescription);
+            }
         });
     </script>
 </x-app-layout>
