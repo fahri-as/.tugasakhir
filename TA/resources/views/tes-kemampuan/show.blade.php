@@ -21,60 +21,32 @@
                             <i class="fas fa-graduation-cap mr-2"></i> Move to Internship
                         </button>
                     @else
-                        {{-- For other positions, show Mark as Passed with modal --}}
-                        <button id="markAsPassedBtn" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
-                            <i class="fas fa-check-circle mr-2"></i> Mark as Passed
-                        </button>
+                        {{-- For other positions, show Mark as Passed with direct link --}}
+                        <a href="{{ route('tes-kemampuan.pass', $tesKemampuan) }}"
+                           class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md"
+                           onclick="return confirm('Are you sure you want to mark this applicant as passed? This will send an email notification.')">
+                                <i class="fas fa-check-circle mr-2"></i> Mark as Passed
+                            </a>
                     @endif
 
                     {{-- Show Mark as Failed for all positions --}}
-                    <form action="{{ route('tes-kemampuan.update', $tesKemampuan) }}" method="POST" class="inline">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="pelamar_id" value="{{ $tesKemampuan->pelamar_id }}">
-                        <input type="hidden" name="user_id" value="{{ $tesKemampuan->user_id }}">
-                        <input type="hidden" name="skor" value="{{ $tesKemampuan->skor }}">
-                        <input type="hidden" name="catatan" value="{{ $tesKemampuan->catatan }}">
-                        <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
-                        <input type="hidden" name="status_seleksi" value="Tidak Lulus">
-                        <input type="hidden" name="redirect" value="show">
-                        <input type="hidden" name="send_email" value="1">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-red-600 hover:to-rose-700 active:bg-red-800 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
-                            <i class="fas fa-times-circle mr-2"></i> Mark as Failed
-                        </button>
-                    </form>
+                    <a href="{{ route('tes-kemampuan.fail', $tesKemampuan) }}"
+                       class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-red-600 hover:to-rose-700 active:bg-red-800 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md"
+                       onclick="return confirm('Are you sure you want to mark this applicant as failed?')">
+                        <i class="fas fa-times-circle mr-2"></i> Mark as Failed
+                    </a>
                 @elseif($tesKemampuan->status_seleksi === 'Lulus')
-                    <form action="{{ route('tes-kemampuan.update', $tesKemampuan) }}" method="POST" class="inline" id="resetForm">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="pelamar_id" value="{{ $tesKemampuan->pelamar_id }}">
-                        <input type="hidden" name="user_id" value="{{ $tesKemampuan->user_id }}">
-                        <input type="hidden" name="skor" value="{{ $tesKemampuan->skor }}">
-                        <input type="hidden" name="catatan" value="{{ $tesKemampuan->catatan }}">
-                        <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
-                        <input type="hidden" name="status_seleksi" value="Pending">
-                        <input type="hidden" name="redirect" value="show">
-                        <input type="hidden" name="send_email" value="1">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-yellow-600 hover:to-amber-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
-                            <i class="fas fa-redo-alt mr-2"></i> Reset to Pending
-                        </button>
-                    </form>
+                    <a href="{{ route('tes-kemampuan.pending', $tesKemampuan) }}"
+                       class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-yellow-600 hover:to-amber-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md"
+                       onclick="return confirm('Are you sure you want to reset this test to pending status?')">
+                        <i class="fas fa-redo-alt mr-2"></i> Reset to Pending
+                    </a>
                 @elseif($tesKemampuan->status_seleksi === 'Tidak Lulus')
-                    <form action="{{ route('tes-kemampuan.update', $tesKemampuan) }}" method="POST" class="inline" id="resetForm">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="pelamar_id" value="{{ $tesKemampuan->pelamar_id }}">
-                        <input type="hidden" name="user_id" value="{{ $tesKemampuan->user_id }}">
-                        <input type="hidden" name="skor" value="{{ $tesKemampuan->skor }}">
-                        <input type="hidden" name="catatan" value="{{ $tesKemampuan->catatan }}">
-                        <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
-                        <input type="hidden" name="status_seleksi" value="Pending">
-                        <input type="hidden" name="redirect" value="show">
-                        <input type="hidden" name="send_email" value="1">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-yellow-600 hover:to-amber-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
-                            <i class="fas fa-redo-alt mr-2"></i> Reset to Pending
-                        </button>
-                    </form>
+                    <a href="{{ route('tes-kemampuan.pending', $tesKemampuan) }}"
+                       class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-yellow-600 hover:to-amber-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md"
+                       onclick="return confirm('Are you sure you want to reset this test to pending status?')">
+                        <i class="fas fa-redo-alt mr-2"></i> Reset to Pending
+                    </a>
                 @endif
 
                 <a href="{{ route('tes-kemampuan.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
@@ -380,64 +352,6 @@
         </div>
     </div>
 
-    <!-- Contract Discussion Modal -->
-    <div id="contractDiscussionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center justify-center">
-                    <i class="fas fa-handshake text-green-500 mr-2"></i> Schedule Contract Discussion
-                </h3>
-                <div class="mt-2 px-7 py-3">
-                    <form id="contractDiscussionForm" action="{{ route('tes-kemampuan.update', $tesKemampuan) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <!-- Hidden fields for applicant data -->
-                        <input type="hidden" name="pelamar_id" value="{{ $tesKemampuan->pelamar_id }}">
-                        <input type="hidden" name="user_id" value="{{ $tesKemampuan->user_id }}">
-                        <input type="hidden" name="skor" value="{{ $tesKemampuan->skor }}">
-                        <input type="hidden" name="catatan" value="{{ $tesKemampuan->catatan }}">
-                        <input type="hidden" name="jadwal" value="{{ $tesKemampuan->jadwal->format('Y-m-d\TH:i') }}">
-                        <input type="hidden" name="status_seleksi" value="Lulus">
-                        <input type="hidden" name="redirect" value="show">
-                        <input type="hidden" name="send_email" value="1">
-
-                        <!-- Contract Discussion Date and Time -->
-                        <div class="mb-4">
-                            <label for="kontrak_tanggal" class="block text-sm font-medium text-gray-700 text-left mb-1">Discussion Date</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-calendar-alt text-gray-400"></i>
-                                </div>
-                                <input type="date" name="kontrak_tanggal" id="kontrak_tanggal" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
-                            </div>
-                            <p id="kontrak_date_error" class="mt-1 text-xs text-red-600 hidden">Please select a future date</p>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="kontrak_waktu" class="block text-sm font-medium text-gray-700 text-left mb-1">Discussion Time</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-clock text-gray-400"></i>
-                                </div>
-                                <input type="time" name="kontrak_waktu" id="kontrak_waktu" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
-                            </div>
-                            <p id="kontrak_time_error" class="mt-1 text-xs text-red-600 hidden">Please select a future time</p>
-                        </div>
-
-                        <div class="flex justify-end mt-4">
-                            <button type="button" id="cancelContractBtn" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mr-2">
-                                Cancel
-                            </button>
-                            <button type="submit" id="scheduleContractBtn" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                Schedule & Approve
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- JavaScript for Modal Control with Time Validation -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -450,16 +364,6 @@
             const jadwalTimeInput = document.getElementById('jadwal_waktu');
             const dateError = document.getElementById('date_error');
             const timeError = document.getElementById('time_error');
-
-            // Contract Discussion Modal elements
-            const contractModal = document.getElementById('contractDiscussionModal');
-            const openContractModalBtn = document.getElementById('markAsPassedBtn');
-            const closeContractModalBtn = document.getElementById('cancelContractBtn');
-            const contractForm = document.getElementById('contractDiscussionForm');
-            const kontrakDateInput = document.getElementById('kontrak_tanggal');
-            const kontrakTimeInput = document.getElementById('kontrak_waktu');
-            const kontrakDateError = document.getElementById('kontrak_date_error');
-            const kontrakTimeError = document.getElementById('kontrak_time_error');
 
             // Helper function to set default date and time values
             function setDefaultDateTime(dateInput, timeInput) {
@@ -569,53 +473,6 @@
                 window.addEventListener('click', function(event) {
                     if (event.target === internshipModal) {
                         internshipModal.classList.add('hidden');
-                    }
-                });
-            }
-
-            // Setup Contract Discussion Modal
-            if (kontrakDateInput && kontrakTimeInput) {
-                setDefaultDateTime(kontrakDateInput, kontrakTimeInput);
-
-                // Validate on initial load
-                validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError);
-
-                // Add event listeners for date and time changes
-                kontrakDateInput.addEventListener('change', function() {
-                    validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError);
-                });
-
-                kontrakTimeInput.addEventListener('change', function() {
-                    validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError);
-                });
-
-                // Prevent form submission if validation fails
-                if (contractForm) {
-                    contractForm.addEventListener('submit', function(event) {
-                        if (!validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError)) {
-                            event.preventDefault();
-                        }
-                    });
-                }
-
-                // Modal open function
-                if (openContractModalBtn) {
-                    openContractModalBtn.addEventListener('click', function() {
-                        contractModal.classList.remove('hidden');
-                        validateDatetime(kontrakDateInput, kontrakTimeInput, kontrakDateError, kontrakTimeError);
-                    });
-                }
-
-                // Modal close function
-                if (closeContractModalBtn) {
-                    closeContractModalBtn.addEventListener('click', function() {
-                        contractModal.classList.add('hidden');
-                    });
-                }
-                // Close modal if clicked outside
-                window.addEventListener('click', function(event) {
-                    if (event.target === contractModal) {
-                        contractModal.classList.add('hidden');
                     }
                 });
             }

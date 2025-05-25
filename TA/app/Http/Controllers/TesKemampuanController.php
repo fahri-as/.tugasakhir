@@ -461,4 +461,127 @@ class TesKemampuanController extends Controller
             'ratingScales' => $ratingScales
         ]);
     }
+
+    /**
+     * Mark a test as failed and send email notification
+     *
+     * @param TesKemampuan $tesKemampuan
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function markAsFailed(TesKemampuan $tesKemampuan)
+    {
+        try {
+            // Update the test status
+            $tesKemampuan->status_seleksi = 'Tidak Lulus';
+            $tesKemampuan->save();
+
+            // Send email notification
+            $pelamar = $tesKemampuan->pelamar;
+            $emailSent = true;
+
+            try {
+                Mail::to($pelamar->email)->send(new SkillTestFailed($pelamar, $tesKemampuan));
+            } catch (\Exception $e) {
+                Log::error('Failed to send skill test result email: ' . $e->getMessage());
+                $emailSent = false;
+            }
+
+            $successMessage = 'Test status has been updated to Failed';
+
+            if ($emailSent) {
+                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+            } else {
+                $successMessage .= '. Email notification could not be sent.';
+            }
+
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                ->with('error', 'Failed to update test status: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reset a test status to pending
+     *
+     * @param TesKemampuan $tesKemampuan
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function resetToPending(TesKemampuan $tesKemampuan)
+    {
+        try {
+            // Update the test status
+            $tesKemampuan->status_seleksi = 'Pending';
+            $tesKemampuan->save();
+
+            // Send email notification
+            $pelamar = $tesKemampuan->pelamar;
+            $emailSent = true;
+
+            try {
+                Mail::to($pelamar->email)->send(new SkillTestScheduled($pelamar, $tesKemampuan));
+            } catch (\Exception $e) {
+                Log::error('Failed to send skill test reset email: ' . $e->getMessage());
+                $emailSent = false;
+            }
+
+            $successMessage = 'Test status has been reset to Pending';
+
+            if ($emailSent) {
+                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+            } else {
+                $successMessage .= '. Email notification could not be sent.';
+            }
+
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                ->with('error', 'Failed to reset test status: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Mark a test as passed and open contract discussion modal
+     *
+     * @param TesKemampuan $tesKemampuan
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function markAsPassed(TesKemampuan $tesKemampuan)
+    {
+        try {
+            // Update the test status
+            $tesKemampuan->status_seleksi = 'Lulus';
+            $tesKemampuan->save();
+
+            // Send email notification
+            $pelamar = $tesKemampuan->pelamar;
+            $emailSent = true;
+
+            try {
+                Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan, null));
+            } catch (\Exception $e) {
+                Log::error('Failed to send skill test passed email: ' . $e->getMessage());
+                $emailSent = false;
+            }
+
+            $successMessage = 'Test status has been updated to Passed';
+
+            if ($emailSent) {
+                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+            } else {
+                $successMessage .= '. Email notification could not be sent.';
+            }
+
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                ->with('error', 'Failed to update test status: ' . $e->getMessage());
+        }
+    }
 }

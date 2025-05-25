@@ -109,6 +109,12 @@ Route::middleware(['auth', CheckRole::class.':admin'])->group(function () {
     Route::resource('tes-kemampuan', TesKemampuanController::class);
     Route::get('/tes-kemampuan/get-rating-scales-for-pelamar/{pelamarId}', [TesKemampuanController::class, 'getRatingScalesForPelamar'])
         ->name('tes-kemampuan.get-rating-scales-for-pelamar');
+    Route::get('/tes-kemampuan/{tesKemampuan}/fail', [TesKemampuanController::class, 'markAsFailed'])
+        ->name('tes-kemampuan.fail');
+    Route::get('/tes-kemampuan/{tesKemampuan}/pending', [TesKemampuanController::class, 'resetToPending'])
+        ->name('tes-kemampuan.pending');
+    Route::get('/tes-kemampuan/{tesKemampuan}/pass', [TesKemampuanController::class, 'markAsPassed'])
+        ->name('tes-kemampuan.pass');
 
     // Admin Magang routes - full access
     Route::resource('magang', MagangController::class)->except(['index', 'show']);
