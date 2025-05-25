@@ -129,7 +129,7 @@
                     </div>
 
                     <!-- SMART Dashboard Links -->
-                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-5 mb-6 shadow-sm border border-indigo-100">
+                    {{-- <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-5 mb-6 shadow-sm border border-indigo-100">
                         <h2 class="text-lg font-medium mb-3 flex items-center">
                             <i class="fas fa-brain text-indigo-600 mr-2"></i> SMART Weekly Evaluation Dashboards
                         </h2>
@@ -158,7 +158,7 @@
                                 </div>
                             </a>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Weekly Evaluation Status Overview -->
                     @if($weekCount > 0)
