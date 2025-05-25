@@ -408,6 +408,12 @@ class EvaluasiMingguanMagangController extends Controller
 
         $evaluasi->load(['magang', 'magang.pelamar', 'magang.pelamar.job', 'criteriaRatingScale', 'criteria']);
 
+        // Get all evaluations for this intern for the same week
+        $evaluasiList = EvaluasiMingguanMagang::where('magang_id', $evaluasi->magang_id)
+            ->where('minggu_ke', $evaluasi->minggu_ke)
+            ->with(['criteria', 'criteriaRatingScale'])
+            ->get();
+
         // Get SMART details for this evaluation
         $smartDetails = null;
         $criteriaContribution = null;
@@ -440,7 +446,7 @@ class EvaluasiMingguanMagangController extends Controller
             $actualCalculation = $this->actualCalculationService->getActualCalculation($evaluasi);
         }
 
-        return view('evaluasi.show', compact('evaluasi', 'smartDetails', 'criteriaContribution', 'actualCalculation'));
+        return view('evaluasi.show', compact('evaluasi', 'evaluasiList', 'smartDetails', 'criteriaContribution', 'actualCalculation'));
     }
 
     /**
