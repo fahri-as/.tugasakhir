@@ -805,14 +805,45 @@ class EvaluasiMingguanMagangController extends Controller
     public function getCriteriaRatings(Request $request)
     {
         try {
-            $validated = $request->validate([
-                'criteria_id' => 'required|exists:criteria,criteria_id',
+            // Log the incoming request for debugging
+            Log::info('Criteria Ratings Request:', [
+                'criteria_id' => $request->criteria_id,
+                'all_parameters' => $request->all()
             ]);
 
-            // Get all rating scales for this specific criterion
-            $ratings = CriteriaRatingScale::where('criteria_id', $request->criteria_id)
-                ->orderBy('rating_level')
-                ->get();
+            // Check if the criteria_id is in the format 'K1', 'K2', etc.
+            if (preg_match('/^K\d+$/', $request->criteria_id)) {
+                // This is a code, not an ID - let's try to find the criteria by code
+                $criteria = Criteria::where('code', $request->criteria_id)->first();
+
+                if ($criteria) {
+                    Log::info('Found criteria by code', ['code' => $request->criteria_id, 'criteria_id' => $criteria->criteria_id]);
+                    // Use the actual criteria_id instead of the code
+                    $ratings = CriteriaRatingScale::where('criteria_id', $criteria->criteria_id)
+                        ->orderBy('rating_level')
+                        ->get();
+                } else {
+                    Log::warning('Criteria not found by code', ['code' => $request->criteria_id]);
+                    // Return empty ratings instead of 404 error
+                    return response()->json([
+                        'success' => true,
+                        'ratings' => [],
+                        'message' => 'No criteria found with code: ' . $request->criteria_id
+                    ]);
+                }
+            } else {
+                // Regular validation for direct criteria_id lookup
+                $validated = $request->validate([
+                    'criteria_id' => 'required|exists:criteria,criteria_id',
+                ]);
+
+                // Get all rating scales for this specific criterion
+                $ratings = CriteriaRatingScale::where('criteria_id', $request->criteria_id)
+                    ->orderBy('rating_level')
+                    ->get();
+            }
+
+            Log::info('Returning ratings', ['count' => $ratings->count()]);
 
             return response()->json([
                 'success' => true,

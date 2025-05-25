@@ -549,8 +549,8 @@
         // Store all ratings by criteria ID
         const allRatings = {};
 
-                // Function to preload all ratings for all criteria in the system
-                async function preloadAllRatings() {
+        // Function to preload all ratings for all criteria in the system
+        async function preloadAllRatings() {
             try {
                 console.log('Starting preloadAllRatings');
 
@@ -611,29 +611,38 @@
                     console.log(`Found ${criteriaIds.size} unique criteria IDs to preload`);
 
                     // For each criteria, fetch ratings
-                    const fetchPromises = Array.from(criteriaIds).map(criteriaId =>
-                        fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken
+                    const fetchPromises = Array.from(criteriaIds).map(async criteriaId => {
+                        try {
+                            const response = await fetch(`/api/criteria-ratings?criteria_id=${criteriaId}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken
+                                }
+                            });
+
+                            if (!response.ok) {
+                                console.warn(`Failed to load ratings for criteria ${criteriaId}: ${response.status} ${response.statusText}`);
+                                return; // Skip this criteria if it fails
                             }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
+
+                            const data = await response.json();
+
                             if (data.success) {
                                 // Store ratings for this criteria
                                 allRatings[criteriaId] = data.ratings;
                                 console.log(`Loaded ${data.ratings.length} ratings for criteria ${criteriaId}`);
+                            } else {
+                                console.warn(`API returned error for criteria ${criteriaId}: ${data.message}`);
                             }
-                        })
-                        .catch(error => {
-                            console.error(`Error loading ratings for criteria ${criteriaId}:`, error);
-                        })
-                    );
+                        } catch (error) {
+                            console.warn(`Error loading ratings for criteria ${criteriaId}:`, error);
+                            // Don't throw - we want to continue with other criteria
+                        }
+                    });
 
-                    // Wait for all fetches to complete
-                    await Promise.all(fetchPromises);
+                    // Wait for all fetches to complete (including those that failed)
+                    await Promise.allSettled(fetchPromises);
                     console.log('All ratings preloaded successfully');
                 }
             } catch (error) {
@@ -1709,7 +1718,12 @@
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         // Store ratings for this criteria
@@ -1734,11 +1748,30 @@
                 .catch(error => {
                     console.error('Error loading ratings:', error);
                     dropdown.innerHTML = '<option value="">Error loading ratings</option>';
+
+                    // Try to recover by using placeholder ratings if criteria ID is in K1-K5 format
+                    if (/^K[1-5]$/.test(criteriaId)) {
+                        console.log("Using placeholder ratings as fallback");
+                        const placeholderRatings = [
+                            { id: 'placeholder1', name: 'Poor', rating_level: 1 },
+                            { id: 'placeholder2', name: 'Below Average', rating_level: 2 },
+                            { id: 'placeholder3', name: 'Average', rating_level: 3 },
+                            { id: 'placeholder4', name: 'Good', rating_level: 4 },
+                            { id: 'placeholder5', name: 'Excellent', rating_level: 5 }
+                        ];
+
+                        let fallbackHtml = '<option value="">Not Rated Yet</option>';
+                        placeholderRatings.forEach(rating => {
+                            fallbackHtml += `<option value="" disabled>${rating.name} - Nilai: ${rating.rating_level} (Placeholder)</option>`;
+                        });
+
+                        dropdown.innerHTML = fallbackHtml;
+                    }
                 });
             }
         }
 
-                // Auto-submit when period filter changes
+        // Auto-submit when period filter changes
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM content loaded');
 
