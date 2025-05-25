@@ -11,6 +11,7 @@ use App\Services\AHPCalculationService;
 use App\Services\SMARTCalculationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class SMARTEvaluasiController extends Controller
 {
@@ -24,11 +25,63 @@ class SMARTEvaluasiController extends Controller
     }
 
     /**
+     * Filter jobs based on user role
+     */
+    private function filterJobsByRole($jobs)
+    {
+        if (Auth::user()->role === 'admin') {
+            return $jobs;
+        }
+
+        if (Auth::user()->role === 'cook') {
+            return $jobs->filter(function($job) {
+                return str_contains(strtolower($job->nama_job), 'cook');
+            });
+        }
+
+        if (Auth::user()->role === 'pastry') {
+            return $jobs->filter(function($job) {
+                return str_contains(strtolower($job->nama_job), 'pastry');
+            });
+        }
+
+        return $jobs;
+    }
+
+    /**
+     * Filter magang/interns based on user role
+     */
+    private function filterMagangByRole($query)
+    {
+        if (Auth::user()->role === 'admin') {
+            return $query;
+        }
+
+        if (Auth::user()->role === 'cook') {
+            return $query->whereHas('pelamar', function($q) {
+                $q->whereHas('job', function($jobQuery) {
+                    $jobQuery->where('nama_job', 'like', '%cook%');
+                });
+            });
+        }
+
+        if (Auth::user()->role === 'pastry') {
+            return $query->whereHas('pelamar', function($q) {
+                $q->whereHas('job', function($jobQuery) {
+                    $jobQuery->where('nama_job', 'like', '%pastry%');
+                });
+            });
+        }
+
+        return $query;
+    }
+
+    /**
      * Display SMART ranking for a specific job, week, and period
      */
     public function index(Request $request)
     {
-        $jobs = Job::all();
+        $jobs = $this->filterJobsByRole(Job::all());
         $periodes = Periode::orderBy('tanggal_mulai', 'desc')->get();
 
         // Get selected job, period and week
@@ -80,10 +133,25 @@ class SMARTEvaluasiController extends Controller
      */
     public function showCriteriaWeights($jobId)
     {
-        $job = Job::findOrFail($jobId);
-        $criteria = Criteria::where('job_id', $jobId)->get();
+        // Check if user has access to this job
+        if (Auth::user()->role !== 'admin') {
+            $job = Job::find($jobId);
+            if (!$job) {
+                abort(404, 'Job not found');
+            }
 
-        return view('smart.criteria-weights', compact('job', 'criteria'));
+            if ((Auth::user()->role === 'cook' && !str_contains(strtolower($job->nama_job), 'cook')) ||
+                (Auth::user()->role === 'pastry' && !str_contains(strtolower($job->nama_job), 'pastry'))) {
+                abort(403, 'Unauthorized access');
+            }
+        }
+
+        $criteria = Criteria::where('job_id', $jobId)->orderBy('priority')->get();
+
+        return view('smart.evaluasi.criteria', [
+            'job' => Job::find($jobId),
+            'criteria' => $criteria
+        ]);
     }
 
     /**
@@ -110,29 +178,35 @@ class SMARTEvaluasiController extends Controller
      */
     public function showRankings(Request $request, $jobId)
     {
-        $job = Job::findOrFail($jobId);
-        $periodes = Periode::orderBy('tanggal_mulai', 'desc')->get();
-
-        // Get selected period
-        $selectedPeriodeId = $request->periode_id;
-
-        // Update total scores using SMART
-        $success = $this->smartService->updateTotalScores($jobId, $selectedPeriodeId);
-
-        // Get updated intern rankings
-        $internsQuery = Magang::whereHas('pelamar', function($query) use ($jobId, $selectedPeriodeId) {
-            $query->where('job_id', $jobId);
-            if ($selectedPeriodeId) {
-                $query->where('periode_id', $selectedPeriodeId);
+        // Check if user has access to this job
+        if (Auth::user()->role !== 'admin') {
+            $job = Job::find($jobId);
+            if (!$job) {
+                abort(404, 'Job not found');
             }
-        })
-        ->with(['pelamar', 'pelamar.job', 'pelamar.periode', 'evaluasiMingguan'])
-        ->orderBy('rank')
-        ->orderByDesc('total_skor');
 
-        $interns = $internsQuery->get();
+            if ((Auth::user()->role === 'cook' && !str_contains(strtolower($job->nama_job), 'cook')) ||
+                (Auth::user()->role === 'pastry' && !str_contains(strtolower($job->nama_job), 'pastry'))) {
+                abort(403, 'Unauthorized access');
+            }
+        }
 
-        return view('smart.rankings', compact('job', 'periodes', 'interns', 'selectedPeriodeId'));
+        $criteria = Criteria::where('job_id', $jobId)->get();
+
+        $magangQuery = Magang::with(['pelamar' => function($query) use ($jobId) {
+            $query->where('job_id', $jobId);
+        }])->whereHas('pelamar', function($query) use ($jobId) {
+            $query->where('job_id', $jobId);
+        });
+
+        // Filter interns based on user role
+        $interns = $this->filterMagangByRole($magangQuery)->get();
+
+        return view('smart.evaluasi.rankings', [
+            'job' => Job::find($jobId),
+            'interns' => $interns,
+            'criteria' => $criteria
+        ]);
     }
 
     /**
@@ -140,8 +214,27 @@ class SMARTEvaluasiController extends Controller
      */
     public function showInternDetail($jobId, $magangId)
     {
-        $job = Job::findOrFail($jobId);
-        $magang = Magang::with(['pelamar', 'pelamar.job', 'pelamar.periode', 'evaluasiMingguan'])->findOrFail($magangId);
+        $magang = Magang::with('pelamar')->findOrFail($magangId);
+
+        // Check if user has access to this intern
+        if (Auth::user()->role !== 'admin') {
+            $job = Job::find($jobId);
+            if (!$job) {
+                abort(404, 'Job not found');
+            }
+
+            if ((Auth::user()->role === 'cook' && !str_contains(strtolower($job->nama_job), 'cook')) ||
+                (Auth::user()->role === 'pastry' && !str_contains(strtolower($job->nama_job), 'pastry'))) {
+                abort(403, 'Unauthorized access');
+            }
+
+            // Double-check the intern's job also matches user's role
+            $internJobName = $magang->pelamar->job->nama_job ?? '';
+            if ((Auth::user()->role === 'cook' && !str_contains(strtolower($internJobName), 'cook')) ||
+                (Auth::user()->role === 'pastry' && !str_contains(strtolower($internJobName), 'pastry'))) {
+                abort(403, 'Unauthorized access');
+            }
+        }
 
         // Get periode details
         $periode = null;
@@ -167,12 +260,12 @@ class SMARTEvaluasiController extends Controller
             }
         }
 
-        return view('smart.intern-detail', compact(
-            'job',
-            'magang',
-            'periode',
-            'criteria',
-            'weeklyScores'
-        ));
+        return view('smart.evaluasi.intern-detail', [
+            'job' => Job::find($jobId),
+            'intern' => $magang,
+            'periode' => $periode,
+            'criteria' => $criteria,
+            'weeklyScores' => $weeklyScores
+        ]);
     }
 }

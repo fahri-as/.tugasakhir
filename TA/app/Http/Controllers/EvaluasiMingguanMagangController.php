@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\CriteriaRatingScale;
+use Illuminate\Support\Facades\Auth;
 
 class EvaluasiMingguanMagangController extends Controller
 {
@@ -27,6 +28,37 @@ class EvaluasiMingguanMagangController extends Controller
     ) {
         $this->smartService = $smartService;
         $this->actualCalculationService = $actualCalculationService;
+    }
+
+    /**
+     * Filter query based on user role
+     */
+    private function filterByUserRole($query)
+    {
+        // If user is admin, no filtering needed
+        if (Auth::user()->role === 'admin') {
+            return $query;
+        }
+
+        // For cook, only show cook job related data
+        if (Auth::user()->role === 'cook') {
+            return $query->whereHas('magang.pelamar', function ($q) {
+                $q->whereHas('job', function ($jobQuery) {
+                    $jobQuery->where('nama_job', 'like', '%cook%');
+                });
+            });
+        }
+
+        // For pastry, only show pastry job related data
+        if (Auth::user()->role === 'pastry') {
+            return $query->whereHas('magang.pelamar', function ($q) {
+                $q->whereHas('job', function ($jobQuery) {
+                    $jobQuery->where('nama_job', 'like', '%pastry%');
+                });
+            });
+        }
+
+        return $query;
     }
 
     /**
@@ -190,7 +222,8 @@ class EvaluasiMingguanMagangController extends Controller
                 $query->where('magang_id', $magangId);
             }
 
-            $evaluations = $query->get();
+            // Apply role-based filtering
+            $evaluations = $this->filterByUserRole($query)->get();
 
             // Get total scores for each magang for this week or all weeks
             $totalScoresQuery = DB::table('total_skor_minggu_magang')
@@ -272,9 +305,9 @@ class EvaluasiMingguanMagangController extends Controller
         $selectedWeek = $request->week;
         $selectedMagangId = $request->magang_id;
 
-        // Get interns who are currently active (status_seleksi = 'Sedang Berjalan')
-        $magang = Magang::where('status_seleksi', 'Sedang Berjalan')
-            ->with(['pelamar', 'pelamar.job'])
+        // Filter magang based on user role
+        $magangs = $this->filterByUserRole(Magang::query())
+            ->with('pelamar')
             ->when($selectedPeriodeId, function($query) use ($selectedPeriodeId) {
                 return $query->whereHas('pelamar', function($q) use ($selectedPeriodeId) {
                     $q->where('periode_id', $selectedPeriodeId);
@@ -289,7 +322,7 @@ class EvaluasiMingguanMagangController extends Controller
         // Note: In the view, we'll use JavaScript to fetch specific scales for selected criteria
         $criteriaRatingScales = CriteriaRatingScale::orderBy('rating_level')->limit(1)->get();
 
-        return view('evaluasi.create', compact('magang', 'criteria', 'criteriaRatingScales', 'selectedWeek', 'selectedMagangId'));
+        return view('evaluasi.create', compact('magangs', 'criteria', 'criteriaRatingScales', 'selectedWeek', 'selectedMagangId'));
     }
 
     /**
@@ -363,6 +396,16 @@ class EvaluasiMingguanMagangController extends Controller
      */
     public function show(EvaluasiMingguanMagang $evaluasi)
     {
+        // Check if the current user has access to this evaluation based on role
+        if (Auth::user()->role !== 'admin') {
+            $jobName = $evaluasi->magang->pelamar->job->nama_job ?? '';
+
+            if ((Auth::user()->role === 'cook' && !str_contains(strtolower($jobName), 'cook')) ||
+                (Auth::user()->role === 'pastry' && !str_contains(strtolower($jobName), 'pastry'))) {
+                abort(403, 'You are not authorized to view this evaluation');
+            }
+        }
+
         $evaluasi->load(['magang', 'magang.pelamar', 'magang.pelamar.job', 'criteriaRatingScale', 'criteria']);
 
         // Get SMART details for this evaluation
@@ -613,22 +656,39 @@ class EvaluasiMingguanMagangController extends Controller
      */
     public function smartDashboard(Request $request)
     {
+        $jobs = Job::all();
+
+        // Filter jobs based on user role
+        if (Auth::user()->role === 'cook') {
+            $jobs = $jobs->filter(function($job) {
+                return str_contains(strtolower($job->nama_job), 'cook');
+            });
+        } elseif (Auth::user()->role === 'pastry') {
+            $jobs = $jobs->filter(function($job) {
+                return str_contains(strtolower($job->nama_job), 'pastry');
+            });
+        }
+
+        $jobId = $request->input('job_id', optional($jobs->first())->job_id);
+
+        // If no jobs available based on role restrictions, show empty data
+        if (!$jobId) {
+            return view('evaluasi.smart-dashboard', [
+                'jobs' => $jobs,
+                'periods' => collect([]),
+                'jobId' => null,
+                'selectedPeriodeId' => null,
+                'criteria' => collect([]),
+                'interns' => collect([]),
+                'weekCount' => 0,
+                'weeklyRankings' => collect([])
+            ]);
+        }
+
         try {
-            // Get job ID or default to Cook (JOB001)
-            $jobId = $request->job_id ?? 'JOB001';
-
-            // Validate that job ID is Cook or Pastry Chef
-            if (!in_array($jobId, ['JOB001', 'JOB004'])) {
-                return redirect()->route('evaluasi.index')
-                    ->with('error', 'SMART calculation is only available for Cook and Pastry Chef positions');
-            }
-
             // Get period ID or default to latest
             $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
             $selectedPeriodeId = $request->periode_id ?? ($latestPeriode ? $latestPeriode->periode_id : null);
-
-            // Get available jobs (only Cook and Pastry Chef)
-            $jobs = Job::whereIn('job_id', ['JOB001', 'JOB004'])->orderBy('nama_job')->get();
 
             // Get available periods
             $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();

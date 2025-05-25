@@ -20,6 +20,8 @@ use App\Http\Controllers\TesKemampuanRatingScaleController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Periode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Middleware\CheckRole;
 
 Route::get('/', function () {
     $periodes = Periode::with('jobs')->get();
@@ -38,11 +40,55 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Routes accessible by all authenticated users
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
+// Routes accessible by cook and pastry roles
+Route::middleware(['auth', CheckRole::class.':cook,pastry,admin'])->group(function () {
+    // Evaluasi Mingguan routes - accessible by cook and pastry roles
+    Route::resource('evaluasi', EvaluasiMingguanMagangController::class);
+
+    // Add SMART dashboard route for Evaluasi
+    Route::get('evaluasi/smart-dashboard', [EvaluasiMingguanMagangController::class, 'smartDashboard'])
+        ->name('evaluasi.smartDashboard');
+
+    // API route for getting evaluations by week (for AJAX calls)
+    Route::get('/api/evaluations', [EvaluasiMingguanMagangController::class, 'getByWeek'])
+        ->name('api.evaluations');
+
+    // API route for updating evaluation ratings
+    Route::post('/api/evaluations/update', [EvaluasiMingguanMagangController::class, 'updateRating'])
+        ->name('api.evaluations.update');
+
+    // API route for getting ratings for a specific criterion
+    Route::get('/api/criteria-ratings', [EvaluasiMingguanMagangController::class, 'getCriteriaRatings'])
+        ->name('api.criteria.ratings');
+
+    // Magang routes - read-only access for evaluations
+    Route::get('magang/smart-dashboard', [MagangController::class, 'smartDashboard'])
+        ->name('magang.smartDashboard');
+    Route::get('magang/{magang}/weekly-scores', [MagangController::class, 'weeklyTotalScores'])
+        ->name('magang.weeklyScores');
+    Route::get('magang', [MagangController::class, 'index'])->name('magang.index');
+    Route::get('magang/{magang}', [MagangController::class, 'show'])->name('magang.show');
+
+    // SMART Weekly Evaluation Routes
+    Route::get('/smart/evaluasi', [SMARTEvaluasiController::class, 'index'])
+        ->name('smart.evaluasi');
+    Route::get('/smart/criteria/{jobId}', [SMARTEvaluasiController::class, 'showCriteriaWeights'])
+        ->name('smart.criteria');
+    Route::get('/smart/rankings/{jobId}', [SMARTEvaluasiController::class, 'showRankings'])
+        ->name('smart.rankings');
+    Route::get('/smart/intern/{jobId}/{magangId}', [SMARTEvaluasiController::class, 'showInternDetail'])
+        ->name('smart.intern.detail');
+});
+
+// Routes accessible only by admin
+Route::middleware(['auth', CheckRole::class.':admin'])->group(function () {
     // Job routes
     Route::resource('jobs', JobController::class);
     Route::resource('job', JobController::class);
@@ -64,89 +110,33 @@ Route::middleware('auth')->group(function () {
     Route::get('/tes-kemampuan/get-rating-scales-for-pelamar/{pelamarId}', [TesKemampuanController::class, 'getRatingScalesForPelamar'])
         ->name('tes-kemampuan.get-rating-scales-for-pelamar');
 
-    // Magang routes
-
-    // Add SMART dashboard route for Magang (must be before resource route)
-    Route::get('magang/smart-dashboard', [MagangController::class, 'smartDashboard'])
-        ->name('magang.smartDashboard');
-
-    // Add weekly total scores route (must be before resource route)
-    Route::get('magang/{magang}/weekly-scores', [MagangController::class, 'weeklyTotalScores'])
-        ->name('magang.weeklyScores');
-
-    Route::resource('magang', MagangController::class);
+    // Admin Magang routes - full access
+    Route::resource('magang', MagangController::class)->except(['index', 'show']);
     Route::patch('magang/{magang}/status', [MagangController::class, 'updateStatus'])
         ->name('magang.updateStatus');
     // Add the new route for scheduling internship start and creating evaluations
     Route::post('magang/schedule-start/{tesKemampuan}', [MagangController::class, 'scheduleStart'])
         ->name('magang.schedule-start');
 
-    // Evaluasi Mingguan routes
-    Route::resource('evaluasi', EvaluasiMingguanMagangController::class);
-
-    // Add SMART dashboard route for Evaluasi
-    Route::get('evaluasi/smart-dashboard', [EvaluasiMingguanMagangController::class, 'smartDashboard'])
-        ->name('evaluasi.smartDashboard');
-
-    // API route for getting evaluations by week (for AJAX calls)
-    Route::get('/api/evaluations', [EvaluasiMingguanMagangController::class, 'getByWeek'])
-        ->name('api.evaluations');
-
-    // API route for updating evaluation ratings
-    Route::post('/api/evaluations/update', [EvaluasiMingguanMagangController::class, 'updateRating'])->name('api.evaluations.update');
-
-    // API route for getting ratings for a specific criterion
-    Route::get('/api/criteria-ratings', [EvaluasiMingguanMagangController::class, 'getCriteriaRatings'])->name('api.criteria.ratings');
-
     // Criteria routes
-    Route::get('/criteria', [CriteriaController::class, 'index'])->name('criteria.index');
-    Route::get('/criteria/create', [CriteriaController::class, 'create'])->name('criteria.create');
-    Route::post('/criteria', [CriteriaController::class, 'store'])->name('criteria.store');
-    Route::get('/criteria/{criterion}', [CriteriaController::class, 'show'])->name('criteria.show');
-    Route::get('/criteria/{criterion}/edit', [CriteriaController::class, 'edit'])->name('criteria.edit');
-    Route::put('/criteria/{criterion}', [CriteriaController::class, 'update'])->name('criteria.update');
-    Route::delete('/criteria/{criterion}', [CriteriaController::class, 'destroy'])->name('criteria.destroy');
-    Route::delete('/criteria/{criterion}/force', [CriteriaController::class, 'forceDestroy'])->name('criteria.force-destroy');
+    Route::resource('criteria', CriteriaController::class);
     Route::post('/criteria/update-weights', [CriteriaController::class, 'updateWeights'])->name('criteria.update-weights');
+    Route::delete('/criteria/{criterion}/force', [CriteriaController::class, 'forceDestroy'])->name('criteria.force-destroy');
 
     // Criteria Rating Scale Routes
-    Route::get('/criteria-rating-scales', [CriteriaRatingScaleController::class, 'index'])->name('criteria-rating-scales.index');
-    Route::get('/criteria-rating-scales/create', [CriteriaRatingScaleController::class, 'create'])->name('criteria-rating-scales.create');
-    Route::post('/criteria-rating-scales', [CriteriaRatingScaleController::class, 'store'])->name('criteria-rating-scales.store');
-    Route::get('/criteria-rating-scales/{ratingScale}', [CriteriaRatingScaleController::class, 'show'])->name('criteria-rating-scales.show');
-    Route::get('/criteria-rating-scales/{ratingScale}/edit', [CriteriaRatingScaleController::class, 'edit'])->name('criteria-rating-scales.edit');
-    Route::put('/criteria-rating-scales/{ratingScale}', [CriteriaRatingScaleController::class, 'update'])->name('criteria-rating-scales.update');
-    Route::delete('/criteria-rating-scales/{ratingScale}', [CriteriaRatingScaleController::class, 'destroy'])->name('criteria-rating-scales.destroy');
+    Route::resource('criteria-rating-scales', CriteriaRatingScaleController::class);
     Route::get('/criteria/{criteriaId}/rating-scales', [CriteriaRatingScaleController::class, 'getByCriteria'])->name('criteria.rating-scales');
 
     // Interview Rating Scale Routes
-    Route::get('/interview-rating-scales', [InterviewRatingScaleController::class, 'index'])->name('interview-rating-scales.index');
-    Route::get('/interview-rating-scales/create', [InterviewRatingScaleController::class, 'create'])->name('interview-rating-scales.create');
-    Route::post('/interview-rating-scales', [InterviewRatingScaleController::class, 'store'])->name('interview-rating-scales.store');
-    Route::get('/interview-rating-scales/{ratingScale}', [InterviewRatingScaleController::class, 'show'])->name('interview-rating-scales.show');
-    Route::get('/interview-rating-scales/{ratingScale}/edit', [InterviewRatingScaleController::class, 'edit'])->name('interview-rating-scales.edit');
-    Route::put('/interview-rating-scales/{ratingScale}', [InterviewRatingScaleController::class, 'update'])->name('interview-rating-scales.update');
-    Route::delete('/interview-rating-scales/{ratingScale}', [InterviewRatingScaleController::class, 'destroy'])->name('interview-rating-scales.destroy');
+    Route::resource('interview-rating-scales', InterviewRatingScaleController::class);
     Route::get('/interview-criteria/{criteriaId}/rating-scales', [InterviewRatingScaleController::class, 'getByCriteria'])->name('interview-criteria.rating-scales');
 
     // Tes Kemampuan Rating Scale Routes
-    Route::get('/tes-kemampuan-rating-scales', [TesKemampuanRatingScaleController::class, 'index'])->name('tes-kemampuan-rating-scales.index');
-    Route::get('/tes-kemampuan-rating-scales/create', [TesKemampuanRatingScaleController::class, 'create'])->name('tes-kemampuan-rating-scales.create');
-    Route::post('/tes-kemampuan-rating-scales', [TesKemampuanRatingScaleController::class, 'store'])->name('tes-kemampuan-rating-scales.store');
-    Route::get('/tes-kemampuan-rating-scales/{ratingScale}', [TesKemampuanRatingScaleController::class, 'show'])->name('tes-kemampuan-rating-scales.show');
-    Route::get('/tes-kemampuan-rating-scales/{ratingScale}/edit', [TesKemampuanRatingScaleController::class, 'edit'])->name('tes-kemampuan-rating-scales.edit');
-    Route::put('/tes-kemampuan-rating-scales/{ratingScale}', [TesKemampuanRatingScaleController::class, 'update'])->name('tes-kemampuan-rating-scales.update');
-    Route::delete('/tes-kemampuan-rating-scales/{ratingScale}', [TesKemampuanRatingScaleController::class, 'destroy'])->name('tes-kemampuan-rating-scales.destroy');
+    Route::resource('tes-kemampuan-rating-scales', TesKemampuanRatingScaleController::class);
     Route::get('/tes-kemampuan-criteria/{criteriaId}/rating-scales', [TesKemampuanRatingScaleController::class, 'getByCriteria'])->name('tes-kemampuan-criteria.rating-scales');
 
     // Criteria Comparison Routes
-    Route::get('/criteria-comparisons', [CriteriaComparisonController::class, 'index'])->name('criteria-comparisons.index');
-    Route::get('/criteria-comparisons/create', [CriteriaComparisonController::class, 'create'])->name('criteria-comparisons.create');
-    Route::post('/criteria-comparisons', [CriteriaComparisonController::class, 'store'])->name('criteria-comparisons.store');
-    Route::get('/criteria-comparisons/{comparison}', [CriteriaComparisonController::class, 'show'])->name('criteria-comparisons.show');
-    Route::get('/criteria-comparisons/{comparison}/edit', [CriteriaComparisonController::class, 'edit'])->name('criteria-comparisons.edit');
-    Route::put('/criteria-comparisons/{comparison}', [CriteriaComparisonController::class, 'update'])->name('criteria-comparisons.update');
-    Route::delete('/criteria-comparisons/{comparison}', [CriteriaComparisonController::class, 'destroy'])->name('criteria-comparisons.destroy');
+    Route::resource('criteria-comparisons', CriteriaComparisonController::class);
     Route::get('/criteria/{criteriaId}/comparisons', [CriteriaComparisonController::class, 'getByCriteria'])->name('criteria.comparisons');
 
     // Decision Support System (DSS) routes
@@ -159,21 +149,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/smart/{job_id}', [SMARTController::class, 'index'])->name('smart.index');
     Route::post('/smart/{job_id}/apply', [SMARTController::class, 'applyRanking'])->name('smart.apply-ranking');
 
-    // New SMART Weekly Evaluation Routes
-    Route::get('/smart/evaluasi', [SMARTEvaluasiController::class, 'index'])
-        ->name('smart.evaluasi');
-
-    // Criteria Weights Routes
-    Route::get('/smart/criteria/{jobId}', [SMARTEvaluasiController::class, 'showCriteriaWeights'])
-        ->name('smart.criteria');
+    // SMART Rankings admin routes
     Route::post('/smart/criteria/{jobId}/calculate', [SMARTEvaluasiController::class, 'calculateWeights'])
         ->name('smart.calculate-weights');
-
-    // SMART Rankings Routes
-    Route::get('/smart/rankings/{jobId}', [SMARTEvaluasiController::class, 'showRankings'])
-        ->name('smart.rankings');
-    Route::get('/smart/intern/{jobId}/{magangId}', [SMARTEvaluasiController::class, 'showInternDetail'])
-        ->name('smart.intern.detail');
 
     // Add a temporary debug route
     Route::get('/test-evaluasi-dashboard', function(Request $request) {
@@ -200,5 +178,27 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('test.evaluasi.dashboard');
 });
+
+// Test routes for roles
+Route::get('/test-roles', function() {
+    $user = Auth::user();
+    return response()->json([
+        'user' => $user->username,
+        'email' => $user->email,
+        'role' => $user->role
+    ]);
+})->middleware(['auth']);
+
+Route::get('/test-admin', function() {
+    return "You are an admin";
+})->middleware(['auth', \App\Http\Middleware\CheckRole::class.':admin']);
+
+Route::get('/test-cook', function() {
+    return "You are a cook";
+})->middleware(['auth', \App\Http\Middleware\CheckRole::class.':cook']);
+
+Route::get('/test-pastry', function() {
+    return "You are a pastry chef";
+})->middleware(['auth', \App\Http\Middleware\CheckRole::class.':pastry']);
 
 require __DIR__.'/auth.php';

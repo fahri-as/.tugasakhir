@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\InternshipScheduled;
+use App\Models\TotalSkorMingguMagang;
 
 class MagangController extends Controller
 {
@@ -28,6 +29,37 @@ class MagangController extends Controller
     public function __construct(SMARTCalculationService $smartService)
     {
         $this->smartService = $smartService;
+    }
+
+    /**
+     * Filter query based on user role
+     */
+    private function filterByUserRole($query)
+    {
+        // If user is admin, no filtering needed
+        if (Auth::user()->role === 'admin') {
+            return $query;
+        }
+
+        // For cook, only show cook job related data
+        if (Auth::user()->role === 'cook') {
+            return $query->whereHas('pelamar', function ($q) {
+                $q->whereHas('job', function ($jobQuery) {
+                    $jobQuery->where('nama_job', 'like', '%cook%');
+                });
+            });
+        }
+
+        // For pastry, only show pastry job related data
+        if (Auth::user()->role === 'pastry') {
+            return $query->whereHas('pelamar', function ($q) {
+                $q->whereHas('job', function ($jobQuery) {
+                    $jobQuery->where('nama_job', 'like', '%pastry%');
+                });
+            });
+        }
+
+        return $query;
     }
 
     /**
@@ -103,7 +135,7 @@ class MagangController extends Controller
         }
 
         // Use pagination instead of get()
-        $magang = $query->paginate(10)->withQueryString();
+        $magang = $this->filterByUserRole($query)->paginate(10)->withQueryString();
 
         // Get all available periods
         $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();
@@ -287,6 +319,11 @@ class MagangController extends Controller
      */
     public function create()
     {
+        // Only admin can create
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
         $pelamar = Pelamar::doesntHave('magang')->get();
         $users = User::all();
         return view('magang.create', compact('pelamar', 'users'));
@@ -297,6 +334,11 @@ class MagangController extends Controller
      */
     public function store(Request $request)
     {
+        // Only admin can store
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate([
             'pelamar_id' => 'required|exists:pelamar,pelamar_id',
             'user_id' => 'required|exists:user,user_id',
@@ -433,6 +475,16 @@ class MagangController extends Controller
      */
     public function show(Magang $magang)
     {
+        // Check if the current user has access to this internship based on role
+        if (Auth::user()->role !== 'admin') {
+            $jobName = $magang->pelamar->job->nama_job ?? '';
+
+            if ((Auth::user()->role === 'cook' && !str_contains(strtolower($jobName), 'cook')) ||
+                (Auth::user()->role === 'pastry' && !str_contains(strtolower($jobName), 'pastry'))) {
+                abort(403, 'You are not authorized to view this internship');
+            }
+        }
+
         // Load relationships
         $magang->load(['pelamar', 'pelamar.job', 'user', 'evaluasiMingguan.criteria', 'evaluasiMingguan.criteriaRatingScale']);
 
@@ -478,6 +530,16 @@ class MagangController extends Controller
      */
     public function weeklyTotalScores(Magang $magang)
     {
+        // Check if the current user has access to this internship based on role
+        if (Auth::user()->role !== 'admin') {
+            $jobName = $magang->pelamar->job->nama_job ?? '';
+
+            if ((Auth::user()->role === 'cook' && !str_contains(strtolower($jobName), 'cook')) ||
+                (Auth::user()->role === 'pastry' && !str_contains(strtolower($jobName), 'pastry'))) {
+                abort(403, 'You are not authorized to view this internship');
+            }
+        }
+
         // Get weekly total scores from the database
         $weeklyTotalScores = $this->smartService->getWeeklyTotalScores($magang->magang_id);
 
@@ -770,65 +832,46 @@ class MagangController extends Controller
      */
     public function smartDashboard(Request $request)
     {
-        // Get selected job or default to Cook (JOB001)
-        $jobId = $request->job_id ?? 'JOB001';
+        $jobs = \App\Models\Job::all();
 
-        // Validate that job ID is Cook or Pastry Chef
-        if (!in_array($jobId, ['JOB001', 'JOB004'])) {
-            return redirect()->route('magang.index')
-                ->with('error', 'SMART dashboard is only available for Cook and Pastry Chef positions');
+        // Filter jobs based on user role
+        if (Auth::user()->role === 'cook') {
+            $jobs = $jobs->filter(function($job) {
+                return str_contains(strtolower($job->nama_job), 'cook');
+            });
+        } elseif (Auth::user()->role === 'pastry') {
+            $jobs = $jobs->filter(function($job) {
+                return str_contains(strtolower($job->nama_job), 'pastry');
+            });
         }
+
+        $jobId = $request->input('job_id', optional($jobs->first())->job_id);
+
+        // If no jobs available based on role restrictions, show empty data
+        if (!$jobId) {
+            return view('magang.smart-dashboard', [
+                'jobs' => $jobs,
+                'jobId' => null,
+                'interns' => collect([]),
+                'weeklyTotals' => collect([])
+            ]);
+        }
+
+        // Filter interns based on job and role
+        $internsQuery = Magang::with(['pelamar' => function($query) use ($jobId) {
+            $query->where('job_id', $jobId);
+        }])->whereHas('pelamar', function($query) use ($jobId) {
+            $query->where('job_id', $jobId);
+        });
+
+        $interns = $this->filterByUserRole($internsQuery)->get();
 
         // Get selected period or default to latest
         $latestPeriode = Periode::orderBy('tanggal_mulai', 'desc')->first();
         $selectedPeriodeId = $request->periode_id ?? ($latestPeriode ? $latestPeriode->periode_id : null);
 
-        // Get jobs (only Cook and Pastry Chef) for dropdown - forced refresh to avoid cache
-        $jobs = Job::whereIn('job_id', ['JOB001', 'JOB004'])
-            ->orderBy('nama_job')
-            ->get()
-            ->map(function($job) {
-                // Ensure job names are correct
-                if ($job->job_id === 'JOB001') {
-                    $job->nama_job = 'Cook';
-                } else if ($job->job_id === 'JOB004') {
-                    $job->nama_job = 'Pastry Chef';
-                }
-                return $job;
-            });
-
-        // Get the selected job for the title - force fresh query to ensure we get updated data
-        $job = Job::where('job_id', $jobId)->first();
-        if (!$job) {
-            return redirect()->route('magang.index')
-                ->with('error', 'Job not found');
-        }
-
-        // Make sure job data is not from cache
-        if ($jobId === 'JOB001') {
-            // Force update the job name if needed
-            $job->nama_job = 'Cook';
-        } else if ($jobId === 'JOB004') {
-            $job->nama_job = 'Pastry Chef';
-        }
-
         // Get periods for dropdown
         $periods = Periode::orderBy('tanggal_mulai', 'desc')->get();
-
-        // Get interns for this job and period
-        $interns = Magang::whereHas('pelamar', function($query) use ($jobId, $selectedPeriodeId) {
-            $query->where('job_id', $jobId);
-            if ($selectedPeriodeId) {
-                $query->where('periode_id', $selectedPeriodeId);
-            }
-        })
-        ->with(['pelamar'])
-        ->orderBy('rank')
-        ->orderByDesc('total_skor')
-        ->get();
-
-        // Get criteria for this job
-        $criteria = Criteria::where('job_id', $jobId)->orderBy('code')->get();
 
         // Get period info to determine weeks
         $periode = null;
@@ -871,13 +914,11 @@ class MagangController extends Controller
         }
 
         return view('magang.smart-dashboard', compact(
-            'job',
             'jobs',
-            'periods',
             'jobId',
-            'selectedPeriodeId',
             'interns',
-            'criteria',
+            'periods',
+            'selectedPeriodeId',
             'weekCount',
             'weeklyRankings',
             'criteriaContributions'
