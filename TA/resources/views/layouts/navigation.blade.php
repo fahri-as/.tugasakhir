@@ -38,7 +38,20 @@
                     </x-nav-link>
                     @endif
 
-                    
+                    @if(Auth::user()->role === 'cook')
+                    <x-nav-link :href="route('evaluasi.index')" :active="request()->routeIs('evaluasi.*')" class="group transition-all duration-300 flex items-center px-3">
+                        <i class="fas fa-chart-line mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
+                        <span class="transition-all duration-300">Evaluations</span>
+                    </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->role === 'pastry')
+                    <x-nav-link :href="route('evaluasi.index')" :active="request()->routeIs('evaluasi.*')" class="group transition-all duration-300 flex items-center px-3">
+                        <i class="fas fa-chart-line mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
+                        <span class="transition-all duration-300">Evaluations</span>
+                    </x-nav-link>
+                    @endif
+
 
                     @if(Auth::user()->role === 'admin')
                     <x-dropdown align="right" width="48" contentClasses="py-1 bg-white rounded-md border border-gray-100 shadow-lg">
@@ -61,10 +74,6 @@
                             <x-dropdown-link :href="route('magang.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
                                 <i class="fas fa-user-graduate mr-2 text-gray-400"></i>
                                 Internships
-                            </x-dropdown-link>
-                            <x-dropdown-link :href="route('evaluasi.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
-                                <i class="fas fa-chart-line mr-2 text-gray-400"></i>
-                                Evaluations
                             </x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
