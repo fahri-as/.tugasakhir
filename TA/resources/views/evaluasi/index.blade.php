@@ -238,47 +238,64 @@
                                                         @endphp
 
                                                         @if($isFullyEvaluated)
-                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer transform transition duration-200 hover:-translate-y-1" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);">
-                                                                <span data-status class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                                                                    <i class="fas fa-check-circle mr-1"></i> Completed
-                                                                </span>
-                                                                <span class="mt-1 text-xs">
-                                                                    <span data-counter>{{ $ratedCriteria }}/{{ $totalCriteria }}</span> criteria
-                                                                </span>
-                                                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                                                                    <div class="progress-value bg-green-600 h-1.5 rounded-full" style="width: 100%"></div>
-                                                                </div>
+                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer transform transition duration-200 hover:-translate-y-1">
+                                                                <a href="{{ route('evaluasi.edit', ['evaluasi' => $evaluationsByWeek[$week][$intern->magang_id][0]->evaluasi_id ?? 0]) }}" class="inline-flex flex-col items-center">
+                                                                    <span data-status class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                                                                        <i class="fas fa-check-circle mr-1"></i> Completed
+                                                                    </span>
+                                                                    <span class="mt-1 text-xs">
+                                                                        <span data-counter>{{ $ratedCriteria }}/{{ $totalCriteria }}</span> criteria
+                                                                    </span>
+                                                                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                                        <div class="progress-value bg-green-600 h-1.5 rounded-full" style="width: 100%"></div>
+                                                                    </div>
+                                                                </a>
                                                             </span>
                                                         @elseif($isPartiallyEvaluated)
-                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer transform transition duration-200 hover:-translate-y-1" onclick="loadWeekEvaluations('{{ $selectedPeriodeId }}', {{ $week }}); setTimeout(() => showInternEvaluations('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}'), 500);">
-                                                                <span data-status class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
-                                                                    <i class="fas fa-clock mr-1"></i> In Progress
-                                                                </span>
-                                                                <span class="mt-1 text-xs">
-                                                                    <span data-counter>{{ $ratedCriteria }}/{{ $totalCriteria }}</span> criteria
-                                                                </span>
-                                                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                                                                    <div class="progress-value bg-yellow-600 h-1.5 rounded-full" style="width: {{ ($ratedCriteria / $totalCriteria) * 100 }}%"></div>
-                                                                </div>
+                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer transform transition duration-200 hover:-translate-y-1">
+                                                                <a href="{{ route('evaluasi.edit', ['evaluasi' => $evaluationsByWeek[$week][$intern->magang_id][0]->evaluasi_id ?? 0]) }}" class="inline-flex flex-col items-center">
+                                                                    <span data-status class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                                                                        <i class="fas fa-clock mr-1"></i> In Progress
+                                                                    </span>
+                                                                    <span class="mt-1 text-xs">
+                                                                        <span data-counter>{{ $ratedCriteria }}/{{ $totalCriteria }}</span> criteria
+                                                                    </span>
+                                                                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                                        <div class="progress-value bg-yellow-600 h-1.5 rounded-full" style="width: {{ ($ratedCriteria / $totalCriteria) * 100 }}%"></div>
+                                                                    </div>
+                                                                </a>
                                                             </span>
                                                         @else
-                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer transform transition duration-200 hover:-translate-y-1" onclick="currentPeriod = '{{ $selectedPeriodeId }}'; currentWeek = {{ $week }}; handleNotEvaluated(currentPeriod, currentWeek, '{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}', '{{ $intern->pelamar->job->job_id ?? 'unknown' }}');">
-                                                                <span data-status class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">
-                                                                    <i class="fas fa-times-circle mr-1"></i> Not Started
-                                                                </span>
-                                                                <span class="mt-1 text-xs">
-                                                                    <span data-counter>0/{{ $totalCriteria }}</span> criteria
-                                                                </span>
-                                                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                                                                    <div class="progress-value bg-gray-400 h-1.5 rounded-full" style="width: 0%"></div>
-                                                                </div>
+                                                            @php
+                                                                // Check if any evaluations exist for this intern/week
+                                                                $hasEvaluations = isset($evaluationsByWeek[$week][$intern->magang_id]) && count($evaluationsByWeek[$week][$intern->magang_id]) > 0;
+                                                            @endphp
+                                                            <span data-status-card data-magang-id="{{ $intern->magang_id }}" data-week="{{ $week }}" class="inline-flex flex-col items-center cursor-pointer transform transition duration-200 hover:-translate-y-1">
+                                                                @if($hasEvaluations)
+                                                                    <a href="{{ route('evaluasi.edit', ['evaluasi' => $evaluationsByWeek[$week][$intern->magang_id][0]->evaluasi_id ?? 0]) }}" class="inline-flex flex-col items-center">
+                                                                        <span data-status class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">
+                                                                            <i class="fas fa-edit mr-1"></i> Fill Ratings
+                                                                        </span>
+                                                                @else
+                                                                    <a href="{{ route('evaluasi.create') }}?periode_id={{ $selectedPeriodeId }}&week={{ $week }}&magang_id={{ $intern->magang_id }}" class="inline-flex flex-col items-center">
+                                                                        <span data-status class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">
+                                                                            <i class="fas fa-times-circle mr-1"></i> Not Started
+                                                                        </span>
+                                                                @endif
+                                                                    <span class="mt-1 text-xs">
+                                                                        <span data-counter>0/{{ $totalCriteria }}</span> criteria
+                                                                    </span>
+                                                                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                                        <div class="progress-value bg-gray-400 h-1.5 rounded-full" style="width: 0%"></div>
+                                                                    </div>
+                                                                </a>
                                                             </span>
                                                         @endif
                                                     </td>
                                                 @endfor
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                                                     <button class="text-blue-600 hover:text-blue-900 transform transition duration-200 hover:scale-110" onclick="loadInternWeekSummary('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}')">
-                                                        View Details
+                                                        View Summary
                                                     </button>
                                                 </td>
                                             </tr>
@@ -1054,8 +1071,21 @@
                 interns.forEach(intern => {
                     const row = document.createElement('tr');
                     row.className = 'hover:bg-gray-50 cursor-pointer';
-                    row.onclick = () => {
-                        showInternEvaluations(intern.magangId, intern.nama, intern.jobId);
+
+                    // Check if evaluations exist
+                    if (intern.evaluations && intern.evaluations.length > 0) {
+                        // Check if at least one evaluation has a rating
+                        const hasRating = intern.evaluations.some(eval => eval.criteria_rating_id);
+
+                        // If any have ratings or at least evaluations exist, go to edit page
+                        row.onclick = () => {
+                            window.location.href = `{{ url('evaluasi') }}/${intern.evaluations[0].evaluasi_id}/edit`;
+                        };
+                    } else {
+                        // For interns with no evaluations at all, redirect to create page
+                        row.onclick = () => {
+                            window.location.href = `{{ route('evaluasi.create') }}?periode_id=${currentPeriod}&week=${currentWeek}&magang_id=${intern.magangId}`;
+                        };
                     };
 
                     // Count total criteria and how many have ratings for this intern
@@ -1101,12 +1131,25 @@
                             </button>
                         `;
                     } else {
-                        scoreDisplay = `
-                            <span class="text-gray-500">0.00</span>
-                            <button onclick="handleNotEvaluated(currentPeriod, currentWeek, '${intern.magangId}', '${intern.nama}', '${intern.jobId}'); event.stopPropagation();" class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
-                                Not Evaluated
-                            </button>
-                        `;
+                        // Check if evaluations exist but have no ratings
+                        const hasEmptyEvaluations = intern.evaluations && intern.evaluations.length > 0 &&
+                            intern.evaluations.every(eval => !eval.criteria_rating_id);
+
+                        if (hasEmptyEvaluations) {
+                            scoreDisplay = `
+                                <span class="text-gray-500">0.00</span>
+                                <a href="{{ url('evaluasi') }}/${intern.evaluations[0].evaluasi_id}/edit" class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors" onclick="event.stopPropagation();">
+                                    Fill Ratings
+                                </a>
+                            `;
+                        } else {
+                            scoreDisplay = `
+                                <span class="text-gray-500">0.00</span>
+                                <a href="{{ route('evaluasi.create') }}?periode_id=${currentPeriod}&week=${currentWeek}&magang_id=${intern.magangId}" class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors" onclick="event.stopPropagation();">
+                                    Create Evaluation
+                                </a>
+                            `;
+                        }
                     }
 
                     // Get the first evaluation for this intern to create the view link
@@ -1126,9 +1169,9 @@
 
                     // Add the edit icon (replaced View Details button)
                     actionsHtml += `
-                        <button onclick="showInternEvaluations('${intern.magangId}', '${intern.nama}', '${intern.jobId}'); event.stopPropagation();" class="text-indigo-600 hover:text-indigo-800 transform transition duration-150 hover:scale-110" title="Edit Evaluation">
+                        <a href="{{ url('evaluasi') }}/${intern.evaluations[0]?.evaluasi_id}/edit" class="text-indigo-600 hover:text-indigo-800 transform transition duration-150 hover:scale-110" title="Edit Evaluation" onclick="event.stopPropagation();">
                             Edit
-                        </button>
+                        </a>
                     `;
 
                     row.innerHTML = `
@@ -1833,21 +1876,29 @@
 
         // Add a function to handle the Not Evaluated status - checks if the week exists first
         function handleNotEvaluated(periodeId, week, magangId, internName, jobId) {
-            // First check if data for this week exists but is just not evaluated
-            fetch(`{{ route('api.evaluations') }}?periode_id=${periodeId}&week=${week}`, {
+            // First check if data for this week and intern exists but is just not evaluated
+            fetch(`{{ route('api.evaluations') }}?periode_id=${periodeId}&week=${week}&magang_id=${magangId}`, {
                 headers: {
                     'X-CSRF-TOKEN': csrfToken
                 }
             })
             .then(response => response.json())
             .then(data => {
-                // Check if there's any data for this week (for any intern)
+                // Check if there's any data for this specific intern
                 if (data.evaluations && data.evaluations.length > 0) {
-                    // The week exists, so show the regular evaluation view
-                    loadWeekEvaluations(periodeId, week);
-                    setTimeout(() => showInternEvaluations(magangId, internName, jobId), 500);
+                    // Data exists for this intern, check if any evaluation has a rating
+                    const hasRating = data.evaluations.some(eval => eval.criteria_rating_id);
+
+                    if (hasRating) {
+                        // Some evaluations have ratings, show the regular view
+                        loadWeekEvaluations(periodeId, week);
+                        setTimeout(() => showInternEvaluations(magangId, internName, jobId), 500);
+                    } else {
+                        // Evaluations exist but none have ratings, go to edit page directly
+                        window.location.href = `{{ url('evaluasi') }}/${data.evaluations[0].evaluasi_id}/edit`;
+                    }
                 } else {
-                    // Week doesn't have any data, show the create prompt
+                    // No evaluations for this intern, show the create prompt
                     showCreateEvaluationPrompt(periodeId, week, magangId, internName);
                 }
             })

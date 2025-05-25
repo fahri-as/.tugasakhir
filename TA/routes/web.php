@@ -68,6 +68,10 @@ Route::middleware(['auth', CheckRole::class.':cook,pastry,admin'])->group(functi
     Route::get('/api/criteria-ratings', [EvaluasiMingguanMagangController::class, 'getCriteriaRatings'])
         ->name('api.criteria.ratings');
 
+    // API route for getting evaluation data by intern ID and week
+    Route::get('/api/evaluasi/get-data', [EvaluasiMingguanMagangController::class, 'getEvaluationData'])
+        ->name('api.evaluasi.get-data');
+
     // Magang routes - read-only access for evaluations
     Route::get('magang/smart-dashboard', [MagangController::class, 'smartDashboard'])
         ->name('magang.smartDashboard');

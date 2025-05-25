@@ -448,27 +448,81 @@ class EvaluasiMingguanMagangController extends Controller
      */
     public function edit(EvaluasiMingguanMagang $evaluasi)
     {
-        $evaluasi->load(['magang', 'magang.pelamar', 'magang.pelamar.job']);
+        try {
+            // Load the evaluation with related data
+            $evaluasi->load(['magang', 'magang.pelamar', 'magang.pelamar.job', 'magang.pelamar.periode', 'criteria', 'criteriaRatingScale']);
 
-        // Get all interns for dropdown
-        $magang = Magang::with(['pelamar', 'pelamar.job'])->get();
+            // Get the job ID from the intern's data
+            $jobId = $evaluasi->magang->pelamar->job->job_id ?? null;
 
-        // Get criteria based on the intern's job
-        $jobId = $evaluasi->magang->pelamar->job_id ?? null;
+            if (!$jobId) {
+                return redirect()->route('evaluasi.index')
+                    ->with('error', 'Cannot edit this evaluation: Job ID not found for the intern.');
+            }
 
-        if ($jobId) {
-            $criteria = Criteria::where('job_id', $jobId)->get();
+            // Get all criteria for this job
+            $criteria = Criteria::where('job_id', $jobId)
+                ->orderBy('code')
+                ->get();
 
-            // Get criteria rating scales for this specific criterion
-            $criteriaRatingScales = CriteriaRatingScale::where('criteria_id', $evaluasi->criteria_id)
+            // Get all rating scales for these criteria
+            $criteriaIds = $criteria->pluck('criteria_id')->toArray();
+            $criteriaRatingScales = CriteriaRatingScale::whereIn('criteria_id', $criteriaIds)
                 ->orderBy('rating_level')
                 ->get();
-        } else {
-            $criteria = Criteria::all();
-            $criteriaRatingScales = collect(); // Empty collection if no criteria found
-        }
 
-        return view('evaluasi.edit', compact('evaluasi', 'magang', 'criteria', 'criteriaRatingScales'));
+            // Get all evaluations for this intern for the specified week
+            $allEvaluations = EvaluasiMingguanMagang::where('magang_id', $evaluasi->magang_id)
+                ->where('minggu_ke', $evaluasi->minggu_ke)
+                ->with(['criteria', 'criteriaRatingScale'])
+                ->get();
+
+            // Get all available interns (magang)
+            $magangList = Magang::with(['pelamar', 'pelamar.job', 'pelamar.periode'])
+                ->whereHas('pelamar', function($query) use ($evaluasi) {
+                    // Filter interns in the same period as the current evaluation
+                    $periodeId = $evaluasi->magang->pelamar->periode_id ?? null;
+                    if ($periodeId) {
+                        $query->where('periode_id', $periodeId);
+                    }
+                })
+                ->get();
+
+            return view('evaluasi.edit', compact(
+                'evaluasi',
+                'criteria',
+                'criteriaRatingScales',
+                'allEvaluations',
+                'magangList'
+            ));
+        } catch (\Exception $e) {
+            Log::error("Error in edit method: " . $e->getMessage(), [
+                'exception' => $e,
+                'evaluasi_id' => $evaluasi->evaluasi_id
+            ]);
+
+            // Default values in case of error
+            $criteria = collect();
+            $criteriaRatingScales = collect();
+            $allEvaluations = collect();
+            $magangList = collect();
+
+            // Load minimal data to avoid further errors
+            if (!$evaluasi->relationLoaded('magang')) {
+                $evaluasi->load(['magang', 'magang.pelamar']);
+            }
+
+            // Get all interns as fallback
+            $magangList = Magang::with(['pelamar', 'pelamar.job', 'pelamar.periode'])->get();
+
+            return view('evaluasi.edit', compact(
+                'evaluasi',
+                'criteria',
+                'criteriaRatingScales',
+                'allEvaluations',
+                'magangList'
+            ))->with('error', 'Error loading evaluation data: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -478,9 +532,9 @@ class EvaluasiMingguanMagangController extends Controller
     {
         $request->validate([
             'magang_id' => 'required|exists:magang,magang_id',
-            'criteria_rating_id' => 'nullable|exists:criteria_rating_scales,id',
-            'criteria_id' => 'nullable|exists:criteria,criteria_id',
             'minggu_ke' => 'required|integer|min:1',
+            'ratings' => 'sometimes|array',
+            'ratings.*' => 'nullable|exists:criteria_rating_scales,id',
         ]);
 
         // Log the request parameters for debugging
@@ -489,77 +543,61 @@ class EvaluasiMingguanMagangController extends Controller
             'current_evaluasi' => [
                 'id' => $evaluasi->evaluasi_id,
                 'magang_id' => $evaluasi->magang_id,
-                'criteria_id' => $evaluasi->criteria_id,
-                'criteria_rating_id' => $evaluasi->criteria_rating_id,
                 'minggu_ke' => $evaluasi->minggu_ke
             ]
         ]);
-
-        // Check if evaluation already exists for this magang, criteria and week (excluding current record)
-        if ($request->criteria_id) {
-            $exists = EvaluasiMingguanMagang::where('magang_id', $request->magang_id)
-                ->where('minggu_ke', $request->minggu_ke)
-                ->where('criteria_id', $request->criteria_id)
-                ->where('evaluasi_id', '!=', $evaluasi->evaluasi_id)
-                ->exists();
-
-            if ($exists) {
-                return redirect()->back()->with('error', 'Evaluation for this intern, criteria and week already exists');
-            }
-        }
 
         // Start a database transaction
         DB::beginTransaction();
 
         try {
-            // Store the original magang_id for updating scores
+            // Store the original magang_id and week for updating scores
             $originalMagangId = $evaluasi->magang_id;
-
-            // Create a clone of the original evaluation for logging
-            $originalEvaluation = clone $evaluasi;
-
-            // Update the evaluation
-            $evaluasi->magang_id = $request->magang_id;
-            $evaluasi->criteria_rating_id = $request->criteria_rating_id;
-
-            // Only update criteria_id if it's explicitly provided
-            if ($request->has('criteria_id')) {
-                $evaluasi->criteria_id = $request->criteria_id;
-            } else if ($request->has('original_criteria_id') && !empty($request->original_criteria_id)) {
-                // If no new criteria selected but we have an original, keep it
-                $evaluasi->criteria_id = $request->original_criteria_id;
-            }
-
-            $evaluasi->minggu_ke = $request->minggu_ke;
-
-            // Log the changes before saving
-            Log::info('Evaluation update changes:', [
-                'before' => [
-                    'magang_id' => $originalEvaluation->magang_id,
-                    'criteria_id' => $originalEvaluation->criteria_id,
-                    'criteria_rating_id' => $originalEvaluation->criteria_rating_id,
-                    'minggu_ke' => $originalEvaluation->minggu_ke
-                ],
-                'after' => [
-                    'magang_id' => $evaluasi->magang_id,
-                    'criteria_id' => $evaluasi->criteria_id,
-                    'criteria_rating_id' => $evaluasi->criteria_rating_id,
-                    'minggu_ke' => $evaluasi->minggu_ke
-                ]
-            ]);
-
-            $evaluasi->save();
-
-            // Log successful save
-            Log::info('Evaluation updated successfully', [
-                'evaluasi_id' => $evaluasi->evaluasi_id,
-                'updated_fields' => $evaluasi->getDirty()
-            ]);
+            $originalWeek = $evaluasi->minggu_ke;
 
             // Get the magang to determine the job
             $magang = Magang::with('pelamar')->findOrFail($request->magang_id);
             $jobId = $magang->pelamar->job_id ?? null;
             $periodeId = $magang->pelamar->periode_id ?? null;
+
+            // If either magang_id or week changed, we need to handle all evaluations for this intern/week
+            $magangIdChanged = $request->magang_id != $originalMagangId;
+            $weekChanged = $request->minggu_ke != $originalWeek;
+
+            if ($magangIdChanged || $weekChanged) {
+                // Get all evaluations for the original intern/week
+                $allEvaluations = EvaluasiMingguanMagang::where('magang_id', $originalMagangId)
+                    ->where('minggu_ke', $originalWeek)
+                    ->get();
+
+                // Update magang_id and week for all evaluations
+                foreach ($allEvaluations as $eval) {
+                    $eval->magang_id = $request->magang_id;
+                    $eval->minggu_ke = $request->minggu_ke;
+                    $eval->save();
+                }
+            }
+
+            // Process the ratings from the form
+            if ($request->has('ratings') && is_array($request->ratings)) {
+                foreach ($request->ratings as $criteriaId => $ratingId) {
+                    // Find or create an evaluation for this criteria
+                    $evalForCriteria = EvaluasiMingguanMagang::firstOrNew([
+                        'magang_id' => $request->magang_id,
+                        'criteria_id' => $criteriaId,
+                        'minggu_ke' => $request->minggu_ke,
+                    ]);
+
+                    // If this is a new evaluation, set the ID
+                    if (!$evalForCriteria->exists) {
+                        $evalForCriteria->evaluasi_id = Str::uuid()->toString();
+                    }
+
+                    // Update the rating
+                    $evalForCriteria->criteria_rating_id = $ratingId ?: null;
+                    $evalForCriteria->save();
+                }
+            }
 
             // Update scores using SMART method if job is Cook or Pastry Chef
             if ($jobId && in_array($jobId, ['JOB001', 'JOB004'])) {
@@ -571,7 +609,7 @@ class EvaluasiMingguanMagangController extends Controller
             }
 
             // If magang_id changed, update the old magang's scores too
-            if ($originalMagangId !== $request->magang_id) {
+            if ($magangIdChanged) {
                 // Get the original magang to determine its job
                 $originalMagang = Magang::with('pelamar')->find($originalMagangId);
                 if ($originalMagang && $originalMagang->pelamar &&
@@ -919,6 +957,90 @@ class EvaluasiMingguanMagangController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching ratings: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get evaluation data for a specific intern and week
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getEvaluationData(Request $request)
+    {
+        $request->validate([
+            'magang_id' => 'required|exists:magang,magang_id',
+            'minggu_ke' => 'required|integer|min:1',
+        ]);
+
+        $magangId = $request->magang_id;
+        $mingguKe = $request->minggu_ke;
+
+        try {
+            // First check if there's already an evaluation for this intern and week
+            $evaluasi = EvaluasiMingguanMagang::where('magang_id', $magangId)
+                ->where('minggu_ke', $mingguKe)
+                ->first();
+
+            if ($evaluasi) {
+                // Return the existing evaluation ID
+                return response()->json([
+                    'status' => 'success',
+                    'evaluasi_id' => $evaluasi->evaluasi_id,
+                    'message' => 'Existing evaluation found',
+                    'found' => true
+                ]);
+            }
+
+            // If no evaluation exists, create one
+            $magang = Magang::with('pelamar')->findOrFail($magangId);
+            $jobId = $magang->pelamar->job_id ?? null;
+
+            if (!$jobId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Job ID not found for the intern',
+                    'found' => false
+                ], 404);
+            }
+
+            // Get the first criteria for this job to create an initial evaluation
+            $criteria = Criteria::where('job_id', $jobId)->first();
+
+            if (!$criteria) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No criteria found for this job',
+                    'found' => false
+                ], 404);
+            }
+
+            // Create a new evaluation
+            $newEvaluasi = new EvaluasiMingguanMagang();
+            $newEvaluasi->evaluasi_id = Str::uuid()->toString();
+            $newEvaluasi->magang_id = $magangId;
+            $newEvaluasi->minggu_ke = $mingguKe;
+            $newEvaluasi->criteria_id = $criteria->criteria_id;
+            $newEvaluasi->save();
+
+            return response()->json([
+                'status' => 'success',
+                'evaluasi_id' => $newEvaluasi->evaluasi_id,
+                'message' => 'New evaluation created',
+                'found' => false
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error getting evaluation data: " . $e->getMessage(), [
+                'exception' => $e,
+                'magang_id' => $magangId,
+                'minggu_ke' => $mingguKe
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error getting evaluation data: ' . $e->getMessage(),
+                'found' => false
             ], 500);
         }
     }
