@@ -58,11 +58,17 @@
                                 <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full mb-2
                                     @if($pelamar->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
                                     @if($pelamar->status_seleksi === 'Interview') bg-blue-100 text-blue-800 @endif
-                                    @if($pelamar->status_seleksi === 'Sedang Berjalan') bg-green-100 text-green-800 @endif">
+                                    @if($pelamar->status_seleksi === 'Tes Kemampuan') bg-purple-100 text-purple-800 @endif
+                                    @if($pelamar->status_seleksi === 'Magang') bg-indigo-100 text-indigo-800 @endif
+                                    @if($pelamar->status_seleksi === 'Sedang Berjalan') bg-green-100 text-green-800 @endif
+                                    @if($pelamar->status_seleksi === 'Selesai') bg-gray-100 text-gray-800 @endif">
                                     <i class="fas
                                         @if($pelamar->status_seleksi === 'Pending') fa-clock @endif
                                         @if($pelamar->status_seleksi === 'Interview') fa-user-tie @endif
+                                        @if($pelamar->status_seleksi === 'Tes Kemampuan') fa-tasks @endif
+                                        @if($pelamar->status_seleksi === 'Magang') fa-user-graduate @endif
                                         @if($pelamar->status_seleksi === 'Sedang Berjalan') fa-check-circle @endif
+                                        @if($pelamar->status_seleksi === 'Selesai') fa-check-double @endif
                                         mr-1"></i>
                                     {{ $pelamar->status_seleksi ?? 'Pending' }}
                                 </span>
@@ -160,7 +166,18 @@
                                     <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
                                         @if($pelamar->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
                                         @if($pelamar->status_seleksi === 'Interview') bg-blue-100 text-blue-800 @endif
-                                        @if($pelamar->status_seleksi === 'Sedang Berjalan') bg-green-100 text-green-800 @endif">
+                                        @if($pelamar->status_seleksi === 'Tes Kemampuan') bg-purple-100 text-purple-800 @endif
+                                        @if($pelamar->status_seleksi === 'Magang') bg-indigo-100 text-indigo-800 @endif
+                                        @if($pelamar->status_seleksi === 'Sedang Berjalan') bg-green-100 text-green-800 @endif
+                                        @if($pelamar->status_seleksi === 'Selesai') bg-gray-100 text-gray-800 @endif">
+                                        <i class="fas
+                                            @if($pelamar->status_seleksi === 'Pending') fa-clock @endif
+                                            @if($pelamar->status_seleksi === 'Interview') fa-user-tie @endif
+                                            @if($pelamar->status_seleksi === 'Tes Kemampuan') fa-tasks @endif
+                                            @if($pelamar->status_seleksi === 'Magang') fa-user-graduate @endif
+                                            @if($pelamar->status_seleksi === 'Sedang Berjalan') fa-check-circle @endif
+                                            @if($pelamar->status_seleksi === 'Selesai') fa-check-double @endif
+                                            mr-1"></i>
                                         {{ $pelamar->status_seleksi ?? 'Pending' }}
                                     </span>
                                 </p>

@@ -191,7 +191,10 @@
                                         <select name="status_seleksi" id="status_seleksi" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                             <option value="Pending" {{ old('status_seleksi', $pelamar->status_seleksi) == 'Pending' ? 'selected' : '' }}>Pending</option>
                                             <option value="Interview" {{ old('status_seleksi', $pelamar->status_seleksi) == 'Interview' ? 'selected' : '' }}>Interview</option>
+                                            <option value="Tes Kemampuan" {{ old('status_seleksi', $pelamar->status_seleksi) == 'Tes Kemampuan' ? 'selected' : '' }}>Tes Kemampuan</option>
+                                            <option value="Magang" {{ old('status_seleksi', $pelamar->status_seleksi) == 'Magang' ? 'selected' : '' }}>Magang</option>
                                             <option value="Sedang Berjalan" {{ old('status_seleksi', $pelamar->status_seleksi) == 'Sedang Berjalan' ? 'selected' : '' }}>Sedang Berjalan</option>
+                                            <option value="Selesai" {{ old('status_seleksi', $pelamar->status_seleksi) == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                                         </select>
                                     </div>
                                     @error('status_seleksi')

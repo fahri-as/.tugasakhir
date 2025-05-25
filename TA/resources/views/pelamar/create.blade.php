@@ -175,6 +175,27 @@
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
+
+                                <!-- Status Seleksi dropdown -->
+                                <div class="transform transition duration-200 hover:-translate-y-1">
+                                    <label for="status_seleksi" class="block text-sm font-medium text-gray-700">Selection Status</label>
+                                    <div class="relative mt-1">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-tasks text-gray-400"></i>
+                                        </div>
+                                        <select name="status_seleksi" id="status_seleksi" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <option value="Pending" {{ old('status_seleksi') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="Interview" {{ old('status_seleksi') == 'Interview' ? 'selected' : '' }}>Interview</option>
+                                            <option value="Tes Kemampuan" {{ old('status_seleksi') == 'Tes Kemampuan' ? 'selected' : '' }}>Tes Kemampuan</option>
+                                            <option value="Magang" {{ old('status_seleksi') == 'Magang' ? 'selected' : '' }}>Magang</option>
+                                            <option value="Sedang Berjalan" {{ old('status_seleksi') == 'Sedang Berjalan' ? 'selected' : '' }}>Sedang Berjalan</option>
+                                            <option value="Selesai" {{ old('status_seleksi') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                                        </select>
+                                    </div>
+                                    @error('status_seleksi')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 

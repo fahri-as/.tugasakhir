@@ -86,7 +86,7 @@ public function index(Request $request)
             'tempat_pengalaman' => 'required|string',
             'deskripsi_tempat' => 'required',
             'berkas_cv' => 'required|file|mimes:pdf,doc,docx|max:500',
-            'status_seleksi' => 'nullable|in:Pending,Interview,Sedang Berjalan' // Added validation for status_seleksi
+            'status_seleksi' => 'nullable|in:Pending,Interview,Tes Kemampuan,Magang,Sedang Berjalan,Selesai' // Updated validation for status_seleksi
         ]);
 
         // Get the last applicant ID to generate the new one
@@ -180,7 +180,7 @@ public function index(Request $request)
             'lama_pengalaman' => 'required|integer|min:0',
             'tempat_pengalaman' => 'required|string',
             'deskripsi_tempat' => 'required',
-            'status_seleksi' => 'nullable|in:Pending,Interview,Sedang Berjalan' // Added validation for status_seleksi
+            'status_seleksi' => 'nullable|in:Pending,Interview,Tes Kemampuan,Magang,Sedang Berjalan,Selesai' // Updated validation for status_seleksi
         ];
 
         // Only validate file if a new one is being uploaded
