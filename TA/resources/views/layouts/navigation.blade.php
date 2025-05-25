@@ -75,6 +75,10 @@
                                 <i class="fas fa-user-graduate mr-2 text-gray-400"></i>
                                 Internships
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('evaluasi.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
+                                <i class="fas fa-chart-line mr-2 text-gray-400"></i>
+                                Evaluations
+                            </x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
                     @endif
