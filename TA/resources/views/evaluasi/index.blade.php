@@ -1058,7 +1058,9 @@
                 interns.forEach(intern => {
                     const row = document.createElement('tr');
                     row.className = 'hover:bg-gray-50 cursor-pointer';
-                    row.onclick = () => showInternEvaluations(intern.magangId, intern.nama, intern.jobId);
+                    row.onclick = () => {
+                        showInternEvaluations(intern.magangId, intern.nama, intern.jobId);
+                    };
 
                     // Count total criteria and how many have ratings for this intern
                     const totalCriteria = intern.evaluations.length;
@@ -1111,12 +1113,34 @@
                         `;
                     }
 
+                    // Get the first evaluation for this intern to create the view link
+                    const firstEval = intern.evaluations.length > 0 ? intern.evaluations[0] : null;
+
+                    // Prepare the action buttons HTML
+                    let actionsHtml = ``;
+
+                    // Add the View Full Evaluation button (eye icon) first if there are evaluations
+                    if (firstEval) {
+                        actionsHtml += `
+                            <a href="{{ url('evaluasi') }}/${firstEval.evaluasi_id}" class="text-indigo-600 hover:text-indigo-800 transform transition duration-150 hover:scale-110 mr-4" title="View Full Evaluation" onclick="event.stopPropagation();">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        `;
+                    }
+
+                    // Add the edit icon (replaced View Details button)
+                    actionsHtml += `
+                        <button onclick="showInternEvaluations('${intern.magangId}', '${intern.nama}', '${intern.jobId}'); event.stopPropagation();" class="text-indigo-600 hover:text-indigo-800 transform transition duration-150 hover:scale-110" title="Edit Evaluation">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    `;
+
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${intern.nama}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${intern.job}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${scoreDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onclick="showInternEvaluations('${intern.magangId}', '${intern.nama}', '${intern.jobId}'); event.stopPropagation();" class="text-blue-600 hover:text-blue-900 mr-3">View Details</button>
+                            ${actionsHtml}
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -1248,7 +1272,6 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 text-sm font-medium">
-                        <a href="{{ url('evaluasi') }}/${eval.evaluasi_id}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
                         <a href="{{ url('evaluasi') }}/${eval.evaluasi_id}/edit" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                     </td>
                 `;
