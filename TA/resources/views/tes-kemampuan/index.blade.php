@@ -291,7 +291,22 @@
                                             <div class="text-xs text-gray-500">{{ $tes->pelamar->email }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                            @if($tes->pelamar->job->job_id == 'JOB001') bg-orange-100 text-orange-800
+                                            @elseif($tes->pelamar->job->job_id == 'JOB004') bg-pink-100 text-pink-800
+                                            @elseif(strpos(strtolower($tes->pelamar->job->nama_job), 'chef') !== false) bg-green-100 text-green-800
+                                            @elseif(strpos(strtolower($tes->pelamar->job->nama_job), 'waiter') !== false) bg-blue-100 text-blue-800
+                                            @elseif(strpos(strtolower($tes->pelamar->job->nama_job), 'barista') !== false) bg-amber-100 text-amber-800
+                                            @elseif(strpos(strtolower($tes->pelamar->job->nama_job), 'manager') !== false) bg-gray-100 text-gray-800
+                                            @else bg-indigo-100 text-indigo-800 @endif">
+                                                <i class="fas
+                                                @if($tes->pelamar->job->job_id == 'JOB001') fa-utensils
+                                                @elseif($tes->pelamar->job->job_id == 'JOB004') fa-birthday-cake
+                                                @elseif(strpos(strtolower($tes->pelamar->job->nama_job), 'chef') !== false) fa-hat-chef
+                                                @elseif(strpos(strtolower($tes->pelamar->job->nama_job), 'waiter') !== false) fa-concierge-bell
+                                                @elseif(strpos(strtolower($tes->pelamar->job->nama_job), 'barista') !== false) fa-coffee
+                                                @elseif(strpos(strtolower($tes->pelamar->job->nama_job), 'manager') !== false) fa-user-tie
+                                                @else fa-briefcase @endif mr-1"></i>
                                                 {{ $tes->pelamar->job->nama_job }}
                                             </span>
                                         </td>
