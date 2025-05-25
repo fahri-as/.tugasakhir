@@ -150,20 +150,6 @@
                                 <!-- Hidden score input that will be set based on the selected rating scale -->
                                 <input type="hidden" name="skor" id="skor" value="{{ old('skor', $tesKemampuan->skor) }}">
 
-                                <div class="transform transition duration-200 hover:-translate-y-1">
-                                    <label for="status_seleksi" class="block text-sm font-medium text-gray-700 mb-1">Current Status</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="fas fa-flag text-gray-400"></i>
-                                        </div>
-                                        <input type="text" value="{{ $tesKemampuan->status_seleksi }}" class="pl-10 block w-full bg-gray-50 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" readonly>
-                                    </div>
-                                    <p class="mt-1 text-xs text-gray-500">Status cannot be changed directly. Use the action buttons on the test details page.</p>
-                                </div>
-
-                                <!-- Hidden field for status_seleksi to maintain the current value -->
-                                <input type="hidden" name="status_seleksi" value="{{ $tesKemampuan->status_seleksi }}">
-
                                 <div class="sm:col-span-2 transform transition duration-200 hover:-translate-y-1">
                                     <label for="catatan" class="block text-sm font-medium text-gray-700 mb-1">Test Notes</label>
                                     <div class="relative">
@@ -205,6 +191,24 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Test Status Section -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-amber-50 p-4 rounded-lg border border-yellow-100 shadow-sm mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
+                                <i class="fas fa-flag-checkered text-amber-500 mr-2"></i> Test Status
+                            </h3>
+
+                            <div class="transform transition duration-200 hover:-translate-y-1">
+                                <label for="status_display" class="block text-sm font-medium text-gray-700 mb-1">Current Status</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-tasks text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="status_display" value="{{ $tesKemampuan->status_seleksi }}" class="pl-10 block w-full bg-gray-50 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" readonly>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">Status cannot be changed directly. Use the action buttons on the test details page.</p>
                             </div>
                         </div>
 
