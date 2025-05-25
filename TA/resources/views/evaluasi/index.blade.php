@@ -278,7 +278,7 @@
                                                 @endfor
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                                                     <button class="text-blue-600 hover:text-blue-900 transform transition duration-200 hover:scale-110" onclick="loadInternWeekSummary('{{ $intern->magang_id }}', '{{ $intern->pelamar->nama }}')">
-                                                        <i class="fas fa-eye"></i>
+                                                        View Details
                                                     </button>
                                                 </td>
                                             </tr>
@@ -463,11 +463,7 @@
                                                     <i class="fas fa-chart-line text-gray-400 mr-2"></i> Score
                                                 </span>
                                             </th>
-                                            <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                <span class="flex items-center">
-                                                    <i class="fas fa-cog text-gray-400 mr-2"></i> Actions
-                                                </span>
-                                            </th>
+
                                         </tr>
                                     </thead>
                                     <tbody id="criteria-tbody" class="bg-white divide-y divide-gray-200">
@@ -1123,7 +1119,7 @@
                     if (firstEval) {
                         actionsHtml += `
                             <a href="{{ url('evaluasi') }}/${firstEval.evaluasi_id}" class="text-indigo-600 hover:text-indigo-800 transform transition duration-150 hover:scale-110 mr-4" title="View Full Evaluation" onclick="event.stopPropagation();">
-                                <i class="fas fa-eye"></i>
+                                View Details
                             </a>
                         `;
                     }
@@ -1131,7 +1127,7 @@
                     // Add the edit icon (replaced View Details button)
                     actionsHtml += `
                         <button onclick="showInternEvaluations('${intern.magangId}', '${intern.nama}', '${intern.jobId}'); event.stopPropagation();" class="text-indigo-600 hover:text-indigo-800 transform transition duration-150 hover:scale-110" title="Edit Evaluation">
-                            <i class="fas fa-edit"></i>
+                            Edit
                         </button>
                     `;
 
@@ -1270,9 +1266,6 @@
                         <span class="text-xs text-gray-500">
                             ${eval.criteria_rating_scale ? '(Rating level: ' + eval.criteria_rating_scale.rating_level + ')' : '(Not rated)'}
                         </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm font-medium">
-                        <a href="{{ url('evaluasi') }}/${eval.evaluasi_id}/edit" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                     </td>
                 `;
 
