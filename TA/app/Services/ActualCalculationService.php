@@ -126,8 +126,8 @@ class ActualCalculationService
                 ];
             }
 
-            // Calculate scaled score (0-5)
-            $scaledScore = $totalWeightedScore * 5;
+            // Calculate scaled score (0-1)
+            $scaledScore = $totalWeightedScore;
 
             // Prepare final result
             $result = [

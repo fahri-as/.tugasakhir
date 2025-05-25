@@ -314,11 +314,11 @@
                                 <div class="mt-4">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-sm text-gray-600">Total Score</span>
-                                        <span class="text-lg font-bold text-indigo-600">{{ number_format($intern->total_skor, 2) }}/5</span>
+                                        <span class="text-lg font-bold text-indigo-600">{{ number_format($intern->total_skor, 2) }}/1</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2">
                                         <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full"
-                                             style="width: {{ ($intern->total_skor / 5) * 100 }}%"></div>
+                                             style="width: {{ ($intern->total_skor / 1) * 100 }}%"></div>
                                     </div>
                                 </div>
                             </div>
@@ -372,7 +372,7 @@
                                             <span class="text-lg font-bold text-indigo-600 mr-2">{{ number_format($intern->total_skor, 2) }}</span>
                                             <div class="w-16 bg-gray-200 rounded-full h-2">
                                                 <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full"
-                                                     style="width: {{ ($intern->total_skor / 5) * 100 }}%"></div>
+                                                     style="width: {{ ($intern->total_skor / 1) * 100 }}%"></div>
                                             </div>
                                         </div>
                                     </td>

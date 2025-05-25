@@ -287,11 +287,8 @@ class SMARTCalculationService
 
             $rank = 1;
             foreach ($finalScores as $magangId => $score) {
-                // Convert to 0-5 scale (assuming final score is 0-1)
-                $normalizedScore = $score * 5;
-
-                // Ensure score is within 0-5 range
-                $finalScore = max(0, min(5, $normalizedScore));
+                // Keep the score in 0-1 scale instead of converting to 0-5
+                $finalScore = max(0, min(1, $score));
 
                 // Update the database with the final score and rank
                 Magang::where('magang_id', $magangId)->update([

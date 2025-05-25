@@ -67,7 +67,7 @@
                                 <p class="text-sm text-indigo-100">Total Score</p>
                                 <div class="flex items-center">
                                     <span class="text-3xl font-bold mr-2">{{ number_format($magang->total_skor, 2) }}</span>
-                                    <span class="text-lg">/5.0</span>
+                                    <span class="text-lg">/1.0</span>
                                 </div>
                             </div>
                         </div>
@@ -189,7 +189,7 @@
                                         <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="transparent"/>
                                         <circle cx="64" cy="64" r="56" stroke="url(#gradient)" stroke-width="8" fill="transparent"
                                                 stroke-dasharray="{{ 2 * pi() * 56 }}"
-                                                stroke-dashoffset="{{ 2 * pi() * 56 * (1 - ($magang->total_skor / 5)) }}"
+                                                stroke-dashoffset="{{ 2 * pi() * 56 * (1 - ($magang->total_skor / 1)) }}"
                                                 class="transition-all duration-1000 ease-out"/>
                                         <defs>
                                             <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -201,7 +201,7 @@
                                     <div class="absolute inset-0 flex items-center justify-center">
                                         <div class="text-center">
                                             <div class="text-2xl font-bold text-gray-900">{{ number_format($magang->total_skor, 2) }}</div>
-                                            <div class="text-sm text-gray-500">out of 5.0</div>
+                                            <div class="text-sm text-gray-500">out of 1.0</div>
                                         </div>
                                     </div>
                                 </div>
@@ -212,7 +212,7 @@
                                     </div>
                                     <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg">
                                         <p class="text-sm text-gray-600">Performance</p>
-                                        <p class="text-xl font-bold text-purple-600">{{ number_format(($magang->total_skor / 5) * 100, 1) }}%</p>
+                                        <p class="text-xl font-bold text-purple-600">{{ number_format(($magang->total_skor / 1) * 100, 1) }}%</p>
                                     </div>
                                 </div>
                             </div>
@@ -361,132 +361,6 @@
             </div>
             @endif
 
-            <!-- Weekly Evaluations Section -->
-            <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-6">
-                <div class="bg-gradient-to-r from-gray-50 to-blue-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                    <h2 class="font-semibold text-lg flex items-center">
-                        <i class="fas fa-clipboard-list text-blue-600 mr-2"></i> Weekly Evaluations
-                    </h2>
-                    @if($magang->status_seleksi === 'Sedang Berjalan')
-                    <a href="{{ route('evaluasi.create', ['magang_id' => $magang->magang_id]) }}"
-                       class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
-                        <i class="fas fa-plus mr-2"></i> Add Evaluation
-                    </a>
-                    @endif
-                </div>
-                <div class="p-6">
-                    @if($evaluationsByWeek->count() > 0)
-                    <div class="space-y-4" id="accordion">
-                        @foreach($evaluationsByWeek->sortKeys() as $week => $evaluations)
-                        <div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm transform transition-all duration-200 hover:shadow-md">
-                            <div class="bg-gradient-to-r from-gray-50 to-blue-50 px-6 py-4 cursor-pointer flex justify-between items-center week-header transform transition-all duration-200 hover:from-gray-100 hover:to-blue-100" data-week="{{ $week }}">
-                                <div class="flex items-center">
-                                    <i class="fas fa-calendar-week text-blue-600 mr-3"></i>
-                                    <div class="font-medium text-gray-800">Week {{ $week }}</div>
-                                </div>
-                                <div class="flex items-center">
-                                    <span class="mr-4 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                                        {{ $evaluations->count() }} evaluations
-                                    </span>
-                                    <i class="fas fa-chevron-down week-chevron text-gray-400 transform transition-transform duration-200"></i>
-                                </div>
-                            </div>
-                            <div class="week-content hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <i class="fas fa-tasks mr-1"></i> Criteria
-                                                </th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <i class="fas fa-star mr-1"></i> Rating
-                                                </th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <i class="fas fa-chart-line mr-1"></i> Score
-                                                </th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <i class="fas fa-cog mr-1"></i> Actions
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            @foreach($evaluations as $evaluation)
-                                            <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    @if($evaluation->criteria)
-                                                        <div class="font-medium text-gray-900">{{ $evaluation->criteria->name }}</div>
-                                                        <div class="text-sm text-gray-500 flex items-center">
-                                                            <span class="px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded mr-2">{{ $evaluation->criteria->code }}</span>
-                                                            Weight: {{ number_format($evaluation->criteria->weight ?? 0, 3) }}
-                                                        </div>
-                                                    @else
-                                                        <span class="text-gray-500 italic flex items-center">
-                                                            <i class="fas fa-question-circle mr-2"></i> No specific criteria
-                                                        </span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                        {{ $evaluation->criteriaRatingScale->name ?? 'N/A' }}
-                                                    </span>
-                                                    @if($evaluation->criteriaRatingScale)
-                                                        <div class="text-xs text-gray-500 mt-1">
-                                                            Level: {{ $evaluation->criteriaRatingScale->rating_level }}
-                                                        </div>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="font-medium text-gray-900">{{ number_format($evaluation->skor_minggu, 2) }}</div>
-                                                    <div class="w-16 bg-gray-200 rounded-full h-1.5 mt-1">
-                                                        <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full" style="width: {{ min(($evaluation->skor_minggu / 5) * 100, 100) }}%"></div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="flex space-x-2">
-                                                        <a href="{{ route('evaluasi.show', $evaluation) }}" class="text-blue-600 hover:text-blue-900 transform transition duration-150 hover:scale-110" title="View">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                        <a href="{{ route('evaluasi.edit', $evaluation) }}" class="text-indigo-600 hover:text-indigo-900 transform transition duration-150 hover:scale-110" title="Edit">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                        <tfoot class="bg-gradient-to-r from-indigo-50 to-purple-50">
-                                            <tr>
-                                                <td colspan="2" class="px-6 py-3 text-sm font-medium text-gray-900 flex items-center">
-                                                    <i class="fas fa-calculator text-indigo-600 mr-2"></i> Week Total
-                                                </td>
-                                                <td class="px-6 py-3 text-sm font-bold text-indigo-700">
-                                                    {{ number_format($evaluations->sum('skor_minggu'), 2) }}
-                                                </td>
-                                                <td></td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                    @else
-                    <div class="text-center py-12">
-                        <i class="fas fa-clipboard text-gray-300 text-6xl mb-4"></i>
-                        <p class="text-gray-500 text-lg mb-4">No evaluations have been recorded yet.</p>
-                        @if($magang->status_seleksi === 'Sedang Berjalan')
-                        <a href="{{ route('evaluasi.create', ['magang_id' => $magang->magang_id]) }}"
-                           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
-                            <i class="fas fa-plus-circle mr-2"></i> Create First Evaluation
-                        </a>
-                        @endif
-                    </div>
-                    @endif
-                </div>
-            </div>
-
             <!-- Action Buttons -->
             <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
                 <div class="flex flex-wrap gap-4 justify-center">
@@ -523,12 +397,12 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-4 rounded-lg shadow-sm">
-                        <p class="text-sm text-gray-600">Total Score (0-5 scale)</p>
+                        <p class="text-sm text-gray-600">Total Score (0-1 scale)</p>
                         <p class="text-2xl font-bold text-indigo-600">{{ number_format($magang->total_skor, 2) }}</p>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-sm">
-                        <p class="text-sm text-gray-600">Scaled Score (0-50 scale)</p>
-                        <p class="text-2xl font-bold text-purple-600">{{ number_format($magang->total_skor * 10, 0) }}</p>
+                        <p class="text-sm text-gray-600">Scaled Score (0-100 scale)</p>
+                        <p class="text-2xl font-bold text-purple-600">{{ number_format($magang->total_skor * 100, 0) }}</p>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-sm">
                         <p class="text-sm text-gray-600">Overall Rank</p>
@@ -536,7 +410,7 @@
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-sm">
                         <p class="text-sm text-gray-600">Performance</p>
-                        <p class="text-2xl font-bold text-green-600">{{ number_format(($magang->total_skor / 5) * 100, 1) }}%</p>
+                        <p class="text-2xl font-bold text-green-600">{{ number_format(($magang->total_skor / 1) * 100, 1) }}%</p>
                     </div>
                 </div>
 
@@ -547,7 +421,7 @@
                         @foreach($weeklyScores as $week => $score)
                             <span class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full font-medium">
                                 <i class="fas fa-calendar-week mr-1"></i>
-                                Week {{ $week }}: {{ number_format($score['total'] * 10, 0) }}/50
+                                Week {{ $week }}: {{ number_format($score['total'] * 100, 0) }}/100
                             </span>
                         @endforeach
                     </div>

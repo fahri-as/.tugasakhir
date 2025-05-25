@@ -37,7 +37,7 @@
                         <div class="text-right">
                             <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-4 py-3">
                                 <p class="text-sm text-indigo-100">Overall Score</p>
-                                <p class="text-2xl font-bold">{{ number_format($magang->total_skor, 2) }}/5</p>
+                                <p class="text-2xl font-bold">{{ number_format($magang->total_skor, 2) }}/1</p>
                             </div>
                         </div>
                     </div>
@@ -117,12 +117,12 @@
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="flex items-center">
-                                                <i class="fas fa-star text-gray-400 mr-2"></i> Total Score (0-5)
+                                                <i class="fas fa-star text-gray-400 mr-2"></i> Total Score (0-1)
                                             </span>
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="flex items-center">
-                                                <i class="fas fa-chart-bar text-gray-400 mr-2"></i> Scaled Score (0-50)
+                                                <i class="fas fa-chart-bar text-gray-400 mr-2"></i> Scaled Score (0-100)
                                             </span>
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -146,24 +146,24 @@
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
                                                     <span class="text-lg font-bold text-indigo-600 mr-3">{{ number_format($weekScore->total_skor, 2) }}</span>
-                                                    <span class="text-sm text-gray-500">/ 5.00</span>
+                                                    <span class="text-sm text-gray-500">/ 1.00</span>
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
-                                                    <span class="text-lg font-bold text-purple-600 mr-3">{{ number_format($weekScore->total_skor * 10, 0) }}</span>
-                                                    <span class="text-sm text-gray-500">/ 50</span>
+                                                    <span class="text-lg font-bold text-purple-600 mr-3">{{ number_format($weekScore->total_skor * 100, 0) }}</span>
+                                                    <span class="text-sm text-gray-500">/ 100</span>
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
                                                     <div class="w-full bg-gray-200 rounded-full h-3 mr-3" style="min-width: 100px;">
                                                         <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all duration-500 relative"
-                                                             style="width: {{ ($weekScore->total_skor/5)*100 }}%;">
+                                                             style="width: {{ ($weekScore->total_skor/1)*100 }}%;">
                                                             <span class="absolute right-0 top-0 h-3 w-3 bg-white rounded-full border-2 border-indigo-600"></span>
                                                         </div>
                                                     </div>
-                                                    <span class="text-sm font-medium text-gray-900">{{ number_format(($weekScore->total_skor/5)*100, 1) }}%</span>
+                                                    <span class="text-sm font-medium text-gray-900">{{ number_format(($weekScore->total_skor/1)*100, 1) }}%</span>
                                                 </div>
                                             </td>
                                         </tr>
@@ -178,12 +178,12 @@
                                             {{ number_format(collect($weeklyTotalScores)->avg('total_skor'), 2) }}
                                         </td>
                                         <td class="px-6 py-4 font-bold text-purple-700">
-                                            {{ number_format(collect($weeklyTotalScores)->avg('total_skor') * 10, 0) }}
+                                            {{ number_format(collect($weeklyTotalScores)->avg('total_skor') * 100, 0) }}
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="w-full bg-gray-200 rounded-full h-3">
                                                 <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full"
-                                                     style="width: {{ (collect($weeklyTotalScores)->avg('total_skor')/5)*100 }}%;"></div>
+                                                     style="width: {{ (collect($weeklyTotalScores)->avg('total_skor')/1)*100 }}%;"></div>
                                             </div>
                                         </td>
                                     </tr>
@@ -272,12 +272,12 @@
                             <h4 class="font-semibold text-blue-900 mb-3 flex items-center">
                                 <i class="fas fa-target text-blue-600 mr-2"></i> Performance Analysis
                             </h4>
-                            @if($avgScore >= 4.0)
-                                <p class="text-sm text-blue-700 mb-2">✅ <strong>Excellent Performance:</strong> Consistently scoring above 4.0</p>
+                            @if($avgScore >= 0.8)
+                                <p class="text-sm text-blue-700 mb-2">✅ <strong>Excellent Performance:</strong> Consistently scoring above 0.8</p>
                                 <p class="text-sm text-blue-700">Continue maintaining this high standard and consider mentoring other interns.</p>
-                            @elseif($avgScore >= 3.0)
+                            @elseif($avgScore >= 0.6)
                                 <p class="text-sm text-blue-700 mb-2">👍 <strong>Good Performance:</strong> Solid average performance</p>
-                                <p class="text-sm text-blue-700">Focus on consistency and aim for scores above 4.0 in upcoming evaluations.</p>
+                                <p class="text-sm text-blue-700">Focus on consistency and aim for scores above 0.8 in upcoming evaluations.</p>
                             @else
                                 <p class="text-sm text-blue-700 mb-2">⚠️ <strong>Needs Improvement:</strong> Below expected performance</p>
                                 <p class="text-sm text-blue-700">Consider additional training and more frequent feedback sessions.</p>
@@ -333,11 +333,11 @@
                 scores.push({{ $weekScore->total_skor }});
 
                 // Color coding based on score
-                @if($weekScore->total_skor >= 4.0)
+                @if($weekScore->total_skor >= 0.8)
                     colors.push('rgba(34, 197, 94, 0.8)'); // Green
-                @elseif($weekScore->total_skor >= 3.0)
+                @elseif($weekScore->total_skor >= 0.6)
                     colors.push('rgba(59, 130, 246, 0.8)'); // Blue
-                @elseif($weekScore->total_skor >= 2.0)
+                @elseif($weekScore->total_skor >= 0.4)
                     colors.push('rgba(245, 158, 11, 0.8)'); // Yellow
                 @else
                     colors.push('rgba(239, 68, 68, 0.8)'); // Red
@@ -392,7 +392,7 @@
                             borderWidth: 1,
                             callbacks: {
                                 label: function(context) {
-                                    return `Score: ${context.parsed.y.toFixed(2)}/5.0 (${(context.parsed.y * 10).toFixed(0)}/50)`;
+                                    return `Score: ${context.parsed.y.toFixed(2)}/1.0 (${(context.parsed.y * 100).toFixed(0)}/100)`;
                                 }
                             }
                         }
@@ -400,10 +400,10 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 5,
+                            max: 1,
                             title: {
                                 display: true,
-                                text: 'Score (0-5 scale)',
+                                text: 'Score (0-1 scale)',
                                 font: {
                                     size: 12,
                                     weight: 'bold'

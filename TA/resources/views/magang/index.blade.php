@@ -367,7 +367,7 @@
                                                 <div class="flex items-center">
                                                     <div class="text-sm font-medium text-gray-900">{{ number_format($m->total_skor, 2) }}</div>
                                                     <div class="ml-2 w-16 bg-gray-200 rounded-full h-2">
-                                                        <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" style="width: {{ ($m->total_skor / 5) * 100 }}%"></div>
+                                                        <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" style="width: {{ ($m->total_skor / 1) * 100 }}%"></div>
                                                     </div>
                                                 </div>
                                             </td>

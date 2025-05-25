@@ -124,15 +124,15 @@
                                 <!-- Total Score -->
                                 <div class="transform transition duration-200 hover:-translate-y-1">
                                     <label for="total_skor" class="block text-sm font-medium text-gray-700 mb-1">
-                                        <i class="fas fa-star text-gray-400 mr-1"></i> Total Score (0-5 scale)
+                                        <i class="fas fa-star text-gray-400 mr-1"></i> Total Score (0-1 scale)
                                     </label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-chart-line text-gray-400"></i>
                                         </div>
-                                        <input type="number" name="total_skor" id="total_skor" step="0.01" min="0" max="5" required
+                                        <input type="number" name="total_skor" id="total_skor" step="0.01" min="0" max="1" required
                                                class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('total_skor') border-red-500 @enderror"
-                                               placeholder="e.g., 4.25"
+                                               placeholder="e.g., 0.85"
                                                value="{{ old('total_skor') }}">
                                     </div>
                                     @error('total_skor')
@@ -145,8 +145,8 @@
                                     <div class="mt-2">
                                         <div class="flex justify-between text-xs text-gray-500 mb-1">
                                             <span>0</span>
-                                            <span>2.5</span>
-                                            <span>5</span>
+                                            <span>0.5</span>
+                                            <span>1</span>
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2">
                                             <div id="score-preview" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -272,13 +272,13 @@
             // Update score visualization
             totalSkorInput.addEventListener('input', function() {
                 const score = parseFloat(this.value) || 0;
-                const percentage = Math.min((score / 5) * 100, 100);
+                const percentage = Math.min((score / 1) * 100, 100);
                 scorePreview.style.width = percentage + '%';
 
                 // Change color based on score
-                if (score < 2) {
+                if (score < 0.5) {
                     scorePreview.className = 'bg-gradient-to-r from-red-500 to-rose-500 h-2 rounded-full transition-all duration-300';
-                } else if (score < 3.5) {
+                } else if (score < 0.75) {
                     scorePreview.className = 'bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full transition-all duration-300';
                 } else {
                     scorePreview.className = 'bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-300';
