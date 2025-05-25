@@ -382,7 +382,10 @@ public function index(Request $request)
             'komunikasi_skor' => 'required|integer|between:0,5', // Changed to allow 0
             'sikap_skor' => 'required|integer|between:0,5',     // Changed to allow 0
             'jadwal' => 'required|date',
-            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan'
+            'status_seleksi' => 'required|in:Pending,Tidak Lulus,Tes Kemampuan',
+            'qualifikasi_rating' => 'nullable|exists:interview_rating_scales,id',
+            'komunikasi_rating' => 'nullable|exists:interview_rating_scales,id',
+            'sikap_rating' => 'nullable|exists:interview_rating_scales,id'
         ]);
 
         $interview->pelamar_id = $request->pelamar_id;
@@ -406,8 +409,24 @@ public function index(Request $request)
             $interview->sikap_criteria_id = $request->sikap_criteria_id;
         }
 
+        // If rating scales are selected, update the corresponding scores
+        if ($request->filled('qualifikasi_rating')) {
+            $qualifikasiRating = InterviewRatingScale::findOrFail($request->qualifikasi_rating);
+            $interview->kualifikasi_skor = $qualifikasiRating->rating_level;
+        }
+
+        if ($request->filled('komunikasi_rating')) {
+            $komunikasiRating = InterviewRatingScale::findOrFail($request->komunikasi_rating);
+            $interview->komunikasi_skor = $komunikasiRating->rating_level;
+        }
+
+        if ($request->filled('sikap_rating')) {
+            $sikapRating = InterviewRatingScale::findOrFail($request->sikap_rating);
+            $interview->sikap_skor = $sikapRating->rating_level;
+        }
+
         // Calculate total score as average of the three scores
-        $interview->total_skor = ($request->kualifikasi_skor + $request->komunikasi_skor + $request->sikap_skor) / 3;
+        $interview->total_skor = ($interview->kualifikasi_skor + $interview->komunikasi_skor + $interview->sikap_skor) / 3;
 
         $interview->save();
 

@@ -98,48 +98,69 @@
 
                             <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                                 <div class="transform transition duration-200 hover:-translate-y-1">
-                                    <label for="kualifikasi_skor" class="block text-sm font-medium text-gray-700 mb-1">Qualification Score (1-5)</label>
+                                    <label for="qualifikasi_rating" class="block text-sm font-medium text-gray-700 mb-1">Qualification Rating</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-user-graduate text-gray-400"></i>
                                         </div>
-                                        <input type="number" name="kualifikasi_skor" id="kualifikasi_skor" value="{{ old('kualifikasi_skor', $interview->kualifikasi_skor) }}" min="1" max="5" required class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                            <span class="text-gray-500 text-sm">/5</span>
-                                        </div>
+                                        <select name="qualifikasi_rating" id="qualifikasi_rating" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <option value="">-- Select Rating --</option>
+                                            @foreach($qualifikasiRatings as $rating)
+                                                <option value="{{ $rating->id }}"
+                                                    data-rating-level="{{ $rating->rating_level }}"
+                                                    @selected($interview->kualifikasi_skor == $rating->rating_level)>
+                                                    {{ $rating->name }} ({{ $rating->rating_level }}/5)
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
+                                    <input type="hidden" name="kualifikasi_skor" id="kualifikasi_skor" value="{{ old('kualifikasi_skor', $interview->kualifikasi_skor) }}">
                                     @error('kualifikasi_skor')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <div class="transform transition duration-200 hover:-translate-y-1">
-                                    <label for="komunikasi_skor" class="block text-sm font-medium text-gray-700 mb-1">Communication Score (1-5)</label>
+                                    <label for="komunikasi_rating" class="block text-sm font-medium text-gray-700 mb-1">Communication Rating</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-comments text-gray-400"></i>
                                         </div>
-                                        <input type="number" name="komunikasi_skor" id="komunikasi_skor" value="{{ old('komunikasi_skor', $interview->komunikasi_skor) }}" min="1" max="5" required class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                            <span class="text-gray-500 text-sm">/5</span>
-                                        </div>
+                                        <select name="komunikasi_rating" id="komunikasi_rating" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <option value="">-- Select Rating --</option>
+                                            @foreach($komunikasiRatings as $rating)
+                                                <option value="{{ $rating->id }}"
+                                                    data-rating-level="{{ $rating->rating_level }}"
+                                                    @selected($interview->komunikasi_skor == $rating->rating_level)>
+                                                    {{ $rating->name }} ({{ $rating->rating_level }}/5)
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
+                                    <input type="hidden" name="komunikasi_skor" id="komunikasi_skor" value="{{ old('komunikasi_skor', $interview->komunikasi_skor) }}">
                                     @error('komunikasi_skor')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <div class="transform transition duration-200 hover:-translate-y-1">
-                                    <label for="sikap_skor" class="block text-sm font-medium text-gray-700 mb-1">Attitude Score (1-5)</label>
+                                    <label for="sikap_rating" class="block text-sm font-medium text-gray-700 mb-1">Attitude Rating</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-smile text-gray-400"></i>
                                         </div>
-                                        <input type="number" name="sikap_skor" id="sikap_skor" value="{{ old('sikap_skor', $interview->sikap_skor) }}" min="1" max="5" required class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                            <span class="text-gray-500 text-sm">/5</span>
-                                        </div>
+                                        <select name="sikap_rating" id="sikap_rating" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <option value="">-- Select Rating --</option>
+                                            @foreach($sikapRatings as $rating)
+                                                <option value="{{ $rating->id }}"
+                                                    data-rating-level="{{ $rating->rating_level }}"
+                                                    @selected($interview->sikap_skor == $rating->rating_level)>
+                                                    {{ $rating->name }} ({{ $rating->rating_level }}/5)
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
+                                    <input type="hidden" name="sikap_skor" id="sikap_skor" value="{{ old('sikap_skor', $interview->sikap_skor) }}">
                                     @error('sikap_skor')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
@@ -152,7 +173,7 @@
                                         <h5 class="text-sm font-medium text-gray-700 flex items-center">
                                             <i class="fas fa-calculator text-purple-500 mr-2"></i> Total Score
                                         </h5>
-                                        <span class="text-lg font-bold text-purple-700">
+                                        <span class="text-lg font-bold text-purple-700" id="total-score-display">
                                             {{ number_format(($interview->kualifikasi_skor + $interview->komunikasi_skor + $interview->sikap_skor) / 3, 2) }}/5
                                         </span>
                                     </div>
@@ -194,4 +215,52 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const qualifikasiRating = document.getElementById('qualifikasi_rating');
+            const komunikasiRating = document.getElementById('komunikasi_rating');
+            const sikapRating = document.getElementById('sikap_rating');
+
+            const qualifikasiScore = document.getElementById('kualifikasi_skor');
+            const komunikasiScore = document.getElementById('komunikasi_skor');
+            const sikapScore = document.getElementById('sikap_skor');
+
+            const totalScoreDisplay = document.getElementById('total-score-display');
+
+            // Function to update scores based on rating selection
+            function updateScoreFromRating(ratingSelect, scoreInput) {
+                const selectedOption = ratingSelect.options[ratingSelect.selectedIndex];
+
+                if (selectedOption && selectedOption.value) {
+                    const ratingLevel = parseInt(selectedOption.dataset.ratingLevel);
+                    scoreInput.value = ratingLevel;
+                    updateTotalScore();
+                }
+            }
+
+            // Function to update the total score display
+            function updateTotalScore() {
+                const kScore = parseInt(qualifikasiScore.value) || 0;
+                const cScore = parseInt(komunikasiScore.value) || 0;
+                const aScore = parseInt(sikapScore.value) || 0;
+
+                const totalScore = (kScore + cScore + aScore) / 3;
+                totalScoreDisplay.textContent = totalScore.toFixed(2) + '/5';
+            }
+
+            // Add event listeners to rating selects
+            qualifikasiRating.addEventListener('change', function() {
+                updateScoreFromRating(this, qualifikasiScore);
+            });
+
+            komunikasiRating.addEventListener('change', function() {
+                updateScoreFromRating(this, komunikasiScore);
+            });
+
+            sikapRating.addEventListener('change', function() {
+                updateScoreFromRating(this, sikapScore);
+            });
+        });
+    </script>
 </x-app-layout>

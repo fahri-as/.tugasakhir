@@ -101,39 +101,68 @@
                             </h4>
 
                             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                <!-- Hidden criteria input -->
+                                <input type="hidden" name="criteria_id" id="criteria_id" value="{{ $tesKemampuan->criteria_id }}">
+
                                 <div class="transform transition duration-200 hover:-translate-y-1">
-                                    <label for="skor" class="block text-sm font-medium text-gray-700 mb-1">Score (0-100)</label>
+                                    <label for="rating_scale" class="block text-sm font-medium text-gray-700 mb-1">Rating Scale</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-star text-gray-400"></i>
                                         </div>
-                                        <input type="number" name="skor" id="skor" value="{{ old('skor', $tesKemampuan->skor) }}" min="0" max="100" required class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                            <span class="text-gray-500 text-sm">/100</span>
-                                        </div>
+                                        <select name="rating_scale" id="rating_scale" required class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                            <option value="">-- Select Rating Scale --</option>
+                                            @foreach($ratingScales as $scale)
+                                                <option value="{{ $scale->id }}"
+                                                    data-min-score="{{ $scale->min_score }}"
+                                                    data-max-score="{{ $scale->max_score }}"
+                                                    data-rating-level="{{ $scale->rating_level }}"
+                                                    data-name="{{ $scale->name }}"
+                                                    @selected($currentRatingScale && $currentRatingScale->id == $scale->id)>
+                                                    {{ $scale->name }} (Level {{ $scale->rating_level }}) - {{ $scale->min_score }}-{{ $scale->max_score }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                    @error('skor')
+                                    <p class="mt-1 text-xs text-gray-500">Choose a rating scale that best represents the applicant's performance</p>
+                                    @error('rating_scale')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <div class="transform transition duration-200 hover:-translate-y-1">
-                                    <label for="status_seleksi" class="block text-sm font-medium text-gray-700 mb-1">Test Status</label>
+                                    <label for="specific_score" class="block text-sm font-medium text-gray-700 mb-1">Specific Score</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-calculator text-gray-400"></i>
+                                        </div>
+                                        <input type="number" name="specific_score" id="specific_score" value="{{ old('skor', $tesKemampuan->skor) }}" min="0" max="100" required class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <span class="text-gray-500 text-sm">/100</span>
+                                        </div>
+                                    </div>
+                                    <p class="mt-1 text-xs text-gray-500" id="score-range-info">Enter a score between the min and max of the selected rating scale</p>
+                                    @error('specific_score')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- Hidden score input that will be set based on the selected rating scale -->
+                                <input type="hidden" name="skor" id="skor" value="{{ old('skor', $tesKemampuan->skor) }}">
+
+                                <div class="transform transition duration-200 hover:-translate-y-1">
+                                    <label for="status_seleksi" class="block text-sm font-medium text-gray-700 mb-1">Current Status</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-flag text-gray-400"></i>
                                         </div>
-                                        <select name="status_seleksi" id="status_seleksi" required class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                                            <option value="Pending" @selected($tesKemampuan->status_seleksi == 'Pending')>Pending</option>
-                                            <option value="Tidak Lulus" @selected($tesKemampuan->status_seleksi == 'Tidak Lulus')>Tidak Lulus</option>
-                                            <option value="Lulus" @selected($tesKemampuan->status_seleksi == 'Lulus')>Lulus</option>
-                                            <option value="Magang" @selected($tesKemampuan->status_seleksi == 'Magang')>Magang</option>
-                                        </select>
+                                        <input type="text" value="{{ $tesKemampuan->status_seleksi }}" class="pl-10 block w-full bg-gray-50 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" readonly>
                                     </div>
-                                    @error('status_seleksi')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
+                                    <p class="mt-1 text-xs text-gray-500">Status cannot be changed directly. Use the action buttons on the test details page.</p>
                                 </div>
+
+                                <!-- Hidden field for status_seleksi to maintain the current value -->
+                                <input type="hidden" name="status_seleksi" value="{{ $tesKemampuan->status_seleksi }}">
 
                                 <div class="sm:col-span-2 transform transition duration-200 hover:-translate-y-1">
                                     <label for="catatan" class="block text-sm font-medium text-gray-700 mb-1">Test Notes</label>
@@ -155,7 +184,7 @@
                                         <h5 class="text-sm font-medium text-gray-700 flex items-center">
                                             <i class="fas fa-calculator text-purple-500 mr-2"></i> Current Score
                                         </h5>
-                                        <span class="text-lg font-bold text-purple-700">
+                                        <span class="text-lg font-bold text-purple-700" id="score-display">
                                             {{ $tesKemampuan->skor }}/100
                                         </span>
                                     </div>
@@ -172,7 +201,7 @@
                                                     $scoreColor = 'bg-yellow-500';
                                                 }
                                             @endphp
-                                            <div class="{{ $scoreColor }}" style="width: {{ $scorePercentage }}%; height: 100%"></div>
+                                            <div class="{{ $scoreColor }}" id="score-bar" style="width: {{ $scorePercentage }}%; height: 100%"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -215,5 +244,137 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pelamarSelect = document.getElementById('pelamar_id');
+            const ratingScaleSelect = document.getElementById('rating_scale');
+            const specificScoreInput = document.getElementById('specific_score');
+            const scoreInput = document.getElementById('skor');
+            const scoreDisplay = document.getElementById('score-display');
+            const scoreBar = document.getElementById('score-bar');
+            const scoreRangeInfo = document.getElementById('score-range-info');
+
+            // Function to load rating scales based on the selected pelamar's job
+            pelamarSelect.addEventListener('change', function() {
+                const pelamarId = this.value;
+
+                // Send an AJAX request to get criteria and rating scales for this pelamar's job
+                fetch(`/tes-kemampuan/get-rating-scales-for-pelamar/${pelamarId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear current options
+                        ratingScaleSelect.innerHTML = '<option value="">-- Select Rating Scale --</option>';
+
+                        // Add new options
+                        if (data.ratingScales && data.ratingScales.length > 0) {
+                            data.ratingScales.forEach(scale => {
+                                const option = document.createElement('option');
+                                option.value = scale.id;
+                                option.textContent = `${scale.name} (Level ${scale.rating_level}) - ${scale.min_score}-${scale.max_score}`;
+                                option.dataset.minScore = scale.min_score;
+                                option.dataset.maxScore = scale.max_score;
+                                option.dataset.ratingLevel = scale.rating_level;
+                                option.dataset.name = scale.name;
+                                ratingScaleSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error fetching rating scales for pelamar:', error));
+            });
+
+            // Function to update the score when rating scale changes
+            ratingScaleSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+
+                if (selectedOption && selectedOption.value) {
+                    // Get the min and max scores for this rating scale
+                    const minScore = parseInt(selectedOption.dataset.minScore);
+                    const maxScore = parseInt(selectedOption.dataset.maxScore);
+                    const scaleName = selectedOption.dataset.name;
+
+                    // Update the score range info
+                    scoreRangeInfo.textContent = `For "${scaleName}", enter a score between ${minScore} and ${maxScore}`;
+
+                    // Set the min and max attributes of the specific score input
+                    specificScoreInput.min = minScore;
+                    specificScoreInput.max = maxScore;
+
+                    // Set the specific score to the middle of the range as a suggestion
+                    const avgScore = Math.round((minScore + maxScore) / 2);
+                    specificScoreInput.value = avgScore;
+
+                    // Update the hidden score input
+                    scoreInput.value = avgScore;
+
+                    // Update the score display
+                    updateScoreDisplay(avgScore);
+                }
+            });
+
+            // Function to update the score when the specific score input changes
+            specificScoreInput.addEventListener('input', function() {
+                const score = parseInt(this.value) || 0;
+
+                // Update the hidden score input
+                scoreInput.value = score;
+
+                // Update the score display
+                updateScoreDisplay(score);
+
+                // Validate the score is within the selected rating scale range
+                validateScoreRange();
+            });
+
+            // Function to validate the score is within the selected rating scale range
+            function validateScoreRange() {
+                const selectedOption = ratingScaleSelect.options[ratingScaleSelect.selectedIndex];
+
+                if (selectedOption && selectedOption.value) {
+                    const minScore = parseInt(selectedOption.dataset.minScore);
+                    const maxScore = parseInt(selectedOption.dataset.maxScore);
+                    const currentScore = parseInt(specificScoreInput.value);
+
+                    if (currentScore < minScore || currentScore > maxScore) {
+                        specificScoreInput.setCustomValidity(`Score must be between ${minScore} and ${maxScore} for the selected rating scale`);
+                    } else {
+                        specificScoreInput.setCustomValidity('');
+                    }
+                }
+            }
+
+            // Function to update the score display and progress bar
+            function updateScoreDisplay(score) {
+                // Update the score display
+                scoreDisplay.textContent = `${score}/100`;
+
+                // Update the score bar
+                scoreBar.style.width = `${score}%`;
+
+                // Update the score bar color
+                if (score >= 80) {
+                    scoreBar.className = 'bg-green-500';
+                } else if (score >= 60) {
+                    scoreBar.className = 'bg-blue-500';
+                } else if (score >= 40) {
+                    scoreBar.className = 'bg-yellow-500';
+                } else {
+                    scoreBar.className = 'bg-red-500';
+                }
+            }
+
+            // Initialize the score range info if a rating scale is already selected
+            if (ratingScaleSelect.selectedIndex > 0) {
+                const selectedOption = ratingScaleSelect.options[ratingScaleSelect.selectedIndex];
+                const minScore = parseInt(selectedOption.dataset.minScore);
+                const maxScore = parseInt(selectedOption.dataset.maxScore);
+                const scaleName = selectedOption.dataset.name;
+
+                scoreRangeInfo.textContent = `For "${scaleName}", enter a score between ${minScore} and ${maxScore}`;
+                specificScoreInput.min = minScore;
+                specificScoreInput.max = maxScore;
+            }
+        });
+    </script>
 
 </x-app-layout>

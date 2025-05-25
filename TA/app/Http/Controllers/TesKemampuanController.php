@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\SkillTestScheduled;
 use App\Mail\SkillTestPassed;
 use App\Mail\SkillTestFailed;
+use App\Mail\MagangInvitation;
 
 class TesKemampuanController extends Controller
 {
@@ -250,6 +251,23 @@ class TesKemampuanController extends Controller
         $jobId = $tesKemampuan->pelamar->job_id;
         $allCriteria = TesKemampuanCriteria::where('job_id', $jobId)->get();
 
+        // If no criteria is set, try to set a default one
+        if (!$tesKemampuan->criteria_id && count($allCriteria) > 0) {
+            // Find a criteria with rating scales
+            foreach ($allCriteria as $criteria) {
+                $hasRatingScales = TesKemampuanRatingScale::where('criteria_id', $criteria->criteria_id)->exists();
+                if ($hasRatingScales) {
+                    $tesKemampuan->criteria_id = $criteria->criteria_id;
+                    break;
+                }
+            }
+
+            // If no criteria with rating scales found, just use the first one
+            if (!$tesKemampuan->criteria_id && count($allCriteria) > 0) {
+                $tesKemampuan->criteria_id = $allCriteria->first()->criteria_id;
+            }
+        }
+
         // Get all rating scales for the current criteria
         $ratingScales = [];
         if ($tesKemampuan->criteria_id) {
@@ -277,15 +295,16 @@ class TesKemampuanController extends Controller
             'pelamar_id' => 'required|exists:pelamar,pelamar_id',
             'user_id' => 'required|exists:user,user_id',
             'skor' => 'required|integer|between:0,100',
+            'specific_score' => 'required|integer|between:0,100',
             'catatan' => 'nullable',
             'jadwal' => 'required|date',
             'status_seleksi' => 'required|in:Pending,Tidak Lulus,Lulus,Magang',
-            'criteria_id' => 'nullable|exists:tes_kemampuan_criteria,criteria_id'
+            'criteria_id' => 'nullable|exists:tes_kemampuan_criteria,criteria_id',
+            'rating_scale' => 'nullable|exists:tes_kemampuan_rating_scales,id'
         ]);
 
         $tesKemampuan->pelamar_id = $request->pelamar_id;
         $tesKemampuan->user_id = $request->user_id;
-        $tesKemampuan->skor = $request->skor;
         $tesKemampuan->catatan = $request->catatan;
         $tesKemampuan->jadwal = $request->jadwal;
         $tesKemampuan->status_seleksi = $request->status_seleksi;
@@ -293,6 +312,24 @@ class TesKemampuanController extends Controller
         // Update criteria ID if provided
         if ($request->filled('criteria_id')) {
             $tesKemampuan->criteria_id = $request->criteria_id;
+        }
+
+        // If a rating scale is selected, validate the specific score is within the range
+        if ($request->filled('rating_scale')) {
+            $ratingScale = TesKemampuanRatingScale::findOrFail($request->rating_scale);
+
+            // Validate specific score is within the rating scale range
+            if ($request->specific_score < $ratingScale->min_score || $request->specific_score > $ratingScale->max_score) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['specific_score' => "Score must be between {$ratingScale->min_score} and {$ratingScale->max_score} for the selected rating scale"]);
+            }
+
+            // Use the specific score provided by the user
+            $tesKemampuan->skor = $request->specific_score;
+        } else {
+            // If no rating scale is selected, just use the provided score
+            $tesKemampuan->skor = $request->skor;
         }
 
         $tesKemampuan->save();
@@ -394,5 +431,30 @@ class TesKemampuanController extends Controller
         }
 
         return redirect()->route('tes-kemampuan.index')->with('success', 'Tes Kemampuan deleted successfully');
+    }
+
+    /**
+     * Get rating scales for a pelamar's job.
+     * This is an API endpoint for AJAX requests.
+     */
+    public function getRatingScalesForPelamar($pelamarId)
+    {
+        $pelamar = Pelamar::with('job')->findOrFail($pelamarId);
+        $jobId = $pelamar->job_id;
+
+        // Get criteria for this job
+        $criteria = TesKemampuanCriteria::where('job_id', $jobId)->first();
+
+        $ratingScales = [];
+        if ($criteria) {
+            $ratingScales = TesKemampuanRatingScale::where('criteria_id', $criteria->criteria_id)
+                ->orderBy('rating_level')
+                ->get();
+        }
+
+        return response()->json([
+            'criteria' => $criteria,
+            'ratingScales' => $ratingScales
+        ]);
     }
 }

@@ -61,6 +61,8 @@ Route::middleware('auth')->group(function () {
 
     // Tes Kemampuan routes
     Route::resource('tes-kemampuan', TesKemampuanController::class);
+    Route::get('/tes-kemampuan/get-rating-scales-for-pelamar/{pelamarId}', [TesKemampuanController::class, 'getRatingScalesForPelamar'])
+        ->name('tes-kemampuan.get-rating-scales-for-pelamar');
 
     // Magang routes
 
