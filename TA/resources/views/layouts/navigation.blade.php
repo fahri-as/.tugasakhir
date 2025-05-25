@@ -14,12 +14,12 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-2 sm:-my-px sm:ml-8 sm:flex">
+                    @if(Auth::user()->role === 'admin')
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="group transition-all duration-300 flex items-center px-3">
                         <i class="fas fa-tachometer-alt mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
                         <span class="transition-all duration-300">Dashboard</span>
                     </x-nav-link>
 
-                    @if(Auth::user()->role === 'admin')
                     <x-nav-link :href="route('job.index')" :active="request()->routeIs('job.*')" class="group transition-all duration-300 flex items-center px-3">
                         <i class="fas fa-briefcase mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
                         <span class="transition-all duration-300">Jobs</span>
@@ -38,14 +38,9 @@
                     </x-nav-link>
                     @endif
 
-                    @if(Auth::user()->role === 'cook')
-                    <x-nav-link :href="route('evaluasi.index')" :active="request()->routeIs('evaluasi.*')" class="group transition-all duration-300 flex items-center px-3">
-                        <i class="fas fa-chart-line mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
-                        <span class="transition-all duration-300">Evaluations</span>
-                    </x-nav-link>
-                    @endif
+                    
 
-                    @if(Auth::user()->role === 'pastry')
+                    @if(Auth::user()->role === 'pastry' || Auth::user()->role === 'cook')
                     <x-nav-link :href="route('evaluasi.index')" :active="request()->routeIs('evaluasi.*')" class="group transition-all duration-300 flex items-center px-3">
                         <i class="fas fa-chart-line mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
                         <span class="transition-all duration-300">Evaluations</span>
@@ -109,10 +104,12 @@
                         </div>
 
                         <!-- Profile Link -->
+                        @if(Auth::user()->role === 'admin')
                         <x-dropdown-link :href="route('dashboard')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
                             <i class="fas fa-user-cog mr-2 text-gray-400"></i>
                             Profile
                         </x-dropdown-link>
+                        @endif
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
@@ -142,16 +139,17 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            @if(Auth::user()->role === 'admin')
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="flex items-center">
                 <i class="fas fa-tachometer-alt mr-2 w-5 text-indigo-600"></i>
                 Dashboard
             </x-responsive-nav-link>
 
-            @if(Auth::user()->role === 'admin')
             <x-responsive-nav-link :href="route('job.index')" :active="request()->routeIs('job.*')" class="flex items-center">
                 <i class="fas fa-briefcase mr-2 w-5 text-indigo-600"></i>
                 Jobs
             </x-responsive-nav-link>
+
             <x-responsive-nav-link :href="route('periode.index')" :active="request()->routeIs('periode.*')" class="flex items-center">
                 <i class="fas fa-calendar-alt mr-2 w-5 text-indigo-600"></i>
                 Periods
@@ -167,14 +165,6 @@
             <x-responsive-nav-link :href="route('tes-kemampuan.index')" :active="request()->routeIs('tes-kemampuan.*')" class="flex items-center">
                 <i class="fas fa-tasks mr-2 w-5 text-indigo-600"></i>
                 Skill Tests
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('magang.index')" :active="request()->routeIs('magang.*')" class="flex items-center">
-                <i class="fas fa-user-graduate mr-2 w-5 text-indigo-600"></i>
-                Internships
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('criteria.index')" :active="request()->routeIs('criteria.*')" class="flex items-center">
-                <i class="fas fa-clipboard-list mr-2 w-5 text-indigo-600"></i>
-                Criteria
             </x-responsive-nav-link>
             @endif
 
@@ -199,10 +189,12 @@
 
             <div class="mt-3 space-y-1 border-t border-gray-200 pt-2">
                 <!-- Profile Link -->
+                @if(Auth::user()->role === 'admin')
                 <x-responsive-nav-link :href="route('dashboard')" class="flex items-center">
                     <i class="fas fa-user-cog mr-2 w-5 text-indigo-600"></i>
                     Profile
                 </x-responsive-nav-link>
+                @endif
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">

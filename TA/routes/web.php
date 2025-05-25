@@ -38,7 +38,7 @@ Route::post('/track-progress/{periode_id}', [ApplicantProgressController::class,
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', CheckRole::class.':admin'])->name('dashboard');
 
 // Routes accessible by all authenticated users
 Route::middleware('auth')->group(function () {

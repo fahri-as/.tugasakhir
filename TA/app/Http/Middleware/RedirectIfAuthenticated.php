@@ -19,6 +19,10 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                // Redirect based on user role
+                if (Auth::user()->role === 'cook' || Auth::user()->role === 'pastry') {
+                    return redirect()->route('evaluasi.index');
+                }
                 return redirect()->route('dashboard');
             }
         }

@@ -32,6 +32,11 @@ class CheckRole
             }
         }
 
+        // If user is cook or pastry trying to access dashboard, redirect to evaluasi
+        if (($user->role === 'cook' || $user->role === 'pastry') && $request->routeIs('dashboard')) {
+            return redirect()->route('evaluasi.index');
+        }
+
         abort(403, 'Unauthorized action.');
     }
 }
