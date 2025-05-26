@@ -19,6 +19,7 @@ use App\Mail\SkillTestScheduled;
 use App\Mail\SkillTestPassed;
 use App\Mail\SkillTestFailed;
 use App\Mail\MagangInvitation;
+use App\Mail\ContractDiscussionScheduled;
 
 class TesKemampuanController extends Controller
 {
@@ -598,6 +599,8 @@ class TesKemampuanController extends Controller
             $tesKemampuan->status_seleksi = 'Pending';
             $tesKemampuan->save();
 
+            
+
             // Send email notification
             $pelamar = $tesKemampuan->pelamar;
             $emailSent = true;
@@ -664,6 +667,59 @@ class TesKemampuanController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('tes-kemampuan.show', $tesKemampuan)
                 ->with('error', 'Failed to update test status: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Schedule a contract discussion meeting
+     *
+     * @param Request $request
+     * @param TesKemampuan $tesKemampuan
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function scheduleContractDiscussion(Request $request, TesKemampuan $tesKemampuan)
+    {
+        $request->validate([
+            'discussion_date' => 'required|date',
+            'discussion_time' => 'required',
+        ]);
+
+        try {
+            // Update test status to Passed
+            $tesKemampuan->status_seleksi = 'Lulus';
+            $tesKemampuan->save();
+
+            // Create discussion_date as Carbon instance
+            $discussionDateTime = \Carbon\Carbon::createFromFormat(
+                'Y-m-d H:i:s',
+                $request->discussion_date . ' ' . $request->discussion_time . ':00'
+            );
+
+            // Send email notification
+            $pelamar = $tesKemampuan->pelamar;
+            $emailSent = true;
+
+            try {
+                Mail::to($pelamar->email)->send(new ContractDiscussionScheduled($pelamar, $tesKemampuan, $discussionDateTime));
+            } catch (\Exception $e) {
+                Log::error('Failed to send contract discussion email: ' . $e->getMessage());
+                $emailSent = false;
+            }
+
+            $successMessage = 'Test status updated to Passed and contract discussion scheduled for ' . $discussionDateTime->format('d F Y H:i');
+
+            if ($emailSent) {
+                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+            } else {
+                $successMessage .= '. Email notification could not be sent.';
+            }
+
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                ->with('error', 'Failed to schedule contract discussion: ' . $e->getMessage());
         }
     }
 }

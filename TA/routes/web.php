@@ -119,6 +119,8 @@ Route::middleware(['auth', CheckRole::class.':admin'])->group(function () {
         ->name('tes-kemampuan.pending');
     Route::get('/tes-kemampuan/{tesKemampuan}/pass', [TesKemampuanController::class, 'markAsPassed'])
         ->name('tes-kemampuan.pass');
+    Route::post('/tes-kemampuan/{tesKemampuan}/schedule-contract', [TesKemampuanController::class, 'scheduleContractDiscussion'])
+        ->name('tes-kemampuan.schedule-contract');
 
     // Admin Magang routes - full access
     Route::resource('magang', MagangController::class)->except(['index', 'show']);
