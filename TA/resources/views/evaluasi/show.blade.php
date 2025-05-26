@@ -31,9 +31,9 @@
                             <div class="flex items-center">
                                 <i class="fas fa-star text-yellow-300 mr-1"></i>
                                 <span class="text-2xl font-bold">
-                                    {{ $evaluasi->criteria_rating_id ? number_format($evaluasi->skor_minggu * 10, 0) : 'N/A' }}
+                                    {{ $evaluasi->criteria_rating_id ? number_format($smartDetails['total_score'], 2) : 'N/A' }}
                                 </span>
-                                <span class="text-sm ml-1">/5</span>
+                                <span class="text-sm ml-1">/1</span>
                             </div>
                         </div>
                     </div>
@@ -256,8 +256,8 @@
                                 </div>
                                 <div class="bg-white p-4 rounded-lg text-center transform transition duration-200 hover:-translate-y-1">
                                     <i class="fas fa-star text-yellow-500 text-2xl mb-2"></i>
-                                    <p class="text-sm text-gray-600">5-Scale Rating</p>
-                                    <p class="text-xl font-bold text-gray-900">{{ number_format($smartDetails['total_score'] * 5, 2) }}/5</p>
+                                    <p class="text-sm text-gray-600">Scale Rating</p>
+                                    <p class="text-xl font-bold text-gray-900">{{ number_format($smartDetails['total_score'], 2) }}/1</p>
                                 </div>
                             </div>
                         </div>
@@ -378,7 +378,99 @@
                         </button>
 
                         <div id="methodology-content" class="hidden mt-4 space-y-4">
-                            <!-- Calculation steps content will be shown when button is clicked -->
+                            <!-- Calculation steps content (same as before but with enhanced styling) -->
+                            @if($actualCalculation && $actualCalculation['has_data'])
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <!-- Step 1 -->
+                                <div class="bg-white p-6 rounded-lg border border-gray-200 transform transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-indigo-600 font-bold">1</span>
+                                        </div>
+                                        <h4 class="font-semibold text-gray-800">Data Collection</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mb-3">Raw scores from evaluations:</p>
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <table class="min-w-full text-xs">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-left">Criteria</th>
+                                                    <th class="text-right">Score</th>
+                                                    <th class="text-right">Weight</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($actualCalculation['criteria'] as $criterion)
+                                                <tr>
+                                                    <td>{{ $criterion['criteria_code'] }}</td>
+                                                    <td class="text-right">{{ $criterion['raw_score'] }}</td>
+                                                    <td class="text-right">{{ number_format($criterion['weight'], 4) }}</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="bg-white p-6 rounded-lg border border-gray-200 transform transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-purple-600 font-bold">2</span>
+                                        </div>
+                                        <h4 class="font-semibold text-gray-800">Normalization</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mb-3">Convert to 0-1 scale:</p>
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <code class="text-xs block mb-2">Normalized = (Value - Min) / (Max - Min)</code>
+                                        @foreach($actualCalculation['criteria'] as $criterion)
+                                        <div class="text-xs mb-1">
+                                            <span class="font-medium">{{ $criterion['criteria_code'] }}:</span>
+                                            {{ $criterion['calculation'] }} = {{ number_format($criterion['normalized'], 4) }}
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div class="bg-white p-6 rounded-lg border border-gray-200 transform transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-green-600 font-bold">3</span>
+                                        </div>
+                                        <h4 class="font-semibold text-gray-800">Weighted Calculation</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mb-3">Apply criteria weights:</p>
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <code class="text-xs block mb-2">Weighted = Normalized × Weight</code>
+                                        @foreach($actualCalculation['criteria'] as $criterion)
+                                        <div class="text-xs mb-1">
+                                            <span class="font-medium">{{ $criterion['criteria_code'] }}:</span>
+                                            {{ $criterion['weighted_calculation'] }} = {{ number_format($criterion['weighted'], 4) }}
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Step 4 -->
+                                <div class="bg-white p-6 rounded-lg border border-gray-200 transform transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-pink-600 font-bold">4</span>
+                                        </div>
+                                        <h4 class="font-semibold text-gray-800">Final Score</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mb-3">Sum all weighted scores:</p>
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <p class="text-xs mb-2">{{ $actualCalculation['full_calculation'] }}</p>
+                                        <div class="text-center mt-3">
+                                            <p class="text-2xl font-bold text-indigo-600">{{ number_format($actualCalculation['total_score'], 4) }}</p>
+                                            <p class="text-xs text-gray-500">SMART Score (0-1 scale)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
