@@ -558,6 +558,11 @@ class TesKemampuanController extends Controller
             $tesKemampuan->status_seleksi = 'Tidak Lulus';
             $tesKemampuan->save();
 
+
+            $pelamar = $tesKemampuan->pelamar;
+            $pelamar->status_seleksi = 'Selesai';
+            $pelamar->save();
+
             // Send email notification
             $pelamar = $tesKemampuan->pelamar;
             $emailSent = true;
@@ -599,7 +604,10 @@ class TesKemampuanController extends Controller
             $tesKemampuan->status_seleksi = 'Pending';
             $tesKemampuan->save();
 
-            
+            // Update pelamar status
+            $pelamar = $tesKemampuan->pelamar;
+            $pelamar->status_seleksi = 'Tes Kemampuan';
+            $pelamar->save();
 
             // Send email notification
             $pelamar = $tesKemampuan->pelamar;
@@ -641,6 +649,11 @@ class TesKemampuanController extends Controller
             // Update the test status
             $tesKemampuan->status_seleksi = 'Lulus';
             $tesKemampuan->save();
+
+
+            $pelamar = $tesKemampuan->pelamar;
+            $pelamar->status_seleksi = 'Selesai';
+            $pelamar->save();
 
             // Send email notification
             $pelamar = $tesKemampuan->pelamar;
@@ -688,6 +701,10 @@ class TesKemampuanController extends Controller
             // Update test status to Passed
             $tesKemampuan->status_seleksi = 'Lulus';
             $tesKemampuan->save();
+
+            $pelamar = $tesKemampuan->pelamar;
+            $pelamar->status_seleksi = 'Selesai';
+            $pelamar->save();
 
             // Create discussion_date as Carbon instance
             $discussionDateTime = \Carbon\Carbon::createFromFormat(
