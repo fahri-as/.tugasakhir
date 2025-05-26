@@ -340,11 +340,9 @@
             <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
                 <div class="flex flex-wrap gap-4 justify-center">
                     @if($magang->status_seleksi === 'Sedang Berjalan')
-                        <a href="{{ route('magang.pass', $magang) }}"
-                           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md"
-                           onclick="return confirm('Are you sure you want to mark this intern as passed? This will send an email notification.')">
+                        <button id="scheduleContractBtn" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
                             <i class="fas fa-check-circle mr-2"></i> Mark as Passed
-                        </a>
+                        </button>
 
                         <a href="{{ route('magang.fail', $magang) }}"
                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-red-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md"
@@ -419,6 +417,56 @@
         </div>
     </div>
 
+    <!-- Contract Discussion Modal -->
+    <div id="contractModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center justify-center">
+                    <i class="fas fa-handshake text-green-500 mr-2"></i> Schedule Contract Discussion
+                </h3>
+                <div class="mt-2 px-7 py-3">
+                    <form id="contractForm" action="{{ route('magang.pass', $magang) }}" method="GET">
+                        @csrf
+                        <!-- Hidden fields for applicant data -->
+                        <input type="hidden" name="send_email" value="1">
+
+                        <!-- Discussion Date and Time -->
+                        <div class="mb-4">
+                            <label for="discussion_date" class="block text-sm font-medium text-gray-700 text-left mb-1">Discussion Date</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar-alt text-gray-400"></i>
+                                </div>
+                                <input type="date" name="discussion_date" id="discussion_date" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                            </div>
+                            <p id="discussion_date_error" class="mt-1 text-xs text-red-600 hidden">Please select a future date</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="discussion_time" class="block text-sm font-medium text-gray-700 text-left mb-1">Discussion Time</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                </div>
+                                <input type="time" name="discussion_time" id="discussion_time" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                            </div>
+                            <p id="discussion_time_error" class="mt-1 text-xs text-red-600 hidden">Please select a future time</p>
+                        </div>
+
+                        <div class="flex justify-end mt-4">
+                            <button type="button" id="cancelContractBtn" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mr-2">
+                                Cancel
+                            </button>
+                            <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                Schedule & Approve
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Week tabs functionality
@@ -482,6 +530,128 @@
                     el.style.transform = 'translateY(0)';
                 }, index * 50);
             });
+
+            // Contract Discussion Modal elements
+            const contractModal = document.getElementById('contractModal');
+            const openContractModalBtn = document.getElementById('scheduleContractBtn');
+            const closeContractModalBtn = document.getElementById('cancelContractBtn');
+            const contractForm = document.getElementById('contractForm');
+            const discussionDateInput = document.getElementById('discussion_date');
+            const discussionTimeInput = document.getElementById('discussion_time');
+            const discussionDateError = document.getElementById('discussion_date_error');
+            const discussionTimeError = document.getElementById('discussion_time_error');
+
+            // Helper function to set default date and time values
+            function setDefaultDateTime(dateInput, timeInput) {
+                const today = new Date();
+                const formattedToday = today.toISOString().split('T')[0];
+                dateInput.min = formattedToday;
+                dateInput.value = formattedToday;
+
+                // Set default time (current time + 1 hour, rounded to next 30 minute slot)
+                let defaultHour = today.getHours() + 1;
+                let defaultMinutes = today.getMinutes() < 30 ? 30 : 0;
+
+                // If we're past 30 minutes and we added an hour
+                if (today.getMinutes() >= 30) {
+                    defaultHour += 1;
+                }
+
+                // Adjust for next day if it's late in the day
+                if (defaultHour >= 24) {
+                    defaultHour = 9; // Default to 9 AM next day
+                    defaultMinutes = 0;
+
+                    // Set date to tomorrow
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    dateInput.value = tomorrow.toISOString().split('T')[0];
+                }
+
+                // Format the time as HH:MM
+                const formattedHour = String(defaultHour).padStart(2, '0');
+                const formattedMinutes = String(defaultMinutes).padStart(2, '0');
+                timeInput.value = `${formattedHour}:${formattedMinutes}`;
+            }
+
+            // Function to validate the datetime is in the future
+            function validateDatetime(dateInput, timeInput, dateError, timeError) {
+                const selectedDate = new Date(dateInput.value);
+                const now = new Date();
+
+                // Reset error messages
+                dateError.classList.add('hidden');
+                timeError.classList.add('hidden');
+
+                let isValid = true;
+
+                // Check if date is today
+                if (selectedDate.toDateString() === now.toDateString()) {
+                    // If today, check if time is in the future
+                    const [hours, minutes] = timeInput.value.split(':').map(Number);
+                    const selectedTime = new Date();
+                    selectedTime.setHours(hours, minutes, 0, 0);
+
+                    if (selectedTime <= now) {
+                        timeError.classList.remove('hidden');
+                        isValid = false;
+                    }
+                } else if (selectedDate < now && selectedDate.toDateString() !== now.toDateString()) {
+                    // Date is in the past
+                    dateError.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            // Setup Contract Discussion Modal
+            if (discussionDateInput && discussionTimeInput) {
+                setDefaultDateTime(discussionDateInput, discussionTimeInput);
+
+                // Validate on initial load
+                validateDatetime(discussionDateInput, discussionTimeInput, discussionDateError, discussionTimeError);
+
+                // Add event listeners for date and time changes
+                discussionDateInput.addEventListener('change', function() {
+                    validateDatetime(discussionDateInput, discussionTimeInput, discussionDateError, discussionTimeError);
+                });
+
+                discussionTimeInput.addEventListener('change', function() {
+                    validateDatetime(discussionDateInput, discussionTimeInput, discussionDateError, discussionTimeError);
+                });
+
+                // Prevent form submission if validation fails
+                if (contractForm) {
+                    contractForm.addEventListener('submit', function(event) {
+                        if (!validateDatetime(discussionDateInput, discussionTimeInput, discussionDateError, discussionTimeError)) {
+                            event.preventDefault();
+                        }
+                    });
+                }
+
+                // Modal open function
+                if (openContractModalBtn) {
+                    openContractModalBtn.addEventListener('click', function() {
+                        contractModal.classList.remove('hidden');
+                        validateDatetime(discussionDateInput, discussionTimeInput, discussionDateError, discussionTimeError);
+                    });
+                }
+
+                // Modal close function
+                if (closeContractModalBtn) {
+                    closeContractModalBtn.addEventListener('click', function() {
+                        contractModal.classList.add('hidden');
+                    });
+                }
+
+                // Close modal if clicked outside
+                window.addEventListener('click', function(event) {
+                    if (event.target === contractModal) {
+                        contractModal.classList.add('hidden');
+                    }
+                });
+            }
         });
     </script>
 </x-app-layout>

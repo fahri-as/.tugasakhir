@@ -15,18 +15,21 @@ class InternshipPassed extends Mailable
 
     public $pelamar;
     public $magang;
+    public $discussionDate;
 
     /**
      * Create a new message instance.
      *
      * @param  Pelamar  $pelamar
      * @param  Magang  $magang
+     * @param  \Carbon\Carbon|null  $discussionDate
      * @return void
      */
-    public function __construct(Pelamar $pelamar, Magang $magang)
+    public function __construct(Pelamar $pelamar, Magang $magang, $discussionDate = null)
     {
         $this->pelamar = $pelamar;
         $this->magang = $magang;
+        $this->discussionDate = $discussionDate;
     }
 
     /**
@@ -40,7 +43,8 @@ class InternshipPassed extends Mailable
                     ->markdown('emails.internship-passed')
                     ->with([
                         'pelamar' => $this->pelamar,
-                        'magang' => $this->magang
+                        'magang' => $this->magang,
+                        'discussionDate' => $this->discussionDate
                     ]);
     }
 }

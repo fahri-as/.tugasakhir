@@ -941,7 +941,7 @@ class MagangController extends Controller
      * @param Magang $magang
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function markAsPassed(Magang $magang)
+    public function markAsPassed(Request $request, Magang $magang)
     {
         try {
             // Update the internship status
@@ -953,17 +953,30 @@ class MagangController extends Controller
             $pelamar->status_seleksi = 'Selesai';
             $pelamar->save();
 
+            // Check if we have discussion date/time parameters
+            $discussionDateTime = null;
+            if ($request->filled('discussion_date') && $request->filled('discussion_time')) {
+                $discussionDateTime = \Carbon\Carbon::createFromFormat(
+                    'Y-m-d H:i:s',
+                    $request->discussion_date . ' ' . $request->discussion_time . ':00'
+                );
+            }
+
             // Send email notification
             $emailSent = true;
 
             try {
-                Mail::to($pelamar->email)->send(new InternshipPassed($pelamar, $magang));
+                Mail::to($pelamar->email)->send(new InternshipPassed($pelamar, $magang, $discussionDateTime));
             } catch (\Exception $e) {
                 Log::error('Failed to send internship passed email: ' . $e->getMessage());
                 $emailSent = false;
             }
 
             $successMessage = 'Internship status has been updated to Passed';
+
+            if ($discussionDateTime) {
+                $successMessage .= ' and contract discussion scheduled for ' . $discussionDateTime->format('d F Y H:i');
+            }
 
             if ($emailSent) {
                 $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
