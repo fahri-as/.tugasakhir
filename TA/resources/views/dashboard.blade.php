@@ -10,7 +10,7 @@
             <!-- Stats Overview Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 @php
-                    $activeApplicants = \App\Models\Pelamar::where('status_seleksi', '!=', 'Rejected')->count();
+                    $activeApplicants = \App\Models\Pelamar::where('status_seleksi', '!=', 'Selesai')->count();
                     $activeInterns = \App\Models\Magang::where('status_seleksi', 'Sedang Berjalan')->count();
                     $upcomingInterviews = \App\Models\Interview::where('jadwal', '>=', now())->count();
                     $upcomingTests = \App\Models\TesKemampuan::where('jadwal', '>=', now())->count();
