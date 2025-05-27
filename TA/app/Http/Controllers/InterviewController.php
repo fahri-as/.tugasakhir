@@ -7,6 +7,9 @@ use App\Models\Pelamar;
 use App\Models\User;
 use App\Models\InterviewCriteria;
 use App\Models\InterviewRatingScale;
+use App\Models\TesKemampuan;
+use App\Models\Magang;
+use App\Models\EvaluasiMingguanMagang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -467,9 +470,30 @@ public function index(Request $request)
         $interview->delete();
 
         // Reset pelamar status to Pending if it was in Interview status
-        if ($pelamar && $pelamar->status_seleksi === 'Interview') {
+        if ($pelamar) {
+            // Delete related records in other tables
+            TesKemampuan::where('pelamar_id', $pelamar->pelamar_id)->delete();
+
+            // Find all magang records for this applicant
+            $magangRecords = Magang::where('pelamar_id', $pelamar->pelamar_id)->get();
+
+            // Delete evaluasi records for all related magang records
+            foreach ($magangRecords as $magang) {
+                EvaluasiMingguanMagang::where('magang_id', $magang->magang_id)->delete();
+            }
+
+            // Now delete the magang records
+            Magang::where('pelamar_id', $pelamar->pelamar_id)->delete();
+
             $pelamar->status_seleksi = 'Pending';
             $pelamar->save();
+            //     $pelamar->save();
+
+            // Reset status to Pending if it was in Interview
+            // if ($pelamar->status_seleksi === 'Interview') {
+            //     $pelamar->status_seleksi = 'Pending';
+            //     $pelamar->save();
+            // }
         }
 
         return redirect()->route('interview.index')->with('success', 'Interview deleted successfully');

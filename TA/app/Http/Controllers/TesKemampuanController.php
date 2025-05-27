@@ -472,9 +472,31 @@ class TesKemampuanController extends Controller
         // Get the pelamar ID before deletion
         $pelamarId = $tesKemampuan->pelamar_id;
 
+        // Get the pelamar object
+        $pelamar = $tesKemampuan->pelamar;
+
         $tesKemampuan->delete();
 
-        // Update interview status back to Pending if it was in Tes Kemampuan status
+        // Delete related Magang and EvaluasiMingguanMagang records
+        if ($pelamar) {
+            // Find all magang records for this applicant
+            $magangRecords = Magang::where('pelamar_id', $pelamarId)->get();
+
+            // Delete evaluasi records for all related magang records
+            foreach ($magangRecords as $magang) {
+                // Use the correct related table/model
+                \App\Models\EvaluasiMingguanMagang::where('magang_id', $magang->magang_id)->delete();
+            }
+
+            // Delete the magang records
+            Magang::where('pelamar_id', $pelamarId)->delete();
+
+            // Update pelamar status to 'Interview'
+            $pelamar->status_seleksi = 'Interview';
+            $pelamar->save();
+        }
+
+        // Update interview status to 'Pending' if it was in Tes Kemampuan status
         $interview = Interview::where('pelamar_id', $pelamarId)->first();
         if ($interview && $interview->status_seleksi === 'Tes Kemampuan') {
             $interview->status_seleksi = 'Pending';
