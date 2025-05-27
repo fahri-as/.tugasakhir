@@ -403,7 +403,7 @@
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm text-yellow-700">
-                                        No applicant data found. Try adjusting your filters or <a href="{{ route('pelamar.create') }}" class="font-medium underline text-yellow-700 hover:text-yellow-600">add a new applicant</a>.
+                                        No applicant data found. Try adjusting your filters.
                                     </p>
                                 </div>
                             </div>

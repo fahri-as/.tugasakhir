@@ -371,7 +371,7 @@
                                                     </div>
                                                     <div class="ml-3">
                                                         <p class="text-sm text-yellow-700">
-                                                            No interviews found. Try adjusting your filters or <a href="{{ route('interview.create') }}" class="font-medium underline text-yellow-700 hover:text-yellow-600">schedule a new interview</a>.
+                                                            No interviews found. Try adjusting your filters.
                                                         </p>
                                                     </div>
                                                 </div>
