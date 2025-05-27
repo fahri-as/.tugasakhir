@@ -21,6 +21,7 @@
                             <input type="hidden" name="jadwal" value="{{ $interview->jadwal->format('Y-m-d\TH:i') }}">
                             <input type="hidden" name="status_seleksi" value="Pending">
                             <input type="hidden" name="send_email" value="1">
+                            <input type="hidden" name="pelamar_status" value="Interview">
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-yellow-600 hover:to-amber-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
                                 <i class="fas fa-redo-alt mr-2"></i> Reset to Pending
                             </button>
@@ -37,6 +38,7 @@
                             <input type="hidden" name="jadwal" value="{{ $interview->jadwal->format('Y-m-d\TH:i') }}">
                             <input type="hidden" name="status_seleksi" value="Tidak Lulus">
                             <input type="hidden" name="send_email" value="1">
+                            <input type="hidden" name="pelamar_status" value="Selesai">
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-red-600 hover:to-rose-700 active:bg-red-800 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
                                 <i class="fas fa-times-circle mr-2"></i> Mark as Failed
                             </button>
@@ -315,6 +317,8 @@
                         <input type="hidden" name="catatan" value="">
                         <input type="hidden" name="status_seleksi" value="Pending">
                         <input type="hidden" name="send_email" value="1">
+                        <input type="hidden" name="interview_id" value="{{ $interview->interview_id }}">
+                        <input type="hidden" name="update_interview_status" value="yes">
 
                         <!-- Skill Test Date and Time -->
                         <div class="mb-4">

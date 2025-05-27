@@ -433,6 +433,13 @@ public function index(Request $request)
 
         $interview->save();
 
+        // Check if we should update the applicant's status
+        if ($request->has('pelamar_status')) {
+            $pelamar = Pelamar::findOrFail($request->pelamar_id);
+            $pelamar->status_seleksi = $request->pelamar_status;
+            $pelamar->save();
+        }
+
         // Check if email notification should be sent for failed interviews
         if ($request->has('send_email') && $request->send_email == '1' && $request->status_seleksi == 'Tidak Lulus') {
             $pelamar = Pelamar::findOrFail($request->pelamar_id);

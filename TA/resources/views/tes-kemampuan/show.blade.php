@@ -77,7 +77,7 @@
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                             <div class="flex items-center mb-3 md:mb-0">
                                 <div class="h-16 w-16 rounded-full bg-purple-100 border-2 border-purple-200 flex items-center justify-center text-purple-500 mr-4 shadow-sm">
-                                    <i class="fas fa-vial text-3xl"></i>
+                                    <i class="fas fa-user text-3xl"></i>
                                 </div>
                                 <div>
                                     <h3 class="text-xl font-bold text-gray-800">{{ $tesKemampuan->pelamar->nama }}</h3>
@@ -102,7 +102,7 @@
                                     {{ $tesKemampuan->status_seleksi }}
                                 </span>
                                 <span class="text-sm text-gray-500">
-                                    Scheduled: {{ $tesKemampuan->jadwal->format('d M Y H:i') }}
+                                    Scheduled for: {{ $tesKemampuan->jadwal->format('d M Y H:i') }}
                                 </span>
                             </div>
                         </div>

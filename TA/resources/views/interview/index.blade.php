@@ -334,11 +334,11 @@
                                             <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
                                                 @if($interview->status_seleksi === 'Pending') bg-yellow-100 text-yellow-800 @endif
                                                 @if($interview->status_seleksi === 'Tidak Lulus') bg-red-100 text-red-800 @endif
-                                                @if($interview->status_seleksi === 'Tes Kemampuan') bg-green-100 text-green-800 @endif">
+                                                @if($interview->status_seleksi === 'Tes Kemampuan') bg-purple-100 text-purple-800 @endif">
                                                 <i class="fas
                                                     @if($interview->status_seleksi === 'Pending') fa-clock @endif
                                                     @if($interview->status_seleksi === 'Tidak Lulus') fa-times-circle @endif
-                                                    @if($interview->status_seleksi === 'Tes Kemampuan') fa-check-circle @endif
+                                                    @if($interview->status_seleksi === 'Tes Kemampuan') fa-tasks @endif
                                                     mr-1"></i>
                                                 {{ $interview->status_seleksi }}
                                             </span>

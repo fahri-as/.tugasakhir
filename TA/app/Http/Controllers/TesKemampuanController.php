@@ -228,7 +228,7 @@ class TesKemampuanController extends Controller
             }
         }
 
-        return redirect()->route('tes-kemampuan.index')
+        return redirect()->route('interview.index')
             ->with('success', $successMessage);
     }
 
