@@ -34,7 +34,7 @@
             }
 
             .hero-section {
-                background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?ixlib=rb-4.0.3');
+                background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('/images/jiwaragabackground.png');
                 background-size: cover;
                 background-position: center;
                 height: 50vh;
