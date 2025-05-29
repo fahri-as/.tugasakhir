@@ -991,7 +991,8 @@
                                         <option value="">Select Period</option>
                                         @php
                                             $activePeriodes = $periodes->filter(function($periode) {
-                                                return $periode->tanggal_selesai->greaterThanOrEqualTo(now());
+                                                return $periode->tanggal_selesai->greaterThanOrEqualTo(now()) &&
+                                                       $periode->tanggal_mulai->lessThanOrEqualTo(now());
                                             })->sortByDesc('tanggal_mulai');
                                         @endphp
                                         @foreach($activePeriodes as $periode)
