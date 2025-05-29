@@ -8,7 +8,7 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=playfair-display:400,500,600,700,800|poppins:300,400,500,600,700" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=poppins:300,400,500,600,700,800" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
         <!-- Styles / Scripts -->
@@ -37,7 +37,7 @@
             }
 
             h1, h2, h3, h4, h5, h6 {
-                font-family: 'Playfair Display', serif;
+                font-family: 'Poppins', sans-serif;
                 font-weight: 700;
                 color: #333;
             }
@@ -832,7 +832,7 @@
                 </div>
 
                 <div class="mt-12 animate-bounce">
-                    <a href="#features" class="text-gray-600 hover:text-orange-500 transition">
+                    <a href="#application-form" class="text-gray-600 hover:text-orange-500 transition">
                         <i class="fas fa-chevron-down text-2xl"></i>
                     </a>
                 </div>
