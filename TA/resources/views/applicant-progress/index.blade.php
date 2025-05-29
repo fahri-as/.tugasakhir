@@ -943,6 +943,7 @@
 
                 <div class="periods-grid">
                     @foreach($periodes as $periode)
+                        @if($periode->tanggal_mulai->lessThanOrEqualTo(now()))
                         <a href="{{ route('applicant.progress.select-period', $periode->periode_id) }}"
                            class="period-card fade-in-up">
                             <div class="period-header">
@@ -982,6 +983,7 @@
                                 Track Application
                             </div>
                         </a>
+                        @endif
                     @endforeach
                 </div>
             </div>
