@@ -5,11 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Pelamar;
 use App\Models\Periode;
 use App\Models\Job;
+use App\Mail\ApplicationSubmitted;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PelamarController extends Controller
 {
@@ -89,17 +94,25 @@ public function index(Request $request)
             'status_seleksi' => 'nullable|in:Pending,Interview,Tes Kemampuan,Magang,Sedang Berjalan,Selesai' // Updated validation for status_seleksi
         ]);
 
-        // Get the last applicant ID to generate the new one
-        $lastApplicant = Pelamar::orderBy('pelamar_id', 'desc')->first();
+        // Generate random unique ID using database transaction to prevent race conditions
+        $newId = DB::transaction(function () {
+            $isUnique = false;
+            $uniqueId = '';
 
-        if ($lastApplicant) {
-            // Extract the numeric part and increment
-            $lastId = intval(substr($lastApplicant->pelamar_id, 2));
-            $newId = 'PL' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
-        } else {
-            // If no existing applicants, start with PL001
-            $newId = 'PL001';
-        }
+            while (!$isUnique) {
+                // Generate a random alphanumeric string (10 characters)
+                $uniqueId = Str::random(10);
+
+                // Check if this ID already exists
+                $exists = Pelamar::where('pelamar_id', $uniqueId)->exists();
+
+                if (!$exists) {
+                    $isUnique = true;
+                }
+            }
+
+            return $uniqueId;
+        });
 
         // Prepare data for creation
         $data = $request->except('berkas_cv');
@@ -130,9 +143,17 @@ public function index(Request $request)
 
         $pelamar = Pelamar::create($data);
 
+        // Send confirmation email to the applicant
+        try {
+            Mail::to($pelamar->email)->send(new ApplicationSubmitted($pelamar));
+        } catch (\Exception $e) {
+            // Log the error but continue (don't prevent registration if email fails)
+            Log::error('Failed to send application confirmation email: ' . $e->getMessage());
+        }
+
         // Check if request is coming from public route or admin area
         if ($request->route()->getName() === 'pelamar.public.store' || !Auth::check()) {
-            return redirect('/')->with('success', 'Application submitted successfully! Your application ID is: ' . $newId);
+            return redirect('/')->with('success', 'Application submitted successfully! Your application ID is: ' . $newId . '. A confirmation email has been sent to your email address.');
         }
 
         // Otherwise, redirect to admin area
