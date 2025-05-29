@@ -4,11 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>JIWARAGA - Career Portal | Shape Your Future</title>
+        <title>JIWARAGA Careers | Shape Tomorrow's Culinary Excellence</title>
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=poppins:300,400,500,600,700,800" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
         <!-- Styles / Scripts -->
@@ -16,11 +17,26 @@
 
         <style>
             :root {
-                --primary-gradient: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-                --secondary-gradient: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
-                --success-gradient: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-                --accent-color: #e67e22;
-                --dark-accent: #d35400;
+                /* Professional Corporate Colors with Orange Theme */
+                --primary-color: #1a1f36;
+                --secondary-color: #4a5568;
+                --accent-color: #f97316;
+                --accent-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%);
+                --accent-light: #fed7aa;
+                --accent-dark: #c2410c;
+                --success-color: #10b981;
+                --warning-color: #f59e0b;
+                --danger-color: #ef4444;
+                --dark-bg: #0f172a;
+                --light-bg: #f8fafc;
+                --card-bg: #ffffff;
+                --text-primary: #1e293b;
+                --text-secondary: #64748b;
+                --border-color: #e2e8f0;
+                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             }
 
             * {
@@ -30,74 +46,139 @@
             }
 
             body {
-                font-family: 'Poppins', sans-serif;
+                font-family: 'Inter', sans-serif;
                 overflow-x: hidden;
-                background-color: #fff9f0;
-                color: #444;
+                background-color: var(--light-bg);
+                color: var(--text-primary);
+                line-height: 1.6;
             }
 
             h1, h2, h3, h4, h5, h6 {
-                font-family: 'Poppins', sans-serif;
+                font-family: 'Plus Jakarta Sans', sans-serif;
                 font-weight: 700;
-                color: #333;
+                color: var(--primary-color);
             }
 
-            /* Loading Animation */
+            /* Enhanced Loading Animation */
             .page-loader {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: #fff9f0;
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
                 z-index: 9999;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                transition: opacity 0.5s ease-out;
+                transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             .loader-content {
                 text-align: center;
+                position: relative;
             }
 
-            .loader-logo {
-                width: 80px;
-                height: 80px;
-                margin: 0 auto 20px;
-                animation: pulse 2s infinite;
+            .loader-circles {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 2rem;
+                justify-content: center;
             }
 
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); opacity: 1; }
-                50% { transform: scale(1.1); opacity: 0.8; }
+            .loader-circle {
+                width: 12px;
+                height: 12px;
+                background: var(--accent-color);
+                border-radius: 50%;
+                animation: loaderPulse 1.5s ease-in-out infinite;
             }
 
-            /* Navbar */
+            .loader-circle:nth-child(2) { animation-delay: 0.2s; }
+            .loader-circle:nth-child(3) { animation-delay: 0.4s; }
+
+            @keyframes loaderPulse {
+                0%, 100% { transform: scale(0.8); opacity: 0.5; }
+                50% { transform: scale(1.2); opacity: 1; }
+            }
+
+            /* Modern Navbar with Glassmorphism */
             .navbar {
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
                 z-index: 1000;
-                background: rgba(255, 255, 255, 0.9);
-                backdrop-filter: blur(10px);
-                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-                transition: all 0.3s ease;
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             .navbar.scrolled {
                 background: rgba(255, 255, 255, 0.95);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             }
 
-            /* Hero Section */
+            .navbar-content {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 1rem 2rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .navbar-brand {
+                font-size: 1.75rem;
+                font-weight: 800;
+                background: var(--accent-gradient);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                letter-spacing: -0.02em;
+            }
+
+            .navbar-menu {
+                display: flex;
+                align-items: center;
+                gap: 2.5rem;
+            }
+
+            .navbar-link {
+                color: var(--text-secondary);
+                text-decoration: none;
+                font-weight: 500;
+                position: relative;
+                transition: color 0.3s ease;
+                font-size: 0.95rem;
+            }
+
+            .navbar-link::after {
+                content: '';
+                position: absolute;
+                bottom: -8px;
+                left: 0;
+                width: 0;
+                height: 2px;
+                background: var(--accent-gradient);
+                transition: width 0.3s ease;
+            }
+
+            .navbar-link:hover {
+                color: var(--accent-color);
+            }
+
+            .navbar-link:hover::after {
+                width: 100%;
+            }
+
+            /* Hero Section with Advanced Animations */
             .hero-section {
                 min-height: 100vh;
                 padding-top: 80px;
-                background: linear-gradient(135deg, rgba(255, 245, 230, 0.9) 0%, rgba(255, 252, 245, 0.9) 100%), url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-                background-size: cover;
-                background-position: center;
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
                 position: relative;
                 overflow: hidden;
                 display: flex;
@@ -105,83 +186,78 @@
                 justify-content: center;
             }
 
-            .hero-bg-pattern {
+            /* Animated Background Grid */
+            .hero-grid {
                 position: absolute;
-                top: 0;
-                left: 0;
                 width: 100%;
                 height: 100%;
                 background-image:
-                    radial-gradient(circle at 20% 50%, rgba(230, 126, 34, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 80%, rgba(243, 156, 18, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 40% 80%, rgba(211, 84, 0, 0.1) 0%, transparent 50%);
-                animation: floatPattern 20s ease-in-out infinite;
+                    linear-gradient(rgba(249, 115, 22, 0.1) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(249, 115, 22, 0.1) 1px, transparent 1px);
+                background-size: 50px 50px;
+                animation: gridMove 20s linear infinite;
             }
 
-            @keyframes floatPattern {
-                0%, 100% { transform: translate(0, 0) rotate(0deg); }
-                33% { transform: translate(-20px, -20px) rotate(1deg); }
-                66% { transform: translate(20px, -10px) rotate(-1deg); }
+            @keyframes gridMove {
+                0% { transform: translate(0, 0); }
+                100% { transform: translate(50px, 50px); }
             }
 
-            .floating-shapes {
+            /* Floating Gradient Orbs */
+            .gradient-orb {
                 position: absolute;
-                width: 100%;
-                height: 100%;
-                overflow: hidden;
-            }
-
-            .shape {
-                position: absolute;
-                background: linear-gradient(135deg, rgba(230, 126, 34, 0.1) 0%, rgba(211, 84, 0, 0.1) 100%);
                 border-radius: 50%;
-                animation: float 20s infinite ease-in-out;
+                filter: blur(80px);
+                opacity: 0.6;
+                animation: orbFloat 20s ease-in-out infinite;
             }
 
-            .shape:nth-child(1) {
+            .orb-1 {
+                width: 600px;
+                height: 600px;
+                background: radial-gradient(circle, rgba(249, 115, 22, 0.4) 0%, transparent 70%);
+                top: -200px;
+                left: -200px;
+            }
+
+            .orb-2 {
+                width: 400px;
+                height: 400px;
+                background: radial-gradient(circle, rgba(251, 146, 60, 0.4) 0%, transparent 70%);
+                bottom: -150px;
+                right: -150px;
+                animation-delay: -10s;
+            }
+
+            .orb-3 {
                 width: 300px;
                 height: 300px;
-                top: -150px;
-                left: -150px;
-                animation-delay: 0s;
-            }
-
-            .shape:nth-child(2) {
-                width: 200px;
-                height: 200px;
+                background: radial-gradient(circle, rgba(254, 215, 170, 0.3) 0%, transparent 70%);
                 top: 50%;
-                right: -100px;
-                animation-delay: 5s;
+                left: 50%;
+                animation-delay: -5s;
             }
 
-            .shape:nth-child(3) {
-                width: 150px;
-                height: 150px;
-                bottom: -75px;
-                left: 30%;
-                animation-delay: 10s;
-            }
-
-            @keyframes float {
-                0%, 100% { transform: translate(0, 0) rotate(0deg); }
-                25% { transform: translate(30px, -30px) rotate(90deg); }
-                50% { transform: translate(-20px, 20px) rotate(180deg); }
-                75% { transform: translate(40px, 10px) rotate(270deg); }
+            @keyframes orbFloat {
+                0%, 100% { transform: translate(0, 0) scale(1); }
+                25% { transform: translate(50px, -50px) scale(1.1); }
+                50% { transform: translate(-30px, 30px) scale(0.9); }
+                75% { transform: translate(30px, 50px) scale(1.05); }
             }
 
             .hero-content {
                 position: relative;
                 z-index: 10;
                 text-align: center;
-                max-width: 900px;
-                padding: 0 20px;
-                animation: fadeInUp 1s ease-out;
+                max-width: 1200px;
+                padding: 0 2rem;
+                animation: heroFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
-            @keyframes fadeInUp {
+            @keyframes heroFadeIn {
                 from {
                     opacity: 0;
-                    transform: translateY(30px);
+                    transform: translateY(40px);
                 }
                 to {
                     opacity: 1;
@@ -189,326 +265,494 @@
                 }
             }
 
+            .hero-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: rgba(249, 115, 22, 0.1);
+                border: 1px solid rgba(249, 115, 22, 0.2);
+                padding: 0.5rem 1.5rem;
+                border-radius: 50px;
+                margin-bottom: 2rem;
+                animation: pulse 3s ease-in-out infinite;
+            }
+
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+
+            .hero-badge-text {
+                color: #fed7aa;
+                font-size: 0.875rem;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+            }
+
             .hero-title {
-                font-size: clamp(2.5rem, 5vw, 4.5rem);
-                font-weight: 800;
+                font-size: clamp(3rem, 6vw, 5rem);
+                font-weight: 900;
+                color: white;
+                line-height: 1.1;
                 margin-bottom: 1.5rem;
-                background: var(--primary-gradient);
+                letter-spacing: -0.03em;
+            }
+
+            .hero-gradient-text {
+                background: linear-gradient(135deg, #fed7aa 0%, #fb923c 50%, #f97316 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
-                line-height: 1.2;
             }
 
             .hero-subtitle {
-                font-size: clamp(1.1rem, 2vw, 1.5rem);
-                color: #555;
+                font-size: clamp(1.125rem, 2vw, 1.5rem);
+                color: #94a3b8;
                 margin-bottom: 3rem;
                 line-height: 1.6;
+                font-weight: 400;
             }
 
+            /* Modern CTA Buttons */
             .cta-buttons {
                 display: flex;
                 gap: 1.5rem;
                 flex-wrap: wrap;
                 justify-content: center;
-                margin-bottom: 4rem;
+                margin-bottom: 5rem;
             }
 
             .btn {
-                padding: 1rem 2rem;
+                padding: 1rem 2.5rem;
                 border-radius: 12px;
                 font-weight: 600;
                 text-decoration: none;
-                transition: all 0.3s ease;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 position: relative;
                 overflow: hidden;
                 display: inline-flex;
                 align-items: center;
-                gap: 0.5rem;
+                gap: 0.75rem;
+                font-size: 1rem;
+                border: none;
+                cursor: pointer;
             }
 
             .btn-primary {
-                background: var(--primary-gradient);
+                background: var(--accent-gradient);
                 color: white;
-                box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+                box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
             }
 
             .btn-primary:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(230, 126, 34, 0.4);
+                box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
             }
 
             .btn-secondary {
-                background: rgba(255, 255, 255, 0.8);
-                color: #e67e22;
-                border: 2px solid rgba(230, 126, 34, 0.3);
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(10px);
             }
 
             .btn-secondary:hover {
-                background: rgba(255, 255, 255, 1);
-                border-color: rgba(230, 126, 34, 0.5);
+                background: rgba(255, 255, 255, 0.15);
+                border-color: rgba(255, 255, 255, 0.3);
                 transform: translateY(-2px);
             }
 
             .btn-success {
-                background: var(--success-gradient);
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
                 color: white;
-                box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+                box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
             }
 
             .btn-success:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(46, 204, 113, 0.4);
+                box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
             }
 
-            /* Stats Section */
+            /* 3D Stats Cards */
             .stats-container {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
                 gap: 2rem;
                 margin-top: 4rem;
+                perspective: 1000px;
             }
 
             .stat-card {
-                background: #fff;
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 16px;
-                padding: 2rem;
+                background: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 24px;
+                padding: 2.5rem;
                 text-align: center;
-                transition: all 0.3s ease;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                transform-style: preserve-3d;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.1), transparent 70%);
+                opacity: 0;
+                transition: opacity 0.4s ease;
             }
 
             .stat-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                border-color: rgba(230, 126, 34, 0.3);
+                transform: translateY(-10px) rotateX(5deg);
+                border-color: rgba(249, 115, 22, 0.3);
+            }
+
+            .stat-card:hover::before {
+                opacity: 1;
+            }
+
+            .stat-icon {
+                width: 60px;
+                height: 60px;
+                margin: 0 auto 1.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(249, 115, 22, 0.1);
+                border-radius: 16px;
+                font-size: 1.5rem;
+                color: #fb923c;
             }
 
             .stat-number {
-                font-size: 2.5rem;
+                font-size: 3rem;
                 font-weight: 800;
-                background: var(--primary-gradient);
+                background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
+                margin-bottom: 0.5rem;
             }
 
-            /* Features Section */
+            .stat-label {
+                color: #94a3b8;
+                font-size: 0.875rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            /* Features Section with Modern Cards */
             .features-section {
-                padding: 6rem 0;
-                background: #fff;
+                padding: 8rem 0;
+                background: white;
                 position: relative;
+                overflow: hidden;
             }
 
             .section-header {
                 text-align: center;
-                margin-bottom: 4rem;
+                margin-bottom: 5rem;
+                position: relative;
+            }
+
+            .section-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: rgba(249, 115, 22, 0.1);
+                border: 1px solid rgba(249, 115, 22, 0.2);
+                padding: 0.5rem 1.25rem;
+                border-radius: 50px;
+                margin-bottom: 1.5rem;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: var(--accent-color);
             }
 
             .section-title {
-                font-size: clamp(2rem, 4vw, 3rem);
+                font-size: clamp(2.5rem, 4vw, 3.5rem);
                 font-weight: 800;
                 margin-bottom: 1rem;
-                background: var(--primary-gradient);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
+                color: var(--primary-color);
+                letter-spacing: -0.02em;
             }
 
             .section-subtitle {
-                font-size: 1.2rem;
-                color: #777;
+                font-size: 1.25rem;
+                color: var(--text-secondary);
+                max-width: 600px;
+                margin: 0 auto;
             }
 
             .features-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
                 gap: 2rem;
                 max-width: 1200px;
                 margin: 0 auto;
             }
 
             .feature-card {
-                background: #fff;
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 20px;
-                padding: 2.5rem;
-                transition: all 0.3s ease;
+                background: var(--card-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 24px;
+                padding: 3rem;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 position: relative;
                 overflow: hidden;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                cursor: pointer;
             }
 
             .feature-card::before {
                 content: '';
                 position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 3px;
-                background: var(--primary-gradient);
-                transform: scaleX(0);
-                transition: transform 0.3s ease;
+                top: -2px;
+                left: -2px;
+                right: -2px;
+                bottom: -2px;
+                background: var(--accent-gradient);
+                border-radius: 24px;
+                opacity: 0;
+                z-index: -1;
+                transition: opacity 0.4s ease;
+            }
+
+            .feature-card::after {
+                content: '';
+                position: absolute;
+                inset: 1px;
+                background: var(--card-bg);
+                border-radius: 23px;
+                z-index: -1;
             }
 
             .feature-card:hover {
-                transform: translateY(-10px);
-                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-                border-color: rgba(230, 126, 34, 0.3);
+                transform: translateY(-8px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             }
 
             .feature-card:hover::before {
-                transform: scaleX(1);
+                opacity: 1;
             }
 
-            .feature-icon {
-                width: 70px;
-                height: 70px;
-                margin-bottom: 1.5rem;
+            .feature-icon-wrapper {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 2rem;
                 position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .feature-icon-bg {
                 position: absolute;
                 width: 100%;
                 height: 100%;
-                background: var(--primary-gradient);
+                background: var(--accent-gradient);
                 border-radius: 20px;
                 opacity: 0.1;
-                transition: all 0.3s ease;
+                transition: all 0.4s ease;
             }
 
             .feature-card:hover .feature-icon-bg {
-                transform: rotate(45deg);
+                transform: rotate(45deg) scale(1.1);
                 border-radius: 50%;
+                opacity: 0.15;
             }
 
-            .feature-icon i {
+            .feature-icon {
                 position: relative;
                 font-size: 2rem;
-                background: var(--primary-gradient);
+                background: var(--accent-gradient);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                height: 100%;
             }
 
-            /* Process Timeline */
+            .feature-title {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--primary-color);
+                margin-bottom: 1rem;
+            }
+
+            .feature-description {
+                color: var(--text-secondary);
+                line-height: 1.8;
+            }
+
+            /* Interactive Timeline */
             .timeline-section {
-                padding: 6rem 0;
-                background: #fff9f0;
+                padding: 8rem 0;
+                background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+                position: relative;
+                overflow: hidden;
             }
 
             .timeline {
                 position: relative;
                 max-width: 1200px;
                 margin: 0 auto;
+                padding: 0 2rem;
             }
 
-            .timeline::after {
-                content: '';
+            .timeline-line {
                 position: absolute;
                 width: 2px;
-                background: rgba(230, 126, 34, 0.3);
+                background: linear-gradient(180deg, transparent, #e2e8f0, #e2e8f0, transparent);
                 top: 0;
                 bottom: 0;
                 left: 50%;
-                margin-left: -1px;
+                transform: translateX(-50%);
+            }
+
+            .timeline-progress {
+                position: absolute;
+                width: 2px;
+                background: var(--accent-gradient);
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                height: 0;
+                transition: height 0.6s ease;
             }
 
             .timeline-item {
-                padding: 10px 40px;
                 position: relative;
                 width: 50%;
+                padding: 2rem 3rem;
                 opacity: 0;
-                animation: fadeInTimeline 0.8s ease-out forwards;
+                transform: translateY(30px);
+                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
-            .timeline-item:nth-child(1) { animation-delay: 0.1s; }
-            .timeline-item:nth-child(2) { animation-delay: 0.2s; }
-            .timeline-item:nth-child(3) { animation-delay: 0.3s; }
-            .timeline-item:nth-child(4) { animation-delay: 0.4s; }
-
-            @keyframes fadeInTimeline {
-                to {
-                    opacity: 1;
-                }
+            .timeline-item.visible {
+                opacity: 1;
+                transform: translateY(0);
             }
 
             .timeline-item:nth-child(odd) {
                 left: 0;
                 text-align: right;
-                padding-right: 70px;
+                padding-right: 4rem;
             }
 
             .timeline-item:nth-child(even) {
                 left: 50%;
-                text-align: left;
-                padding-left: 70px;
+                padding-left: 4rem;
             }
 
             .timeline-dot {
                 position: absolute;
-                width: 20px;
-                height: 20px;
-                background: var(--primary-gradient);
+                width: 24px;
+                height: 24px;
+                background: white;
+                border: 3px solid #e2e8f0;
                 border-radius: 50%;
-                top: 20px;
-                z-index: 1;
+                top: 2rem;
+                z-index: 2;
+                transition: all 0.3s ease;
+            }
+
+            .timeline-item.active .timeline-dot {
+                background: var(--accent-gradient);
+                border-color: transparent;
+                transform: scale(1.3);
+                box-shadow: 0 0 0 8px rgba(249, 115, 22, 0.1);
             }
 
             .timeline-item:nth-child(odd) .timeline-dot {
-                right: -10px;
+                right: -12px;
             }
 
             .timeline-item:nth-child(even) .timeline-dot {
-                left: -10px;
+                left: -12px;
             }
 
             .timeline-content {
-                background: #fff;
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                padding: 1.5rem;
-                border-radius: 16px;
-                transition: all 0.3s ease;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                background: white;
+                border: 1px solid var(--border-color);
+                padding: 2.5rem;
+                border-radius: 20px;
+                transition: all 0.4s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .timeline-content::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: var(--accent-gradient);
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: transform 0.4s ease;
+            }
+
+            .timeline-item:hover .timeline-content::before {
+                transform: scaleX(1);
             }
 
             .timeline-content:hover {
-                transform: scale(1.05);
-                background: #fff;
-                border-color: rgba(230, 126, 34, 0.3);
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             }
 
-            /* Application Form Section */
+            .timeline-number {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                background: rgba(249, 115, 22, 0.1);
+                color: var(--accent-color);
+                font-weight: 700;
+                border-radius: 12px;
+                margin-bottom: 1rem;
+            }
+
+            /* Modern Form Section */
             .form-section {
-                padding: 6rem 0;
-                background: linear-gradient(135deg, rgba(255, 245, 230, 0.9) 0%, rgba(255, 252, 245, 0.9) 100%), url('https://images.unsplash.com/photo-1552566626-52f8b828add9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-                background-size: cover;
-                background-position: center;
+                padding: 8rem 0;
+                background: white;
                 position: relative;
             }
 
             .form-container {
                 max-width: 1000px;
                 margin: 0 auto;
-                background: #fff;
-                border: 1px solid rgba(0, 0, 0, 0.1);
+                background: white;
+                border: 1px solid var(--border-color);
                 border-radius: 24px;
+                padding: 0;
+                overflow: hidden;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            }
+
+            .form-header {
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
                 padding: 3rem;
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .form-body {
+                padding: 3rem;
             }
 
             .form-section-card {
-                background: #f9f9f9;
-                border: 1px solid rgba(0, 0, 0, 0.1);
+                background: #f8fafc;
+                border: 1px solid var(--border-color);
                 border-radius: 16px;
                 padding: 2rem;
                 margin-bottom: 2rem;
@@ -516,28 +760,27 @@
             }
 
             .form-section-card:hover {
-                background: #fff;
-                border-color: rgba(230, 126, 34, 0.3);
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+                background: #f1f5f9;
+                border-color: rgba(249, 115, 22, 0.2);
             }
 
             .form-section-header {
                 display: flex;
                 align-items: center;
-                gap: 0.75rem;
-                margin-bottom: 1.5rem;
-                padding-bottom: 1rem;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+                gap: 1rem;
+                margin-bottom: 2rem;
             }
 
             .form-section-icon {
-                width: 40px;
-                height: 40px;
+                width: 48px;
+                height: 48px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background: rgba(230, 126, 34, 0.1);
+                background: var(--accent-gradient);
                 border-radius: 12px;
+                color: white;
+                font-size: 1.25rem;
             }
 
             .form-group {
@@ -547,46 +790,50 @@
             .form-label {
                 display: block;
                 margin-bottom: 0.5rem;
-                font-weight: 500;
-                color: #555;
-                font-size: 0.9rem;
+                font-weight: 600;
+                color: var(--primary-color);
+                font-size: 0.875rem;
+                letter-spacing: 0.025em;
+            }
+
+            .form-label-required {
+                color: var(--danger-color);
+                margin-left: 0.25rem;
             }
 
             .form-control {
                 width: 100%;
-                padding: 0.75rem 1rem;
-                background: #fff;
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 10px;
-                color: #444;
+                padding: 0.875rem 1rem;
+                background: white;
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                color: var(--text-primary);
                 transition: all 0.3s ease;
                 font-size: 1rem;
             }
 
             .form-control:focus {
                 outline: none;
-                border-color: rgba(230, 126, 34, 0.5);
-                box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+                border-color: var(--accent-color);
+                box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
             }
 
-            .form-control option {
-                background: #fff;
-                color: #444;
+            .form-control:hover {
+                border-color: #cbd5e1;
             }
 
             textarea.form-control {
                 resize: vertical;
-                min-height: 100px;
+                min-height: 120px;
             }
 
-            .file-input {
+            /* Modern File Upload */
+            .file-upload-wrapper {
                 position: relative;
-                display: inline-block;
-                cursor: pointer;
-                width: 100%;
+                overflow: hidden;
             }
 
-            .file-input input[type="file"] {
+            .file-upload-input {
                 position: absolute;
                 opacity: 0;
                 width: 100%;
@@ -594,22 +841,51 @@
                 cursor: pointer;
             }
 
-            .file-input-label {
+            .file-upload-label {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 3rem 2rem;
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                border: 2px dashed var(--border-color);
+                border-radius: 16px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-align: center;
+            }
+
+            .file-upload-wrapper:hover .file-upload-label {
+                background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+                border-color: var(--accent-color);
+            }
+
+            .file-upload-icon {
+                width: 64px;
+                height: 64px;
+                margin-bottom: 1rem;
                 display: flex;
                 align-items: center;
-                gap: 1rem;
-                padding: 1rem;
-                background: rgba(230, 126, 34, 0.05);
-                border: 2px dashed rgba(230, 126, 34, 0.2);
-                border-radius: 12px;
-                transition: all 0.3s ease;
+                justify-content: center;
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+                color: var(--accent-color);
+                font-size: 1.5rem;
             }
 
-            .file-input:hover .file-input-label {
-                background: rgba(230, 126, 34, 0.1);
-                border-color: rgba(230, 126, 34, 0.3);
+            .file-upload-text {
+                font-weight: 600;
+                color: var(--primary-color);
+                margin-bottom: 0.5rem;
             }
 
+            .file-upload-hint {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+            }
+
+            /* Enhanced Alerts */
             .alert {
                 padding: 1rem 1.5rem;
                 border-radius: 12px;
@@ -617,10 +893,10 @@
                 display: flex;
                 align-items: center;
                 gap: 1rem;
-                animation: slideInDown 0.5s ease-out;
+                animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
-            @keyframes slideInDown {
+            @keyframes slideDown {
                 from {
                     opacity: 0;
                     transform: translateY(-20px);
@@ -632,22 +908,34 @@
             }
 
             .alert-success {
-                background: rgba(46, 204, 113, 0.1);
-                border: 1px solid rgba(46, 204, 113, 0.3);
-                color: #27ae60;
+                background: rgba(16, 185, 129, 0.1);
+                border: 1px solid rgba(16, 185, 129, 0.2);
+                color: #059669;
             }
 
             .alert-error {
-                background: rgba(231, 76, 60, 0.1);
-                border: 1px solid rgba(231, 76, 60, 0.3);
-                color: #e74c3c;
+                background: rgba(239, 68, 68, 0.1);
+                border: 1px solid rgba(239, 68, 68, 0.2);
+                color: #dc2626;
             }
 
-            /* Footer */
+            /* Modern Footer */
             .footer {
-                background: #fff9f0;
-                padding: 4rem 0 2rem;
-                border-top: 1px solid rgba(0, 0, 0, 0.1);
+                background: var(--primary-color);
+                color: white;
+                padding: 5rem 0 2rem;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .footer::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
             }
 
             .footer-content {
@@ -661,50 +949,180 @@
             }
 
             .footer-brand h3 {
-                font-size: 1.8rem;
+                font-size: 2rem;
                 margin-bottom: 1rem;
-                background: var(--primary-gradient);
+                background: var(--accent-gradient);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
             }
 
+            .footer-description {
+                color: #94a3b8;
+                line-height: 1.8;
+            }
+
+            .footer-section h4 {
+                color: white;
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 1.5rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .footer-links {
+                list-style: none;
+            }
+
+            .footer-link {
+                color: #94a3b8;
+                text-decoration: none;
+                display: block;
+                padding: 0.5rem 0;
+                transition: all 0.3s ease;
+                position: relative;
+            }
+
+            .footer-link:hover {
+                color: white;
+                transform: translateX(5px);
+            }
+
             .social-links {
                 display: flex;
                 gap: 1rem;
-                margin-top: 1.5rem;
+                margin-top: 2rem;
             }
 
             .social-link {
-                width: 40px;
-                height: 40px;
+                width: 44px;
+                height: 44px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background: #fff;
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 10px;
-                color: #777;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                color: #94a3b8;
                 transition: all 0.3s ease;
+                font-size: 1.125rem;
             }
 
             .social-link:hover {
-                background: var(--primary-gradient);
+                background: var(--accent-gradient);
                 border-color: transparent;
                 color: white;
                 transform: translateY(-3px);
             }
 
-            /* Responsive */
+            .footer-bottom {
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding-top: 2rem;
+                text-align: center;
+                color: #64748b;
+            }
+
+            /* Mobile Menu */
+            .mobile-menu-toggle {
+                display: none;
+                background: none;
+                border: none;
+                color: var(--text-primary);
+                font-size: 1.5rem;
+                cursor: pointer;
+                padding: 0.5rem;
+            }
+
+            .mobile-menu {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 400px;
+                height: 100vh;
+                background: white;
+                box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1001;
+                padding: 2rem;
+                overflow-y: auto;
+            }
+
+            .mobile-menu.active {
+                right: 0;
+            }
+
+            .mobile-menu-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .mobile-menu-close {
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                color: var(--text-secondary);
+                cursor: pointer;
+            }
+
+            .mobile-menu-links {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .mobile-menu-link {
+                color: var(--text-primary);
+                text-decoration: none;
+                padding: 1rem;
+                border-radius: 12px;
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
+
+            .mobile-menu-link:hover {
+                background: var(--light-bg);
+                color: var(--accent-color);
+            }
+
+            /* Responsive Design */
             @media (max-width: 768px) {
-                .timeline::after {
-                    left: 31px;
+                .navbar-menu {
+                    display: none;
+                }
+
+                .mobile-menu-toggle {
+                    display: block;
+                }
+
+                .hero-title {
+                    font-size: clamp(2rem, 8vw, 3rem);
+                }
+
+                .cta-buttons {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 1rem;
+                }
+
+                .stats-container {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 1rem;
+                }
+
+                .timeline-line,
+                .timeline-progress {
+                    left: 20px;
                 }
 
                 .timeline-item {
                     width: 100%;
-                    padding-left: 70px;
-                    padding-right: 25px;
+                    padding-left: 60px;
                     text-align: left !important;
                 }
 
@@ -713,100 +1131,167 @@
                 }
 
                 .timeline-dot {
-                    left: 21px !important;
+                    left: 10px !important;
                     right: auto !important;
                 }
 
-                .cta-buttons {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-
-                .stats-container {
-                    grid-template-columns: 1fr;
+                .form-container {
+                    padding: 2rem 1.5rem;
                 }
             }
 
-            /* Smooth Scroll */
-            html {
-                scroll-behavior: smooth;
-            }
-
-            /* Custom Scrollbar */
+            /* Smooth Scrollbar */
             ::-webkit-scrollbar {
                 width: 10px;
             }
 
             ::-webkit-scrollbar-track {
-                background: #f5f5f5;
+                background: var(--light-bg);
             }
 
             ::-webkit-scrollbar-thumb {
-                background: rgba(230, 126, 34, 0.5);
+                background: linear-gradient(180deg, var(--accent-color), #ea580c);
                 border-radius: 5px;
             }
 
             ::-webkit-scrollbar-thumb:hover {
-                background: rgba(230, 126, 34, 0.7);
+                background: linear-gradient(180deg, #ea580c, #c2410c);
+            }
+
+            /* Smooth scroll behavior */
+            html {
+                scroll-behavior: smooth;
+            }
+
+            /* Entrance Animations */
+            .fade-in-up {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .fade-in-up.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* Hover Effects */
+            .hover-lift {
+                transition: transform 0.3s ease;
+            }
+
+            .hover-lift:hover {
+                transform: translateY(-5px);
+            }
+
+            /* Loading States */
+            .loading {
+                pointer-events: none;
+                opacity: 0.6;
+            }
+
+            .spinner {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 3px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                border-top-color: white;
+                animation: spin 0.8s ease-in-out infinite;
+            }
+
+            @keyframes spin {
+                to { transform: rotate(360deg); }
             }
         </style>
     </head>
     <body>
-        <!-- Page Loader -->
+        <!-- Enhanced Page Loader -->
         <div class="page-loader" id="pageLoader">
             <div class="loader-content">
-                <div class="loader-logo">
-                    <i class="fas fa-utensils fa-3x" style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                <div class="loader-circles">
+                    <div class="loader-circle"></div>
+                    <div class="loader-circle"></div>
+                    <div class="loader-circle"></div>
                 </div>
-                <h3 style="color: #e67e22;">JIWARAGA</h3>
+                <h3 style="color: white; font-weight: 600;">JIWARAGA</h3>
+                <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 0.5rem;">Loading amazing opportunities...</p>
             </div>
         </div>
 
-        <!-- Navbar -->
+        <!-- Modern Navbar -->
         <nav class="navbar" id="navbar">
-            <div class="container mx-auto px-6 py-4">
-                <div class="flex justify-between items-center">
-                    <div class="text-2xl font-bold">
-                        <span style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">JIWARAGA</span>
-                    </div>
-                    <div class="hidden md:flex items-center space-x-8">
-                        <a href="#home" class="text-gray-700 hover:text-orange-500 transition">Home</a>
-                        <a href="#features" class="text-gray-700 hover:text-orange-500 transition">Why Join Us</a>
-                        <a href="#process" class="text-gray-700 hover:text-orange-500 transition">Process</a>
-                        <a href="#application-form" class="text-gray-700 hover:text-orange-500 transition">Apply Now</a>
-                    </div>
+            <div class="navbar-content">
+                <div class="navbar-brand">JIWARAGA</div>
+
+                <div class="navbar-menu">
+                    <a href="#home" class="navbar-link">Home</a>
+                    <a href="#features" class="navbar-link">Why Join Us</a>
+                    <a href="#process" class="navbar-link">Process</a>
+
+                    <a href="#application-form" class="btn btn-primary">Apply Now</a>
                 </div>
+
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </nav>
 
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <div class="navbar-brand">JIWARAGA</div>
+                <button class="mobile-menu-close" id="mobileMenuClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mobile-menu-links">
+                <a href="#home" class="mobile-menu-link">Home</a>
+                <a href="#features" class="mobile-menu-link">Why Join Us</a>
+                <a href="#process" class="mobile-menu-link">Process</a>
+
+
+                <a href="#application-form" class="btn btn-primary" style="text-align: center;">Apply Now</a>
+            </div>
+        </div>
+
         <!-- Hero Section -->
         <section id="home" class="hero-section">
-            <div class="hero-bg-pattern"></div>
-            <div class="floating-shapes">
-                <div class="shape"></div>
-                <div class="shape"></div>
-                <div class="shape"></div>
-            </div>
+            <div class="hero-grid"></div>
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
 
             <div class="hero-content">
-                <h1 class="hero-title">Shape Your Future With JIWARAGA</h1>
-                <p class="hero-subtitle">Join our culinary team and build a career in authentic Indonesian cuisine. Discover opportunities that match your passion and skills in our growing restaurant.</p>
+                <div class="hero-badge">
+                    <span class="hero-badge-text">🚀 NOW HIRING TOP TALENT</span>
+                </div>
+
+                <h1 class="hero-title">
+                    Shape Tomorrow's<br>
+                    <span class="hero-gradient-text">Culinary Excellence</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    Join JIWARAGA's innovative team and build a career that blends tradition with modern culinary artistry. Be part of Indonesia's premier dining experience.
+                </p>
 
                 <div class="cta-buttons">
                     @if (Route::has('login'))
                         @auth
                             <a href="{{ url('/dashboard') }}" class="btn btn-primary">
-                                <i class="fas fa-tachometer-alt"></i>
+                                <i class="fas fa-chart-line"></i>
                                 Go to Dashboard
                             </a>
                         @else
                             <a href="{{ route('login') }}" class="btn btn-secondary">
-                                <i class="fas fa-user-shield"></i>
+                                <i class="fas fa-lock"></i>
                                 Admin Portal
                             </a>
                         @endauth
                         <a href="{{ route('applicant.progress.index') }}" class="btn btn-success">
-                            <i class="fas fa-search-location"></i>
+                            <i class="fas fa-clipboard-check"></i>
                             Track Application
                         </a>
                     @endif
@@ -814,27 +1299,33 @@
 
                 <div class="stats-container">
                     <div class="stat-card">
-                        <div class="stat-number">50+</div>
-                        <p class="text-gray-600">Team Members</p>
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-number">40+</div>
+                        <div class="stat-label">Team Members</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">10+</div>
-                        <p class="text-gray-600">Open Positions</p>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">95%</div>
-                        <p class="text-gray-600">Employee Satisfaction</p>
-                    </div>
-                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
                         <div class="stat-number">5+</div>
-                        <p class="text-gray-600">Years of Excellence</p>
+                        <div class="stat-label">Open Positions</div>
                     </div>
-                </div>
-
-                <div class="mt-12 animate-bounce">
-                    <a href="#application-form" class="text-gray-600 hover:text-orange-500 transition">
-                        <i class="fas fa-chevron-down text-2xl"></i>
-                    </a>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Satisfaction Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-number">3+</div>
+                        <div class="stat-label">Years Excellence</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -842,64 +1333,68 @@
         <!-- Features Section -->
         <section id="features" class="features-section">
             <div class="container mx-auto px-6">
-                <div class="section-header">
-                    <h2 class="section-title">Why Join JIWARAGA?</h2>
-                    <p class="section-subtitle">Experience a workplace that values growth, culinary innovation, and well-being</p>
+                <div class="section-header fade-in-up">
+                    <div class="section-badge">
+                        <i class="fas fa-star"></i>
+                        WHY JIWARAGA
+                    </div>
+                    <h2 class="section-title">Build Your Career With Industry Leaders</h2>
+                    <p class="section-subtitle">Experience a workplace that values innovation, growth, and excellence in every aspect</p>
                 </div>
 
                 <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon-wrapper">
                             <div class="feature-icon-bg"></div>
-                            <i class="fas fa-rocket"></i>
+                            <i class="fas fa-rocket feature-icon"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Career Growth</h3>
-                        <p class="text-gray-600">Accelerate your culinary career with mentorship programs, training opportunities, and clear advancement paths from line cook to chef.</p>
+                        <h3 class="feature-title">Accelerated Growth</h3>
+                        <p class="feature-description">Fast-track your career with our comprehensive development programs, mentorship opportunities, and clear advancement pathways designed for ambitious professionals.</p>
                     </div>
 
-                    <div class="feature-card">
-                        <div class="feature-icon">
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon-wrapper">
                             <div class="feature-icon-bg"></div>
-                            <i class="fas fa-users"></i>
+                            <i class="fas fa-hand-holding-heart feature-icon"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Collaborative Culture</h3>
-                        <p class="text-gray-600">Work alongside passionate food enthusiasts in an inclusive kitchen environment that celebrates diversity and fosters culinary innovation.</p>
+                        <h3 class="feature-title">Premium Benefits</h3>
+                        <p class="feature-description">Enjoy competitive compensation, comprehensive health coverage, performance bonuses, and exclusive perks that recognize your valuable contributions.</p>
                     </div>
 
-                    <div class="feature-card">
-                        <div class="feature-icon">
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon-wrapper">
                             <div class="feature-icon-bg"></div>
-                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-globe feature-icon"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Work-Life Balance</h3>
-                        <p class="text-gray-600">Enjoy flexible scheduling options, wellness programs, and policies that support your personal life beyond the restaurant.</p>
+                        <h3 class="feature-title">Global Exposure</h3>
+                        <p class="feature-description">Work with international culinary experts, participate in global food festivals, and gain exposure to world-class culinary techniques and innovations.</p>
                     </div>
 
-                    <div class="feature-card">
-                        <div class="feature-icon">
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon-wrapper">
                             <div class="feature-icon-bg"></div>
-                            <i class="fas fa-utensils"></i>
+                            <i class="fas fa-lightbulb feature-icon"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Culinary Innovation</h3>
-                        <p class="text-gray-600">Express your creativity with opportunities to contribute to menu development and learn authentic Indonesian cooking techniques.</p>
+                        <h3 class="feature-title">Innovation Hub</h3>
+                        <p class="feature-description">Be part of a creative environment where your ideas matter. Contribute to menu development, explore new culinary concepts, and shape the future of dining.</p>
                     </div>
 
-                    <div class="feature-card">
-                        <div class="feature-icon">
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon-wrapper">
                             <div class="feature-icon-bg"></div>
-                            <i class="fas fa-medal"></i>
+                            <i class="fas fa-balance-scale feature-icon"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Competitive Benefits</h3>
-                        <p class="text-gray-600">Receive competitive wages, meal benefits, health insurance options, and performance incentives as part of our team.</p>
+                        <h3 class="feature-title">Work-Life Harmony</h3>
+                        <p class="feature-description">Maintain a healthy balance with flexible schedules, wellness programs, and policies that support your personal life and professional aspirations.</p>
                     </div>
 
-                    <div class="feature-card">
-                        <div class="feature-icon">
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon-wrapper">
                             <div class="feature-icon-bg"></div>
-                            <i class="fas fa-graduation-cap"></i>
+                            <i class="fas fa-graduation-cap feature-icon"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Learning Opportunities</h3>
-                        <p class="text-gray-600">Expand your culinary knowledge through regular workshops, training sessions, and cultural immersion in Indonesian cuisine.</p>
+                        <h3 class="feature-title">Continuous Learning</h3>
+                        <p class="feature-description">Access world-class training programs, workshops with renowned chefs, and educational opportunities to continuously enhance your culinary expertise.</p>
                     </div>
                 </div>
             </div>
@@ -908,41 +1403,52 @@
         <!-- Process Timeline -->
         <section id="process" class="timeline-section">
             <div class="container mx-auto px-6">
-                <div class="section-header">
-                    <h2 class="section-title">Our Hiring Process</h2>
-                    <p class="section-subtitle">Simple, transparent, and designed to find the perfect match</p>
+                <div class="section-header fade-in-up">
+                    <div class="section-badge">
+                        <i class="fas fa-route"></i>
+                        HIRING PROCESS
+                    </div>
+                    <h2 class="section-title">Your Journey to Success</h2>
+                    <p class="section-subtitle">A streamlined process designed to identify and nurture exceptional talent</p>
                 </div>
 
                 <div class="timeline">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-progress" id="timelineProgress"></div>
+
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">1. Apply Online</h3>
-                            <p class="text-gray-600">Submit your application through our easy-to-use online portal</p>
+                            <div class="timeline-number">01</div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Online Application</h3>
+                            <p class="text-gray-600">Submit your profile through our advanced portal. Our AI-powered system ensures your application reaches the right team quickly.</p>
                         </div>
                     </div>
 
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">2. Initial Screening</h3>
-                            <p class="text-gray-600">Our team reviews your application and qualifications</p>
+                            <div class="timeline-number">02</div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Initial Assessment</h3>
+                            <p class="text-gray-600">Our talent acquisition team reviews your qualifications and experience to ensure the perfect match for your skills.</p>
                         </div>
                     </div>
 
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">3. Interview Process</h3>
-                            <p class="text-gray-600">Meet with our team to discuss your experience and aspirations</p>
+                            <div class="timeline-number">03</div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Interview & Skills Test</h3>
+                            <p class="text-gray-600">Showcase your expertise through comprehensive interviews and practical assessments designed to highlight your unique talents.</p>
                         </div>
                     </div>
 
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">4. Welcome Aboard!</h3>
-                            <p class="text-gray-600">Join our team and start your exciting journey with JIWARAGA</p>
+                            <div class="timeline-number">04</div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Welcome to JIWARAGA</h3>
+                            <p class="text-gray-600">Begin your journey with our comprehensive onboarding program and become part of our exceptional culinary family.</p>
                         </div>
                     </div>
                 </div>
@@ -952,220 +1458,270 @@
         <!-- Application Form Section -->
         <section id="application-form" class="form-section">
             <div class="container mx-auto px-6">
-                <div class="section-header">
+                <div class="section-header fade-in-up">
+                    <div class="section-badge">
+                        <i class="fas fa-file-alt"></i>
+                        APPLICATION FORM
+                    </div>
                     <h2 class="section-title">Start Your Journey Today</h2>
-                    <p class="section-subtitle">Fill out the form below to apply for your dream position</p>
+                    <p class="section-subtitle">Take the first step towards an extraordinary career</p>
                 </div>
 
                 <div class="form-container">
                     @if (session('success'))
                         <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i>
-                            {{ session('success') }}
+                            <i class="fas fa-check-circle text-xl"></i>
+                            <span>{{ session('success') }}</span>
                         </div>
                     @endif
 
                     @if (session('error'))
                         <div class="alert alert-error">
-                            <i class="fas fa-exclamation-circle"></i>
-                            {{ session('error') }}
+                            <i class="fas fa-exclamation-circle text-xl"></i>
+                            <span>{{ session('error') }}</span>
                         </div>
                     @endif
 
-                    <form action="{{ route('pelamar.public.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('pelamar.public.store') }}" method="POST" enctype="multipart/form-data" id="applicationForm">
                         @csrf
 
-                        <!-- Application Details -->
-                        <div class="form-section-card">
-                            <div class="form-section-header">
-                                <div class="form-section-icon">
-                                    <i class="fas fa-clipboard-list text-orange-500"></i>
-                                </div>
-                                <h3 class="text-lg font-semibold text-gray-800">Application Details</h3>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="form-group">
-                                    <label class="form-label" for="periode_id">Application Period</label>
-                                    <select name="periode_id" id="periode_id" class="form-control" required>
-                                        <option value="">Select Period</option>
-                                        @php
-                                            $activePeriodes = $periodes->filter(function($periode) {
-                                                return $periode->tanggal_selesai->greaterThanOrEqualTo(now()) &&
-                                                       $periode->tanggal_mulai->lessThanOrEqualTo(now());
-                                            })->sortByDesc('tanggal_mulai');
-                                        @endphp
-                                        @foreach($activePeriodes as $periode)
-                                            <option value="{{ $periode->periode_id }}" {{ old('periode_id') == $periode->periode_id ? 'selected' :                                            '' }}
-                                                data-jobs="{{ json_encode($periode->jobs) }}">
-                                                {{ $periode->nama_periode }} ({{ $periode->tanggal_mulai->format('d M Y') }} - {{ $periode->tanggal_selesai->format('d M Y') }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('periode_id')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
+                        <div class="form-body">
+                            <!-- Position Selection -->
+                            <div class="form-section-card">
+                                <div class="form-section-header">
+                                    <div class="form-section-icon">
+                                        <i class="fas fa-briefcase"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-800">Position Details</h3>
+                                        <p class="text-sm text-gray-600">Select your desired role</p>
+                                    </div>
                                 </div>
 
-                                <div class="form-group">
-                                    <label class="form-label" for="job_id">Position Applied</label>
-                                    <select name="job_id" id="job_id" class="form-control" required disabled>
-                                        <option value="">Select Period First</option>
-                                    </select>
-                                    @error('job_id')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="periode_id">
+                                            Application Period
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <select name="periode_id" id="periode_id" class="form-control" required>
+                                            <option value="">Select Period</option>
+                                            @php
+                                                $activePeriodes = $periodes->filter(function($periode) {
+                                                    return $periode->tanggal_selesai->greaterThanOrEqualTo(now()) &&
+                                                           $periode->tanggal_mulai->lessThanOrEqualTo(now());
+                                                })->sortByDesc('tanggal_mulai');
+                                            @endphp
+                                            @foreach($activePeriodes as $periode)
+                                                <option value="{{ $periode->periode_id }}" {{ old('periode_id') == $periode->periode_id ? 'selected' : '' }}
+                                                    data-jobs="{{ json_encode($periode->jobs) }}">
+                                                    {{ $periode->nama_periode }} ({{ $periode->tanggal_mulai->format('d M Y') }} - {{ $periode->tanggal_selesai->format('d M Y') }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('periode_id')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
 
-                        <!-- Personal Information -->
-                        <div class="form-section-card">
-                            <div class="form-section-header">
-                                <div class="form-section-icon">
-                                    <i class="fas fa-user text-green-500"></i>
-                                </div>
-                                <h3 class="text-lg font-semibold text-gray-800">Personal Information</h3>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="form-group">
-                                    <label class="form-label" for="nama">Full Name</label>
-                                    <input type="text" name="nama" id="nama" value="{{ old('nama') }}" class="form-control" required>
-                                    @error('nama')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="email">Email Address</label>
-                                    <input type="email" name="email" id="email" value="{{ old('email') }}" class="form-control" required>
-                                    @error('email')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="nomor_wa">WhatsApp Number</label>
-                                    <input type="text" name="nomor_wa" id="nomor_wa" value="{{ old('nomor_wa') }}" class="form-control" placeholder="+62" required>
-                                    @error('nomor_wa')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="tgl_lahir">Date of Birth</label>
-                                    <input type="date" name="tgl_lahir" id="tgl_lahir" value="{{ old('tgl_lahir') }}" class="form-control" required>
-                                    @error('tgl_lahir')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group md:col-span-2">
-                                    <label class="form-label" for="alamat">Address</label>
-                                    <textarea name="alamat" id="alamat" rows="3" class="form-control" required>{{ old('alamat') }}</textarea>
-                                    @error('alamat')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
+                                    <div class="form-group">
+                                        <label class="form-label" for="job_id">
+                                            Position Applied
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <select name="job_id" id="job_id" class="form-control" required disabled>
+                                            <option value="">Select Period First</option>
+                                        </select>
+                                        @error('job_id')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Education & Experience -->
-                        <div class="form-section-card">
-                            <div class="form-section-header">
-                                <div class="form-section-icon">
-                                    <i class="fas fa-graduation-cap text-purple-500"></i>
+                            <!-- Personal Information -->
+                            <div class="form-section-card">
+                                <div class="form-section-header">
+                                    <div class="form-section-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-800">Personal Information</h3>
+                                        <p class="text-sm text-gray-600">Tell us about yourself</p>
+                                    </div>
                                 </div>
-                                <h3 class="text-lg font-semibold text-gray-800">Education & Experience</h3>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="nama">
+                                            Full Name
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <input type="text" name="nama" id="nama" value="{{ old('nama') }}" class="form-control" required>
+                                        @error('nama')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="email">
+                                            Email Address
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <input type="email" name="email" id="email" value="{{ old('email') }}" class="form-control" required>
+                                        @error('email')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="nomor_wa">
+                                            WhatsApp Number
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <input type="text" name="nomor_wa" id="nomor_wa" value="{{ old('nomor_wa') }}" class="form-control" placeholder="+62" required>
+                                        @error('nomor_wa')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="tgl_lahir">
+                                            Date of Birth
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <input type="date" name="tgl_lahir" id="tgl_lahir" value="{{ old('tgl_lahir') }}" class="form-control" required>
+                                        @error('tgl_lahir')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group md:col-span-2">
+                                        <label class="form-label" for="alamat">
+                                            Address
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <textarea name="alamat" id="alamat" rows="3" class="form-control" required>{{ old('alamat') }}</textarea>
+                                        @error('alamat')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Professional Background -->
+                            <div class="form-section-card">
+                                <div class="form-section-header">
+                                    <div class="form-section-icon">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-800">Professional Background</h3>
+                                        <p class="text-sm text-gray-600">Your education and experience</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="pendidikan">
+                                            Education Level
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <select name="pendidikan" id="pendidikan" class="form-control" required>
+                                            <option value="">Select Education Level</option>
+                                            <option value="SMA" {{ old('pendidikan') == 'SMA' ? 'selected' : '' }}>High School</option>
+                                            <option value="D3" {{ old('pendidikan') == 'D3' ? 'selected' : '' }}>Diploma</option>
+                                            <option value="S1" {{ old('pendidikan') == 'S1' ? 'selected' : '' }}>Bachelor's Degree</option>
+                                            <option value="S2" {{ old('pendidikan') == 'S2' ? 'selected' : '' }}>Master's Degree</option>
+                                            <option value="S3" {{ old('pendidikan') == 'S3' ? 'selected' : '' }}>Doctoral Degree</option>
+                                        </select>
+                                        @error('pendidikan')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="lama_pengalaman">
+                                            Years of Experience
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <input type="number" name="lama_pengalaman" id="lama_pengalaman" value="{{ old('lama_pengalaman', 0) }}" min="0" class="form-control" required>
+                                        @error('lama_pengalaman')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="tempat_pengalaman">
+                                            Previous Company
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <input type="text" name="tempat_pengalaman" id="tempat_pengalaman" value="{{ old('tempat_pengalaman') }}" class="form-control" placeholder="Company Name" required>
+                                        @error('tempat_pengalaman')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group md:col-span-2">
+                                        <label class="form-label" for="deskripsi_tempat">
+                                            Role Description
+                                            <span class="form-label-required">*</span>
+                                        </label>
+                                        <textarea name="deskripsi_tempat" id="deskripsi_tempat" rows="4" class="form-control" placeholder="Describe your responsibilities and achievements..." required>{{ old('deskripsi_tempat') }}</textarea>
+                                        @error('deskripsi_tempat')
+                                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Document Upload -->
+                            <div class="form-section-card">
+                                <div class="form-section-header">
+                                    <div class="form-section-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-800">Upload Resume</h3>
+                                        <p class="text-sm text-gray-600">Share your professional journey</p>
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
-                                    <label class="form-label" for="pendidikan">Education Level</label>
-                                    <select name="pendidikan" id="pendidikan" class="form-control" required>
-                                        <option value="">Select Education Level</option>
-                                        <option value="SMA" {{ old('pendidikan') == 'SMA' ? 'selected' : '' }}>SMA/SMK</option>
-                                        <option value="D3" {{ old('pendidikan') == 'D3' ? 'selected' : '' }}>D3</option>
-                                        <option value="S1" {{ old('pendidikan') == 'S1' ? 'selected' : '' }}>S1</option>
-                                        <option value="S2" {{ old('pendidikan') == 'S2' ? 'selected' : '' }}>S2</option>
-                                        <option value="S3" {{ old('pendidikan') == 'S3' ? 'selected' : '' }}>S3</option>
-                                    </select>
-                                    @error('pendidikan')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="lama_pengalaman">Years of Experience</label>
-                                    <input type="number" name="lama_pengalaman" id="lama_pengalaman" value="{{ old('lama_pengalaman', 0) }}" min="0" class="form-control" required>
-                                    @error('lama_pengalaman')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="tempat_pengalaman">Previous Workplace</label>
-                                    <input type="text" name="tempat_pengalaman" id="tempat_pengalaman" value="{{ old('tempat_pengalaman') }}" class="form-control" placeholder="Restaurant/Company Name" required>
-                                    @error('tempat_pengalaman')
-                                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group md:col-span-2">
-                                    <label class="form-label" for="deskripsi_tempat">Job Description at Previous Workplace</label>
-                                    <textarea name="deskripsi_tempat" id="deskripsi_tempat" rows="4" class="form-control" placeholder="Describe your role, responsibilities, and culinary experience..." required>{{ old('deskripsi_tempat') }}</textarea>
-                                    @error('deskripsi_tempat')
+                                    <div class="file-upload-wrapper">
+                                        <input type="file" name="berkas_cv" id="berkas_cv" class="file-upload-input" accept=".pdf,.doc,.docx" required>
+                                        <label for="berkas_cv" class="file-upload-label">
+                                            <div class="file-upload-icon">
+                                                <i class="fas fa-file-upload"></i>
+                                            </div>
+                                            <p class="file-upload-text">Click to upload or drag and drop</p>
+                                            <p class="file-upload-hint">PDF, DOC, DOCX (Max 2MB)</p>
+                                        </label>
+                                    </div>
+                                    @error('berkas_cv')
                                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                                     @enderror
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Document Upload -->
-                        <div class="form-section-card">
-                            <div class="form-section-header">
-                                <div class="form-section-icon">
-                                    <i class="fas fa-file-upload text-orange-500"></i>
-                                </div>
-                                <h3 class="text-lg font-semibold text-gray-800">Document Upload</h3>
+                            <div class="text-center mt-8">
+                                <button type="submit" class="btn btn-primary px-12 py-4 text-lg" id="submitBtn">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Submit Application
+                                </button>
                             </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="berkas_cv">Upload Your CV</label>
-                                <div class="file-input">
-                                    <input type="file" name="berkas_cv" id="berkas_cv" accept=".pdf,.doc,.docx" required>
-                                    <label for="berkas_cv" class="file-input-label">
-                                        <i class="fas fa-cloud-upload-alt text-2xl text-orange-500"></i>
-                                        <div>
-                                            <p class="font-semibold text-gray-800">Click to upload or drag and drop</p>
-                                            <p class="text-sm text-gray-600">PDF, DOC, DOCX (Max 500KB)</p>
-                                        </div>
-                                    </label>
-                                </div>
-                                @error('berkas_cv')
-                                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="text-center mt-8">
-                            <button type="submit" class="btn btn-primary px-8 py-3 text-lg">
-                                <i class="fas fa-paper-plane"></i>
-                                Submit Application
-                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         </section>
 
-        <!-- Footer -->
+        <!-- Modern Footer -->
         <footer class="footer">
             <div class="footer-content">
                 <div class="footer-brand">
                     <h3>JIWARAGA</h3>
-                    <p class="text-gray-600 mt-2">Building careers in authentic Indonesian cuisine</p>
+                    <p class="footer-description">Building careers in culinary excellence. Join Indonesia's premier dining establishment and shape the future of gastronomy.</p>
                     <div class="social-links">
                         <a href="#" class="social-link">
                             <i class="fab fa-facebook-f"></i>
@@ -1182,169 +1738,239 @@
                     </div>
                 </div>
 
-                <div>
-                    <h4 class="text-gray-800 font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#home" class="text-gray-600 hover:text-orange-500 transition">Home</a></li>
-                        <li><a href="#features" class="text-gray-600 hover:text-orange-500 transition">Why Join Us</a></li>
-                        <li><a href="#process" class="text-gray-600 hover:text-orange-500 transition">Process</a></li>
-                        <li><a href="#application-form" class="text-gray-600 hover:text-orange-500 transition">Apply Now</a></li>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#home" class="footer-link">Home</a></li>
+                        <li><a href="#features" class="footer-link">Why Join Us</a></li>
+                        <li><a href="#process" class="footer-link">Hiring Process</a></li>
+                        <li><a href="#application-form" class="footer-link">Apply Now</a></li>
                     </ul>
                 </div>
 
-                <div>
-                    <h4 class="text-gray-800 font-semibold mb-4">Resources</h4>
-                    <ul class="space-y-2">
-                        <li><a href="{{ route('applicant.progress.index') }}" class="text-gray-600 hover:text-orange-500 transition">Track Application</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-orange-500 transition">Career Tips</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-orange-500 transition">FAQ</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-orange-500 transition">Contact Us</a></li>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ route('applicant.progress.index') }}" class="footer-link">Track Application</a></li>
+                        <li><a href="#" class="footer-link">Career Tips</a></li>
+                        <li><a href="#" class="footer-link">Employee Stories</a></li>
+                        <li><a href="#" class="footer-link">FAQ</a></li>
                     </ul>
                 </div>
 
-                <div>
-                    <h4 class="text-gray-800 font-semibold mb-4">Contact Info</h4>
-                    <ul class="space-y-2 text-gray-600">
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul class="footer-links">
                         <li class="flex items-center gap-2">
-                            <i class="fas fa-envelope"></i>
+                            <i class="fas fa-envelope text-sm"></i>
                             careers@jiwaraga.com
                         </li>
                         <li class="flex items-center gap-2">
-                            <i class="fas fa-phone"></i>
-                            +62 21 1234 5678
+                            <i class="fas fa-phone text-sm"></i>
+                            +62 21 5555 1234
                         </li>
                         <li class="flex items-center gap-2">
-                            <i class="fas fa-map-marker-alt"></i>
+                            <i class="fas fa-map-marker-alt text-sm"></i>
                             Jakarta, Indonesia
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-gray-200 mt-8 pt-8 text-center text-gray-600">
-                <p>&copy; {{ date('Y') }} JIWARAGA Restaurant. All rights reserved.</p>
+            <div class="footer-bottom">
+                <p>&copy; {{ date('Y') }} JIWARAGA. All rights reserved. | Privacy Policy | Terms of Service</p>
             </div>
         </footer>
 
         <script>
-            // Page Loader
+            // Enhanced Page Loader
             window.addEventListener('load', () => {
                 setTimeout(() => {
-                    document.getElementById('pageLoader').style.opacity = '0';
+                    const loader = document.getElementById('pageLoader');
+                    loader.style.opacity = '0';
                     setTimeout(() => {
-                        document.getElementById('pageLoader').style.display = 'none';
-                    }, 500);
-                }, 1000);
+                        loader.style.display = 'none';
+                    }, 600);
+                }, 1500);
             });
 
             // Navbar Scroll Effect
+            let lastScrollTop = 0;
             window.addEventListener('scroll', () => {
                 const navbar = document.getElementById('navbar');
-                if (window.scrollY > 50) {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+                if (scrollTop > 50) {
                     navbar.classList.add('scrolled');
                 } else {
                     navbar.classList.remove('scrolled');
                 }
+
+                lastScrollTop = scrollTop;
             });
 
-            // Period and Job Selection
-            document.addEventListener('DOMContentLoaded', function() {
-                const periodeSelect = document.getElementById('periode_id');
-                const jobSelect = document.getElementById('job_id');
-                const fileInput = document.getElementById('berkas_cv');
-                const fileLabel = fileInput.nextElementSibling;
+            // Mobile Menu
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
 
-                // Initialize jobs if periode is already selected
-                if (periodeSelect.value) {
-                    updateJobOptions();
+            mobileMenuToggle.addEventListener('click', () => {
+                mobileMenu.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+
+            mobileMenuClose.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+
+            // Close mobile menu on link click
+            document.querySelectorAll('.mobile-menu-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            });
+
+            // Dynamic Job Selection
+            const periodeSelect = document.getElementById('periode_id');
+            const jobSelect = document.getElementById('job_id');
+
+            periodeSelect.addEventListener('change', function() {
+                jobSelect.innerHTML = '<option value="">Select Position</option>';
+
+                if (this.value === '') {
+                    jobSelect.disabled = true;
+                    return;
                 }
 
-                periodeSelect.addEventListener('change', updateJobOptions);
+                const selectedOption = this.options[this.selectedIndex];
+                const jobs = JSON.parse(selectedOption.getAttribute('data-jobs') || '[]');
 
-                function updateJobOptions() {
-                    jobSelect.innerHTML = '<option value="">Select Position</option>';
-
-                    if (periodeSelect.value === '') {
-                        jobSelect.disabled = true;
-                        return;
-                    }
-
-                    const selectedOption = periodeSelect.options[periodeSelect.selectedIndex];
-                    const jobs = JSON.parse(selectedOption.getAttribute('data-jobs') || '[]');
-
-                    if (jobs && jobs.length > 0) {
-                        jobs.forEach(job => {
-                            const option = document.createElement('option');
-                            option.value = job.job_id;
-                            option.textContent = `${job.nama_job} - ${job.deskripsi || ''}`;
-
-                            if (job.job_id === '{{ old("job_id") }}') {
-                                option.selected = true;
-                            }
-
-                            jobSelect.appendChild(option);
-                        });
-
-                        jobSelect.disabled = false;
-                    } else {
+                if (jobs && jobs.length > 0) {
+                    jobs.forEach(job => {
                         const option = document.createElement('option');
-                        option.value = '';
-                        option.textContent = 'No positions available for this period';
+                        option.value = job.job_id;
+                        option.textContent = `${job.nama_job} - ${job.deskripsi || 'Available Position'}`;
                         jobSelect.appendChild(option);
-                        jobSelect.disabled = true;
-                    }
+                    });
+                    jobSelect.disabled = false;
+                } else {
+                    jobSelect.innerHTML = '<option value="">No positions available</option>';
+                    jobSelect.disabled = true;
                 }
+            });
 
-                // File Input Enhancement
-                fileInput.addEventListener('change', function(e) {
-                    const fileName = e.target.files[0]?.name || '';
-                    if (fileName) {
-                        fileLabel.querySelector('p.font-semibold').textContent = fileName;
-                        fileLabel.style.borderColor = 'rgba(230, 126, 34, 0.5)';
-                        fileLabel.style.background = 'rgba(230, 126, 34, 0.15)';
+            // File Upload Enhancement
+            const fileInput = document.getElementById('berkas_cv');
+            const fileLabel = document.querySelector('.file-upload-label');
+
+            fileInput.addEventListener('change', function(e) {
+                const fileName = e.target.files[0]?.name || '';
+                if (fileName) {
+                    fileLabel.querySelector('.file-upload-text').textContent = fileName;
+                    fileLabel.style.borderColor = 'var(--accent-color)';
+                    fileLabel.style.background = 'rgba(249, 115, 22, 0.05)';
+                }
+            });
+
+            // Form Submission
+            const form = document.getElementById('applicationForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', function(e) {
+                submitBtn.innerHTML = '<span class="spinner"></span> Processing...';
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+            });
+
+            // Intersection Observer for Animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+
+                        // Timeline animation
+                        if (entry.target.classList.contains('timeline-item')) {
+                            const index = Array.from(entry.target.parentNode.children)
+                                .filter(child => child.classList.contains('timeline-item'))
+                                .indexOf(entry.target);
+                            setTimeout(() => {
+                                entry.target.classList.add('active');
+                                updateTimelineProgress(index + 1);
+                            }, index * 200);
+                        }
                     }
                 });
+            }, observerOptions);
 
-                // Smooth Scroll for Anchor Links
-                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                    anchor.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const target = document.querySelector(this.getAttribute('href'));
-                        if (target) {
-                            target.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start'
-                            });
-                        }
-                    });
-                });
+            // Apply observer to elements
+            document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+            document.querySelectorAll('.timeline-item').forEach(el => observer.observe(el));
 
-                // Intersection Observer for Animations
-                const observerOptions = {
-                    threshold: 0.1,
-                    rootMargin: '0px 0px -100px 0px'
-                };
+            // Timeline Progress
+            function updateTimelineProgress(activeItems) {
+                const progress = document.getElementById('timelineProgress');
+                const totalItems = document.querySelectorAll('.timeline-item').length;
+                const percentage = (activeItems / totalItems) * 100;
+                progress.style.height = `${percentage}%`;
+            }
 
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('animate-in');
-                        }
-                    });
-                }, observerOptions);
-
-                // Observe all feature cards and timeline items
-                document.querySelectorAll('.feature-card, .timeline-item').forEach(el => {
-                    observer.observe(el);
+            // Smooth Scroll
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        const offset = 80;
+                        const targetPosition = target.offsetTop - offset;
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
                 });
             });
 
-            // Form Validation Enhancement
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
-                const submitBtn = form.querySelector('button[type="submit"]');
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-                submitBtn.disabled = true;
+            // Parallax Effect for Hero Section
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const parallaxElements = document.querySelectorAll('.gradient-orb');
+
+                parallaxElements.forEach((el, index) => {
+                    const speed = 0.5 + (index * 0.2);
+                    el.style.transform = `translateY(${scrolled * speed}px)`;
+                });
+            });
+
+            // Initialize animations on page load
+            document.addEventListener('DOMContentLoaded', () => {
+                // Trigger initial animations
+                document.querySelectorAll('.stat-card').forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+
+                // Check if there are success or error messages and scroll to application form
+                const hasFormMessages = document.querySelector('.alert-success, .alert-error');
+                if (hasFormMessages) {
+                    const formSection = document.getElementById('application-form');
+                    if (formSection) {
+                        const offset = 80;
+                        const formPosition = formSection.offsetTop - offset;
+                        window.scrollTo({
+                            top: formPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
             });
         </script>
     </body>
