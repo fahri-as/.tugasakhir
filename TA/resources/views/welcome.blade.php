@@ -1438,8 +1438,8 @@
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
                             <div class="timeline-number">03</div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-2">Interview & Skills Test</h3>
-                            <p class="text-gray-600">Showcase your expertise through comprehensive interviews and practical assessments designed to highlight your unique talents.</p>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Interview</h3>
+                            <p class="text-gray-600">Showcase your expertise through comprehensive interviews designed to highlight your unique talents and potential.</p>
                         </div>
                     </div>
 
@@ -1447,6 +1447,24 @@
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
                             <div class="timeline-number">04</div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Skills Test</h3>
+                            <p class="text-gray-600">Demonstrate your practical abilities through hands-on assessments tailored to your specific role and expertise.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-number">05</div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Internship</h3>
+                            <p class="text-gray-600">Experience our work environment first-hand through a structured internship program to ensure mutual fit and accelerate your learning.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-number">06</div>
                             <h3 class="text-xl font-bold text-gray-800 mb-2">Welcome to JIWARAGA</h3>
                             <p class="text-gray-600">Begin your journey with our comprehensive onboarding program and become part of our exceptional culinary family.</p>
                         </div>
