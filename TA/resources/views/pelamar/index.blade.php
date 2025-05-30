@@ -113,13 +113,13 @@
                         </h3>
                         <form action="{{ route('pelamar.index') }}" method="GET" id="filter-form">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="periode_filter" class="block text-sm font-medium text-gray-700 mb-1">Period</label>
+                                <div class="transform transition duration-200 hover:-translate-y-1">
+                                    <label for="periode_filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Period</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                             <i class="fas fa-calendar-alt text-gray-400"></i>
                                         </div>
-                                        <select id="periode_filter" name="periode_id" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <select id="periode_filter" name="periode_id" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                             @php
                                                 $latestPeriode = App\Models\Periode::orderBy('tanggal_mulai', 'desc')->first();
                                                 $latestPeriodeId = $latestPeriode ? $latestPeriode->periode_id : '';
@@ -145,10 +145,9 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Job Filter -->
-                                <div>
+                                <!-- Job Filter -->
+                                <div class="transform transition duration-200 hover:-translate-y-1">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Job Position</label>
                                     <div class="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 bg-white rounded-md max-h-40 overflow-y-auto border border-gray-200">
                                     @php
@@ -211,7 +210,7 @@
 
                             <!-- Name Search -->
                             <div class="mt-4">
-                                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search by Name</label>
+                                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search by Applicant Name</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                         <i class="fas fa-search text-gray-400"></i>
