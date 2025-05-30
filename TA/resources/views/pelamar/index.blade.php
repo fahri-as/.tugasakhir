@@ -143,6 +143,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -205,6 +206,17 @@
                                         </div>
                                     @endif
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Name Search -->
+                            <div class="mt-4">
+                                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search by Name</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <i class="fas fa-search text-gray-400"></i>
+                                    </div>
+                                    <input type="text" name="search" id="search" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Enter applicant name..." value="{{ request('search') }}">
                                 </div>
                             </div>
 

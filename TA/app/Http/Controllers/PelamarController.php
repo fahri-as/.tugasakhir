@@ -45,6 +45,12 @@ public function index(Request $request)
         $query->whereIn('job_id', $request->jobs);
     }
 
+    // Search by name if search parameter is provided
+    if ($request->filled('search')) {
+        $searchTerm = $request->search;
+        $query->where('nama', 'LIKE', "%{$searchTerm}%");
+    }
+
     // Apply sorting if requested, or default to experience descending
     $sortBy = $request->input('sort_by', 'lama_pengalaman'); // Default sort by experience
     $sortDir = $request->input('sort_dir', 'desc'); // Default sort direction to descending
