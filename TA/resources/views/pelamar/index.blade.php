@@ -267,18 +267,6 @@
                                             </a>
                                         </th>
                                         <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <a href="{{ route('pelamar.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'pendidikan', 'sort_dir' => request('sort_by') == 'pendidikan' && request('sort_dir') == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
-                                                Education
-                                                @if(request('sort_by') == 'pendidikan')
-                                                    @if(request('sort_dir') == 'asc')
-                                                        <i class="fas fa-sort-up ml-1 text-indigo-600"></i>
-                                                    @else
-                                                        <i class="fas fa-sort-down ml-1 text-indigo-600"></i>
-                                                    @endif
-                                                @endif
-                                            </a>
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <a href="{{ route('pelamar.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'tgl_lahir', 'sort_dir' => request('sort_by') == 'tgl_lahir' && request('sort_dir') == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
                                                 Birth Date
                                                 @if(request('sort_by') == 'tgl_lahir')
@@ -354,9 +342,6 @@
                                                 @else
                                                     <span class="text-gray-400">Not assigned</span>
                                                 @endif
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $p->pendidikan ?? 'Not specified' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $p->tgl_lahir ? $p->tgl_lahir->format('d M Y') : 'Not specified' }}
