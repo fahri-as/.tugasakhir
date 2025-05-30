@@ -100,6 +100,14 @@ class MagangController extends Controller
             $query->whereIn('status_seleksi', $request->statuses);
         }
 
+        // Search by applicant name if search parameter is provided
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->whereHas('pelamar', function($q) use ($searchTerm) {
+                $q->where('nama', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
         // Handle sorting
         $sortBy = $request->input('sort_by', 'total_skor');
         $sortDir = $request->input('sort_dir', 'desc');
