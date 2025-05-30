@@ -54,6 +54,15 @@ class TesKemampuanController extends Controller
             }
         }
 
+        // Search by applicant name if search parameter is provided
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->whereHas('pelamar', function($q) use ($searchTerm) {
+                $q->where('nama', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+        
+
         // Handle sorting
         $sortBy = $request->input('sort_by', 'skor');
         $sortDir = $request->input('sort_dir', 'desc');

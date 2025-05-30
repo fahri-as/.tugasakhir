@@ -171,6 +171,17 @@
                                 </div>
                             </div>
 
+                            <!-- Name Search -->
+                            <div class="mt-4">
+                                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search by Applicant Name</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <i class="fas fa-search text-gray-400"></i>
+                                    </div>
+                                    <input type="text" name="search" id="search" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Enter applicant name..." value="{{ request('search') }}">
+                                </div>
+                            </div>
+
                             <div class="flex items-center mt-4">
                                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm hover:shadow">
                                     <i class="fas fa-search mr-2"></i> Apply Filters
