@@ -291,6 +291,18 @@
                                             </a>
                                         </th>
                                         <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <a href="{{ route('pelamar.index', array_merge(request()->except(['sort_by', 'sort_dir']), ['sort_by' => 'lama_pengalaman', 'sort_dir' => request('sort_by') == 'lama_pengalaman' && request('sort_dir') == 'asc' ? 'desc' : 'asc'])) }}" class="group inline-flex items-center">
+                                                Work Experience
+                                                @if(request('sort_by') == 'lama_pengalaman')
+                                                    @if(request('sort_dir') == 'asc')
+                                                        <i class="fas fa-sort-up ml-1 text-indigo-600"></i>
+                                                    @else
+                                                        <i class="fas fa-sort-down ml-1 text-indigo-600"></i>
+                                                    @endif
+                                                @endif
+                                            </a>
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status
                                         </th>
                                         <th scope="col" class="px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -348,6 +360,13 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $p->tgl_lahir ? $p->tgl_lahir->format('d M Y') : 'Not specified' }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                @if(isset($p->lama_pengalaman))
+                                                    {{ $p->lama_pengalaman }} {{ Str::plural('year', $p->lama_pengalaman) }}
+                                                @else
+                                                    <span class="text-gray-400">Not specified</span>
+                                                @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
