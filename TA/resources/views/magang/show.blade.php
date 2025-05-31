@@ -366,6 +366,10 @@
                         </a>
                     @endif
 
+                    <a href="{{ route('pelamar.show', $magang->pelamar) }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-blue-600 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
+                        <i class="fas fa-user mr-2"></i> View Applicant
+                    </a>
+
                     <form action="{{ route('magang.destroy', $magang) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this internship record? This will also delete all associated evaluations.');">
                         @csrf
                         @method('DELETE')
