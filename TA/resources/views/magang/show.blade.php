@@ -6,9 +6,9 @@
                 {{ $magang->pelamar->nama }} - Internship Details
             </h2>
             <div class="flex space-x-2">
-                <a href="{{ route('magang.edit', $magang) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-600 hover:to-purple-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
+                {{-- <a href="{{ route('magang.edit', $magang) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-600 hover:to-purple-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
                     <i class="fas fa-edit mr-2"></i> Edit
-                </a>
+                </a> --}}
                 @if($magang->pelamar && $magang->pelamar->job_id &&
                     in_array($magang->pelamar->job_id, ['JOB001', 'JOB004']))
                     <a href="{{ route('magang.weeklyScores', $magang) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
