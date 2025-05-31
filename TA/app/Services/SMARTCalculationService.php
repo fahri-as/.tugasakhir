@@ -236,18 +236,7 @@ class SMARTCalculationService
             $weeklyRanks = [];
             $scoreDetails = [];
 
-            // Calculate week weights according to the PDF formula
-            // Calculate sum of week numbers for normalization
-            $sumOfWeeks = array_sum(range(1, $weekCount));
-
-            // Pre-calculate the week weights
-            $weekWeights = [];
-            for ($week = 1; $week <= $weekCount; $week++) {
-                // Progressive weight formula: wi = i / ∑i
-                // This gives more weight to later weeks which is appropriate for showing progress
-                $weekWeights[$week] = $week / $sumOfWeeks;
-            }
-
+            // Calculate scores for each week without weights
             for ($week = 1; $week <= $weekCount; $week++) {
                 $weeklyScores = $this->calculateScores($jobId, $week, $periodeId);
 
@@ -274,8 +263,8 @@ class SMARTCalculationService
                     // Store score details for this week
                     $scoreDetails[$magangId][$week] = $score['score_details'];
 
-                    // Apply weighted score for this week according to our progressive weight formula
-                    $finalScores[$magangId] += $score['total_score'] * $weekWeights[$week];
+                    // Add score for this week (simple sum - we'll divide by weekCount later)
+                    $finalScores[$magangId] += $score['total_score'];
                 }
             }
 
@@ -287,8 +276,11 @@ class SMARTCalculationService
 
             $rank = 1;
             foreach ($finalScores as $magangId => $score) {
-                // Keep the score in 0-1 scale instead of converting to 0-5
-                $finalScore = max(0, min(1, $score));
+                // Calculate average by dividing by weekCount
+                $finalScore = $score / $weekCount;
+
+                // Keep the score in 0-1 scale
+                $finalScore = max(0, min(1, $finalScore));
 
                 // Update the database with the final score and rank
                 Magang::where('magang_id', $magangId)->update([
