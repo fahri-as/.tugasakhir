@@ -298,6 +298,58 @@
                                     </div>
                                 @endif
                             </div>
+
+                            <!-- Internship for Cook and Pastry Chef -->
+                            @if($pelamar->job && in_array($pelamar->job->job_id, ['JOB001', 'JOB004']))
+                            <div class="md:col-span-2 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-4 border border-green-100 shadow-sm transform transition duration-300 hover:-translate-y-1 hover:shadow">
+                                <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+                                    <i class="fas fa-user-graduate text-green-500 mr-2"></i> Internship (Magang)
+                                </h4>
+                                @if($pelamar->status_seleksi === 'Magang' || $pelamar->status_seleksi === 'Sedang Berjalan' || $pelamar->status_seleksi === 'Selesai')
+                                    <div class="space-y-2 bg-white p-3 rounded-md">
+                                        <p class="text-sm flex items-center">
+                                            <span class="w-36 text-gray-500">Start Date:</span>
+                                            <span class="font-medium">{{ $pelamar->periode ? $pelamar->periode->tanggal_mulai->format('d M Y') : 'Not set' }}</span>
+                                        </p>
+                                        <p class="text-sm flex items-center">
+                                            <span class="w-36 text-gray-500">End Date:</span>
+                                            <span class="font-medium">{{ $pelamar->periode ? $pelamar->periode->tanggal_selesai->format('d M Y') : 'Not set' }}</span>
+                                        </p>
+                                        <p class="text-sm flex items-center">
+                                            <span class="w-36 text-gray-500">Status:</span>
+                                            <span class="px-2 py-1 rounded-full
+                                                @if($pelamar->status_seleksi === 'Magang') bg-indigo-100 text-indigo-800
+                                                @elseif($pelamar->status_seleksi === 'Sedang Berjalan') bg-green-100 text-green-800
+                                                @elseif($pelamar->status_seleksi === 'Selesai') bg-gray-100 text-gray-800
+                                                @endif text-xs font-medium">
+                                                {{ $pelamar->status_seleksi }}
+                                            </span>
+                                        </p>
+                                        <p class="text-sm flex items-center font-medium">
+                                            <span class="w-36 text-gray-500">Total Score:</span>
+                                            <span class="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">{{ $pelamar->magang->total_skor ?? 'N/A' }}/1</span>
+                                        </p>
+                                        <p class="text-sm">
+                                            <span class="block text-gray-500 mb-1">Department:</span>
+                                            <span class="block pl-4 border-l-2 border-gray-200">
+                                                @if($pelamar->job->job_id === 'JOB001')
+                                                    Kitchen - Cook
+                                                @elseif($pelamar->job->job_id === 'JOB004')
+                                                    Kitchen - Pastry Chef
+                                                @endif
+                                            </span>
+                                        </p>
+
+                                    </div>
+                                @else
+                                    <div class="flex flex-col items-center justify-center bg-white p-4 rounded-md opacity-70">
+                                        <i class="fas fa-hourglass-half text-gray-400 text-3xl mb-2"></i>
+                                        <p class="text-sm text-gray-500 italic">Internship not started yet</p>
+                                        <p class="text-xs text-gray-400 mt-1">Complete previous selection stages first</p>
+                                    </div>
+                                @endif
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
