@@ -61,7 +61,7 @@ class TesKemampuanController extends Controller
                 $q->where('nama', 'LIKE', "%{$searchTerm}%");
             });
         }
-        
+
 
         // Handle sorting
         $sortBy = $request->input('sort_by', 'skor');
@@ -644,20 +644,20 @@ class TesKemampuanController extends Controller
             $pelamar = $tesKemampuan->pelamar;
             $emailSent = true;
 
-            try {
-                Mail::to($pelamar->email)->send(new SkillTestScheduled($pelamar, $tesKemampuan));
-            } catch (\Exception $e) {
-                Log::error('Failed to send skill test reset email: ' . $e->getMessage());
-                $emailSent = false;
-            }
+            // try {
+            //     Mail::to($pelamar->email)->send(new SkillTestScheduled($pelamar, $tesKemampuan));
+            // } catch (\Exception $e) {
+            //     Log::error('Failed to send skill test reset email: ' . $e->getMessage());
+            //     $emailSent = false;
+            // }
 
             $successMessage = 'Test status has been reset to Pending';
 
-            if ($emailSent) {
-                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
-            } else {
-                $successMessage .= '. Email notification could not be sent.';
-            }
+            // if ($emailSent) {
+            //     $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+            // } else {
+            //     $successMessage .= '. Email notification could not be sent.';
+            // }
 
             return redirect()->route('tes-kemampuan.show', $tesKemampuan)
                 ->with('success', $successMessage);

@@ -716,13 +716,17 @@ class MagangController extends Controller
 
             // Reset pelamar status
             $pelamar = Pelamar::find($pelamarId);
-            if ($pelamar) {
-                if ($pelamar->status_seleksi === 'Magang') {
-                    $pelamar->status_seleksi = 'Tes Kemampuan';
+            // if ($pelamar) {
+            //     if ($pelamar->status_seleksi === 'Magang') {
+            //         $pelamar->status_seleksi = 'Tes Kemampuan';
+            //         $pelamar->save();
+            //         Log::info("Reset pelamar status for ID: {$pelamarId}");
+            //     }
+            // }
+
+            $pelamar->status_seleksi = 'Tes Kemampuan';
                     $pelamar->save();
                     Log::info("Reset pelamar status for ID: {$pelamarId}");
-                }
-            }
 
             // Reset the status of the related skill test record
             $tesKemampuan = TesKemampuan::where('pelamar_id', $pelamarId)->first();
