@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
-                <i class="fas fa-list-check text-indigo-600 mr-2"></i> {{ __('Criteria Management') }}
+                <i class="fas fa-clipboard-list text-indigo-600 mr-2"></i> {{ __('Criteria Management') }}
             </h2>
             <a href="{{ route('criteria.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-600 hover:to-purple-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150 shadow hover:shadow-md">
                 <i class="fas fa-plus-circle mr-2"></i> Create New Criteria
@@ -61,7 +61,7 @@
                         <!-- Total Criteria -->
                         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                             <div class="rounded-full h-12 w-12 flex items-center justify-center bg-blue-100 text-blue-600 mr-4">
-                                <i class="fas fa-list-check text-xl"></i>
+                                <i class="fas fa-clipboard-list text-xl"></i>
                             </div>
                             <div>
                                 <p class="text-gray-500 text-sm">Total Criteria</p>
@@ -230,7 +230,7 @@
                             @if(isset($criteriaByJob['JOB001']))
                                 <div class="mt-4 flex justify-between items-center">
                                     <div class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <i class="fas fa-list-check mr-1"></i> {{ count($criteriaByJob['JOB001']) }} criteria
+                                        <i class="fas fa-clipboard-list mr-1"></i> {{ count($criteriaByJob['JOB001']) }} criteria
                                     </div>
                                     <i class="fas fa-arrow-right text-indigo-500"></i>
                                 </div>
@@ -259,7 +259,7 @@
                             @if(isset($criteriaByJob['JOB004']))
                                 <div class="mt-4 flex justify-between items-center">
                                     <div class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                        <i class="fas fa-list-check mr-1"></i> {{ count($criteriaByJob['JOB004']) }} criteria
+                                        <i class="fas fa-clipboard-list mr-1"></i> {{ count($criteriaByJob['JOB004']) }} criteria
                                     </div>
                                     <i class="fas fa-arrow-right text-indigo-500"></i>
                                 </div>
@@ -289,7 +289,7 @@
 
                                     <div class="mt-4 flex justify-between items-center">
                                         <div class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <i class="fas fa-list-check mr-1"></i> {{ count($jobCriteria) }} criteria
+                                            <i class="fas fa-clipboard-list mr-1"></i> {{ count($jobCriteria) }} criteria
                                         </div>
                                         <i class="fas fa-arrow-right text-indigo-500"></i>
                                     </div>

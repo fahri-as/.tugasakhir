@@ -15,7 +15,7 @@
             <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                 <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-indigo-50 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                        <i class="fas fa-list-check text-indigo-600 mr-2"></i> Edit Criteria: <span class="font-bold ml-2">{{ $criterion->name }} ({{ $criterion->code }})</span>
+                        <i class="fas fa-clipboard-list text-indigo-600 mr-2"></i> Edit Criteria: <span class="font-bold ml-2">{{ $criterion->name }} ({{ $criterion->code }})</span>
                     </h3>
                 </div>
 
