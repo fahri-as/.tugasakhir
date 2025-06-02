@@ -1,7 +1,7 @@
-@props(['id', 'maxWidth'])
+@props(['id', 'maxWidth', 'show' => false, 'name' => null])
 
 @php
-$id = $id ?? md5($attributes->wire('model'));
+$id = $id ?? $name ?? uniqid('modal_');
 
 $maxWidth = [
     'sm' => 'sm:max-w-sm',
@@ -13,9 +13,10 @@ $maxWidth = [
 @endphp
 
 <div
-    x-data="{ show: false }"
+    x-data="{ show: {{ $show ? 'true' : 'false' }} }"
     x-on:close.stop="show = false"
     x-on:keydown.escape.window="show = false"
+    x-on:open-modal.window="$event.detail === '{{ $id }}' ? show = true : null"
     x-show="show"
     id="{{ $id }}"
     class="fixed inset-0 z-50 px-4 py-6 sm:px-0 overflow-y-auto"
