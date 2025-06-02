@@ -40,20 +40,20 @@ class EvaluasiMingguanMagangController extends Controller
             return $query;
         }
 
-        // For cook, only show cook job related data
+        // For cook, only show cook job related data (JOB001)
         if (Auth::user()->role === 'cook') {
             return $query->whereHas('magang.pelamar', function ($q) {
                 $q->whereHas('job', function ($jobQuery) {
-                    $jobQuery->where('nama_job', 'like', '%cook%');
+                    $jobQuery->where('job_id', 'JOB001');
                 });
             });
         }
 
-        // For pastry, only show pastry job related data
+        // For pastry, only show pastry job related data (JOB004)
         if (Auth::user()->role === 'pastry') {
             return $query->whereHas('magang.pelamar', function ($q) {
                 $q->whereHas('job', function ($jobQuery) {
-                    $jobQuery->where('nama_job', 'like', '%pastry%');
+                    $jobQuery->where('job_id', 'JOB004');
                 });
             });
         }
@@ -306,14 +306,24 @@ class EvaluasiMingguanMagangController extends Controller
         $selectedMagangId = $request->magang_id;
 
         // Filter magang based on user role
-        $magangs = $this->filterByUserRole(Magang::query())
-            ->with('pelamar')
+        $magangs = Magang::with('pelamar')
             ->when($selectedPeriodeId, function($query) use ($selectedPeriodeId) {
                 return $query->whereHas('pelamar', function($q) use ($selectedPeriodeId) {
                     $q->where('periode_id', $selectedPeriodeId);
                 });
             })
             ->get();
+
+        // Role-based filtering
+        if (Auth::user()->role === 'cook') {
+            $magangs = $magangs->filter(function($magang) {
+                return $magang->pelamar->job_id === 'JOB001';
+            });
+        } elseif (Auth::user()->role === 'pastry') {
+            $magangs = $magangs->filter(function($magang) {
+                return $magang->pelamar->job_id === 'JOB004';
+            });
+        }
 
         // Get all criteria
         $criteria = Criteria::with('job')->get();
@@ -398,10 +408,10 @@ class EvaluasiMingguanMagangController extends Controller
     {
         // Check if the current user has access to this evaluation based on role
         if (Auth::user()->role !== 'admin') {
-            $jobName = $evaluasi->magang->pelamar->job->nama_job ?? '';
+            $jobId = $evaluasi->magang->pelamar->job->job_id ?? '';
 
-            if ((Auth::user()->role === 'cook' && !str_contains(strtolower($jobName), 'cook')) ||
-                (Auth::user()->role === 'pastry' && !str_contains(strtolower($jobName), 'pastry'))) {
+            if ((Auth::user()->role === 'cook' && $jobId !== 'JOB001') ||
+                (Auth::user()->role === 'pastry' && $jobId !== 'JOB004')) {
                 abort(403, 'You are not authorized to view this evaluation');
             }
         }
@@ -705,11 +715,11 @@ class EvaluasiMingguanMagangController extends Controller
         // Filter jobs based on user role
         if (Auth::user()->role === 'cook') {
             $jobs = $jobs->filter(function($job) {
-                return str_contains(strtolower($job->nama_job), 'cook');
+                return $job->job_id === 'JOB001';
             });
         } elseif (Auth::user()->role === 'pastry') {
             $jobs = $jobs->filter(function($job) {
-                return str_contains(strtolower($job->nama_job), 'pastry');
+                return $job->job_id === 'JOB004';
             });
         }
 

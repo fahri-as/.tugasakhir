@@ -203,6 +203,21 @@
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach($allInterns as $intern)
+                                            @php
+                                                // Filter interns based on user role
+                                                $jobId = $intern->pelamar->job->job_id ?? '';
+                                                $showIntern = true;
+
+                                                if (Auth::user()->role === 'cook' && $jobId !== 'JOB001') {
+                                                    $showIntern = false;
+                                                }
+
+                                                if (Auth::user()->role === 'pastry' && $jobId !== 'JOB004') {
+                                                    $showIntern = false;
+                                                }
+                                            @endphp
+
+                                            @if($showIntern)
                                             <tr class="hover:bg-gray-50 transition-colors duration-200">
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {{ $intern->pelamar->nama }}
@@ -299,6 +314,7 @@
                                                     </button>
                                                 </td>
                                             </tr>
+                                            @endif
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -322,10 +338,32 @@
                                                 // Count interns with evaluations for this week
                                                 $evaluatedCount = 0;
                                                 $partialCount = 0;
-                                                $totalCount = $allInterns->count();
+                                                $totalCount = 0;
+
+                                                // Get filtered interns based on role
+                                                $filteredInterns = $allInterns;
+                                                if (Auth::user()->role === 'cook') {
+                                                    $filteredInterns = $allInterns->filter(function($intern) {
+                                                        return isset($intern->pelamar->job_id) && $intern->pelamar->job_id === 'JOB001';
+                                                    });
+                                                } elseif (Auth::user()->role === 'pastry') {
+                                                    $filteredInterns = $allInterns->filter(function($intern) {
+                                                        return isset($intern->pelamar->job_id) && $intern->pelamar->job_id === 'JOB004';
+                                                    });
+                                                }
+
+                                                $totalCount = $filteredInterns->count();
 
                                                 if (isset($evaluationsByWeek[$week])) {
                                                     foreach ($evaluationsByWeek[$week] as $magangId => $evals) {
+                                                        // Skip interns that don't match the current role
+                                                        $intern = $allInterns->firstWhere('magang_id', $magangId);
+                                                        if (!$intern ||
+                                                            (Auth::user()->role === 'cook' && isset($intern->pelamar->job_id) && $intern->pelamar->job_id !== 'JOB001') ||
+                                                            (Auth::user()->role === 'pastry' && isset($intern->pelamar->job_id) && $intern->pelamar->job_id !== 'JOB004')) {
+                                                            continue;
+                                                        }
+
                                                         // Count total criteria and how many are rated
                                                         $totalCriteria = count($evals);
                                                         $ratedCriteria = 0;
@@ -1077,6 +1115,21 @@
         function populateInternsTable(interns) {
             const tbody = document.getElementById('interns-tbody');
             tbody.innerHTML = ''; // Clear existing rows
+
+            // Filter interns based on user role
+            const userRole = '{{ Auth::user()->role }}';
+            if (userRole === 'cook' || userRole === 'pastry') {
+                interns = interns.filter(intern => {
+                    const jobId = intern.jobId || '';
+                    if (userRole === 'cook' && jobId !== 'JOB001') {
+                        return false;
+                    }
+                    if (userRole === 'pastry' && jobId !== 'JOB004') {
+                        return false;
+                    }
+                    return true;
+                });
+            }
 
             if (!interns || interns.length === 0) {
                 // Show no interns message
