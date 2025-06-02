@@ -69,6 +69,11 @@ class JobController extends Controller
 
     public function destroy(Job $job)
     {
+        // Prevent deletion of specific job IDs
+        if ($job->job_id === 'JOB001' || $job->job_id === 'JOB004') {
+            return redirect()->route('jobs.index')->with('error', 'Job dengan ID ' . $job->job_id . ' tidak dapat dihapus.');
+        }
+
         $job->delete();
         return redirect()->route('jobs.index')->with('success', 'Job deleted successfully');
     }
