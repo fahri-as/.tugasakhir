@@ -108,12 +108,12 @@
                         </div>
 
                         <!-- Profile Link -->
-                        @if(Auth::user()->role === 'admin')
+                        {{-- @if(Auth::user()->role === 'admin') --}}
                         <x-dropdown-link :href="route('profile.edit')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
                             <i class="fas fa-user-cog mr-2 text-gray-400"></i>
                             Profile
                         </x-dropdown-link>
-                        @endif
+                        {{-- @endif --}}
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
@@ -215,12 +215,12 @@
 
             <div class="mt-3 space-y-1 border-t border-gray-200 pt-2">
                 <!-- Profile Link -->
-                @if(Auth::user()->role === 'admin')
+                {{-- @if(Auth::user()->role === 'admin') --}}
                 <x-responsive-nav-link :href="route('profile.edit')" class="flex items-center">
                     <i class="fas fa-user-cog mr-2 w-5 text-indigo-600"></i>
                     Profile
                 </x-responsive-nav-link>
-                @endif
+                {{-- @endif --}}
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
