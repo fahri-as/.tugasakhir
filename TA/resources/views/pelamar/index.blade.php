@@ -48,10 +48,11 @@
                 $tesKemampuanApplicants = (clone $query)->where('status_seleksi', 'Tes Kemampuan')->count();
                 $magangApplicants = (clone $query)->where('status_seleksi', 'Magang')->count();
                 $inProgressApplicants = (clone $query)->where('status_seleksi', 'Sedang Berjalan')->count();
+                $selesaiApplicants = (clone $query)->where('status_seleksi', 'Selesai')->count();
             @endphp
 
             <!-- Stats Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
                 <!-- Total Applicants -->
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                     <div class="rounded-full h-12 w-12 flex items-center justify-center bg-blue-100 text-blue-600 mr-4">
@@ -85,6 +86,17 @@
                     </div>
                 </div>
 
+                <!-- Skill Test -->
+                <div class="bg-gradient-to-r from-purple-50 to-fuchsia-50 border border-purple-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                    <div class="rounded-full h-12 w-12 flex items-center justify-center bg-purple-100 text-purple-600 mr-4">
+                        <i class="fas fa-tasks text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Skill Test</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ $tesKemampuanApplicants }}</p>
+                    </div>
+                </div>
+
                 <!-- In Progress -->
                 <div class="bg-gradient-to-r from-green-50 to-teal-50 border border-green-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                     <div class="rounded-full h-12 w-12 flex items-center justify-center bg-green-100 text-green-600 mr-4">
@@ -93,6 +105,17 @@
                     <div>
                         <p class="text-gray-500 text-sm">In Internship</p>
                         <p class="text-2xl font-semibold text-gray-800">{{ $magangApplicants + $inProgressApplicants }}</p>
+                    </div>
+                </div>
+
+                <!-- Completed -->
+                <div class="bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                    <div class="rounded-full h-12 w-12 flex items-center justify-center bg-gray-100 text-gray-600 mr-4">
+                        <i class="fas fa-check-double text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Completed</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ $selesaiApplicants }}</p>
                     </div>
                 </div>
             </div>
