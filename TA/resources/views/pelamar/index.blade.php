@@ -37,9 +37,16 @@
                     $query->whereIn('job_id', request('jobs'));
                 }
 
+                // Filter by selected statuses if status filter is applied
+                if (request()->filled('statuses') && is_array(request('statuses'))) {
+                    $query->whereIn('status_seleksi', request('statuses'));
+                }
+
                 // Now get the filtered counts by status
                 $pendingApplicants = (clone $query)->where('status_seleksi', 'Pending')->count();
                 $interviewApplicants = (clone $query)->where('status_seleksi', 'Interview')->count();
+                $tesKemampuanApplicants = (clone $query)->where('status_seleksi', 'Tes Kemampuan')->count();
+                $magangApplicants = (clone $query)->where('status_seleksi', 'Magang')->count();
                 $inProgressApplicants = (clone $query)->where('status_seleksi', 'Sedang Berjalan')->count();
             @endphp
 
@@ -70,7 +77,7 @@
                 <!-- Interview -->
                 <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                     <div class="rounded-full h-12 w-12 flex items-center justify-center bg-indigo-100 text-indigo-600 mr-4">
-                        <i class="fas fa-user-tie text-xl"></i>
+                        <i class="fas fa-comments text-xl"></i>
                     </div>
                     <div>
                         <p class="text-gray-500 text-sm">In Interview</p>
@@ -84,8 +91,8 @@
                         <i class="fas fa-user-graduate text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-gray-500 text-sm">In Progress</p>
-                        <p class="text-2xl font-semibold text-gray-800">{{ $inProgressApplicants }}</p>
+                        <p class="text-gray-500 text-sm">In Internship</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ $magangApplicants + $inProgressApplicants }}</p>
                     </div>
                 </div>
             </div>
@@ -135,6 +142,7 @@
                                                 $sortBy = request('sort_by', 'lama_pengalaman');
                                                 $sortDir = request('sort_dir', 'desc');
                                                 $selectedJobs = request('jobs', []);
+                                                $selectedStatuses = request('statuses', []);
                                             @endphp
                                             <option value="" {{ $selectedPeriodeId === '' ? 'selected' : '' }}>All Periods</option>
                                             @foreach(App\Models\Periode::orderBy('tanggal_mulai', 'desc')->get() as $periode)
@@ -206,6 +214,61 @@
                                     @endif
                                     </div>
                                 </div>
+
+                                <!-- Status Filter -->
+                                <div class="transform transition duration-200 hover:-translate-y-1 md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Application Status</label>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 p-3 bg-white rounded-md border border-gray-200">
+                                        <div class="flex items-center">
+                                            <input id="status_pending" name="statuses[]" type="checkbox" value="Pending"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                {{ in_array('Pending', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                            <label for="status_pending" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                <i class="fas fa-clock text-yellow-500 mr-1"></i> Pending
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="status_interview" name="statuses[]" type="checkbox" value="Interview"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                {{ in_array('Interview', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                            <label for="status_interview" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                <i class="fas fa-comments text-blue-500 mr-1"></i> Interview
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="status_tes_kemampuan" name="statuses[]" type="checkbox" value="Tes Kemampuan"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                {{ in_array('Tes Kemampuan', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                            <label for="status_tes_kemampuan" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                <i class="fas fa-tasks text-purple-500 mr-1"></i> Skill Test
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="status_magang" name="statuses[]" type="checkbox" value="Magang"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                {{ in_array('Magang', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                            <label for="status_magang" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                <i class="fas fa-user-graduate text-indigo-500 mr-1"></i> Internship
+                                            </label>
+                                        </div>
+                                        {{-- <div class="flex items-center">
+                                            <input id="status_berjalan" name="statuses[]" type="checkbox" value="Sedang Berjalan"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                {{ in_array('Sedang Berjalan', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                            <label for="status_berjalan" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                <i class="fas fa-play-circle text-green-500 mr-1"></i> In Progress
+                                            </label>
+                                        </div> --}}
+                                        <div class="flex items-center">
+                                            <input id="status_selesai" name="statuses[]" type="checkbox" value="Selesai"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                {{ in_array('Selesai', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                            <label for="status_selesai" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                <i class="fas fa-check-double text-gray-500 mr-1"></i> Completed
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Name Search -->
@@ -224,7 +287,7 @@
                                     <i class="fas fa-search mr-2"></i> Apply Filters
                                 </button>
 
-                                @if(request()->has('periode_id') || request()->has('sort_by') || !empty($selectedJobs))
+                                @if(request()->has('periode_id') || request()->has('sort_by') || !empty($selectedJobs) || !empty($selectedStatuses))
                                     <a href="{{ route('pelamar.index') }}" class="ml-2 inline-flex items-center px-4 py-2 bg-gray-200 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                         <i class="fas fa-undo mr-2"></i> Reset Filters
                                     </a>

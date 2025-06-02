@@ -45,6 +45,11 @@ public function index(Request $request)
         $query->whereIn('job_id', $request->jobs);
     }
 
+    // Filter by selected statuses if status filter is applied
+    if ($request->filled('statuses') && is_array($request->statuses)) {
+        $query->whereIn('status_seleksi', $request->statuses);
+    }
+
     // Search by name if search parameter is provided
     if ($request->filled('search')) {
         $searchTerm = $request->search;
