@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 25, 2025 at 09:07 PM
+-- Generation Time: Jun 02, 2025 at 11:35 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.4
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `...aaaaa`
+-- Database: `...jiwaraga`
 --
 
 -- --------------------------------------------------------
@@ -38,9 +38,10 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('laravel_cache_smart_details_MAG005', 'a:3:{s:7:\"details\";a:6:{i:1;a:4:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:3;s:16:\"normalized_value\";d:0.5;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.0805;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:3;s:16:\"normalized_value\";d:0.5;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0312;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:4;s:16:\"normalized_value\";d:0.75;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.19634999999999997;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:2;s:16:\"normalized_value\";d:0.25;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.02465;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:2;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:4;s:16:\"normalized_value\";d:0.75;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.19634999999999997;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:3;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:2;s:16:\"normalized_value\";d:0.25;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.02465;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:3;s:16:\"normalized_value\";d:0.5;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.2081;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:4;a:1:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:3;s:16:\"normalized_value\";d:0.5;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.2081;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:5;a:0:{}i:6;a:0:{}}s:5:\"ranks\";a:6:{i:1;i:3;i:2;i:2;i:3;i:2;i:4;i:3;i:5;i:3;i:6;i:3;}s:9:\"timestamp\";i:1748181776;}', 1748268176),
-('laravel_cache_smart_details_MAG007', 'a:3:{s:7:\"details\";a:6:{i:1;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:2;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:3;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:4;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:5;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:6;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}}s:5:\"ranks\";a:6:{i:1;i:1;i:2;i:1;i:3;i:1;i:4;i:1;i:5;i:1;i:6;i:1;}s:9:\"timestamp\";i:1748181776;}', 1748268176),
-('laravel_cache_smart_details_MAG008', 'a:3:{s:7:\"details\";a:6:{i:1;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:2;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:3;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:4;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:5;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:6;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:1;s:16:\"normalized_value\";i:0;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}}s:5:\"ranks\";a:6:{i:1;i:2;i:2;i:3;i:3;i:3;i:4;i:2;i:5;i:2;i:6;i:2;}s:9:\"timestamp\";i:1748181776;}', 1748268176);
+('laravel_cache_smart_details_MAG001', 'a:3:{s:7:\"details\";a:4:{i:1;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:4;s:16:\"normalized_value\";d:0.75;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.07394999999999999;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:2;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:3;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:4;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:3;s:16:\"normalized_value\";d:0.5;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.1309;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:2;s:16:\"normalized_value\";d:0.25;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.04025;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:3;s:16:\"normalized_value\";d:0.5;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0493;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}}s:5:\"ranks\";a:4:{i:1;i:1;i:2;i:1;i:3;i:1;i:4;i:1;}s:9:\"timestamp\";i:1748347438;}', 1748433838),
+('laravel_cache_smart_details_MAG003', 'a:3:{s:7:\"details\";a:4:{i:1;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:1:\"1\";s:13:\"criteria_name\";s:22:\"Keahlian Dasar Memasak\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"2\";s:13:\"criteria_name\";s:22:\"Kualitas Hasil Masakan\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"3\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"4\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"5\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:2;a:0:{}i:3;a:0:{}i:4;a:0:{}}s:5:\"ranks\";a:4:{i:1;i:1;i:2;i:1;i:3;i:1;i:4;i:1;}s:9:\"timestamp\";i:1748237231;}', 1748323631),
+('laravel_cache_smart_details_MAG004', 'a:3:{s:7:\"details\";a:4:{i:1;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:2:\"10\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"6\";s:13:\"criteria_name\";s:21:\"Keahlian Dasar Pastry\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"7\";s:13:\"criteria_name\";s:21:\"Kualitas Hasil Pastry\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"8\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"9\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}i:2;a:0:{}i:3;a:0:{}i:4;a:5:{i:0;a:9:{s:11:\"criteria_id\";s:2:\"10\";s:13:\"criteria_name\";s:24:\"Kemampuan Kerja Sama Tim\";s:13:\"criteria_code\";s:2:\"K5\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0624\";s:14:\"weighted_score\";d:0.0624;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:1;a:9:{s:11:\"criteria_id\";s:1:\"6\";s:13:\"criteria_name\";s:21:\"Keahlian Dasar Pastry\";s:13:\"criteria_code\";s:2:\"K1\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.4162\";s:14:\"weighted_score\";d:0.4162;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:2;a:9:{s:11:\"criteria_id\";s:1:\"7\";s:13:\"criteria_name\";s:21:\"Kualitas Hasil Pastry\";s:13:\"criteria_code\";s:2:\"K2\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.2618\";s:14:\"weighted_score\";d:0.2618;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:3;a:9:{s:11:\"criteria_id\";s:1:\"8\";s:13:\"criteria_name\";s:33:\"Pemahaman Kebersihan dan Keamanan\";s:13:\"criteria_code\";s:2:\"K3\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.1610\";s:14:\"weighted_score\";d:0.161;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}i:4;a:9:{s:11:\"criteria_id\";s:1:\"9\";s:13:\"criteria_name\";s:24:\"Konsistensi & Ketelitian\";s:13:\"criteria_code\";s:2:\"K4\";s:9:\"raw_value\";i:5;s:16:\"normalized_value\";i:1;s:6:\"weight\";s:6:\"0.0986\";s:14:\"weighted_score\";d:0.0986;s:9:\"min_value\";i:1;s:9:\"max_value\";i:5;}}}s:5:\"ranks\";a:4:{i:1;i:1;i:2;i:1;i:3;i:1;i:4;i:1;}s:9:\"timestamp\";i:1748881582;}', 1748967982),
+('laravel_cache_smart_details_MAG005', 'a:3:{s:7:\"details\";a:4:{i:1;a:0:{}i:2;a:0:{}i:3;a:0:{}i:4;a:0:{}}s:5:\"ranks\";a:4:{i:1;i:1;i:2;i:1;i:3;i:1;i:4;i:1;}s:9:\"timestamp\";i:1748881582;}', 1748967982);
 
 -- --------------------------------------------------------
 
@@ -221,95 +222,66 @@ CREATE TABLE `evaluasi_mingguan_magang` (
 --
 
 INSERT INTO `evaluasi_mingguan_magang` (`evaluasi_id`, `magang_id`, `criteria_rating_id`, `criteria_id`, `minggu_ke`, `created_at`, `updated_at`) VALUES
-('02d412dd-d6b4-4e47-a4f4-498bb3efde8a', 'MAG005', NULL, '4', 5, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('0316e2dc-a05e-45e5-a455-e71a96cdcc9b', 'MAG008', 'CRS0301', '3', 2, '2025-05-21 20:33:53', '2025-05-22 08:09:54'),
-('0370a101-87a4-4d99-96fd-7843c8131062', 'MAG005', 'CRS0402', '4', 3, '2025-05-13 10:09:11', '2025-05-22 09:31:00'),
-('0422b647-fba9-4890-a00f-44f9d3efb4d8', 'MAG005', 'CRS0405', '4', 2, '2025-05-13 10:09:11', '2025-05-22 09:06:07'),
-('0875e229-a9d4-4337-9b7c-a06c44a68c91', 'MAG005', 'CRS0305', '3', 3, '2025-05-13 10:09:11', '2025-05-22 09:30:42'),
-('09698cdf-9eda-4f78-a71b-ed4d2c9f623a', 'MAG008', 'CRS0301', '3', 1, '2025-05-21 20:33:53', '2025-05-22 08:09:41'),
-('0aae0901-d9e7-4491-bc3c-b90c0f8233ca', 'MAG008', 'CRS0305', '3', 3, '2025-05-21 20:33:53', '2025-05-23 10:11:37'),
-('0af9cf7f-d5d6-465a-9e7a-d591a7225a60', 'MAG005', NULL, '2', 5, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('0b68f5e3-592b-4a82-a942-3f869a4927fb', 'MAG007', 'CRS0505', '5', 1, '2025-05-21 18:16:30', '2025-05-22 09:55:08'),
-('0c7aeb49-7735-419f-b88c-68c1445c1907', 'MAG007', 'CRS0405', '4', 4, '2025-05-21 18:16:30', '2025-05-25 14:02:16'),
-('112acbe5-d105-41aa-80e2-c47cd0c84cbd', 'MAG008', 'CRS0501', '5', 4, '2025-05-21 20:33:53', '2025-05-22 08:10:46'),
-('14f1a9d9-6903-4316-8183-6fe1698f5fc7', 'MAG005', NULL, '5', 6, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('15f7c8da-f0e9-4f02-a0a4-e339c46a4ce3', 'MAG008', 'CRS0501', '5', 2, '2025-05-21 20:33:53', '2025-05-22 08:09:57'),
-('1689c9eb-2f63-40c2-89da-18e1de82bf15', 'MAG005', 'CRS0303', '3', 1, '2025-05-13 10:09:11', '2025-05-21 18:08:07'),
-('16abce8c-8882-4b72-85e2-bff9574df9fa', 'MAG008', 'CRS0501', '5', 6, '2025-05-21 20:33:53', '2025-05-22 08:11:17'),
-('17edea7f-3088-482b-a449-26ab2de19ebb', 'MAG008', 'CRS0201', '2', 5, '2025-05-21 20:33:53', '2025-05-22 08:10:57'),
-('18c06973-d4c0-4725-857c-b5b3a234a92a', 'MAG008', 'CRS0301', '3', 5, '2025-05-21 20:33:53', '2025-05-22 08:10:59'),
-('1a3cbfe4-efbc-44ed-8540-69e183f3e72f', 'MAG007', 'CRS0205', '2', 1, '2025-05-21 18:16:30', '2025-05-21 19:05:27'),
-('1a77344f-c060-4f2e-a353-d20695b8aa87', 'MAG007', 'CRS0105', '1', 2, '2025-05-21 18:16:30', '2025-05-22 06:37:12'),
-('1d3b4b56-8ea4-4a40-ad5f-dbff5881ac5e', 'MAG005', 'CRS0105', '1', 2, '2025-05-13 10:09:11', '2025-05-22 08:59:08'),
-('1f03c226-3371-457a-99f1-40f13bb61bdc', 'MAG005', 'CRS0305', '3', 2, '2025-05-13 10:09:11', '2025-05-22 09:06:09'),
-('20248493-d546-4de6-b775-ffbae84c4cbf', 'MAG007', 'CRS0105', '1', 3, '2025-05-21 18:16:30', '2025-05-21 19:08:36'),
-('238722b2-0713-43a0-9f1b-ae7c92ec439f', 'MAG007', 'CRS0405', '4', 3, '2025-05-21 18:16:30', '2025-05-21 19:08:39'),
-('267d73be-258d-437b-bef0-5f042c5436af', 'MAG005', 'CRS0501', '5', 3, '2025-05-13 10:09:11', '2025-05-22 09:30:45'),
-('28dccf5e-8963-4b56-9941-10a45fe84cd5', 'MAG008', 'CRS0401', '4', 1, '2025-05-21 20:33:53', '2025-05-21 20:34:09'),
-('2aa769bf-0493-4e10-9a62-85cc4b2535aa', 'MAG005', NULL, '1', 6, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('2db1b09b-c9c4-45ce-bb44-cc9075800179', 'MAG005', NULL, '3', 4, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('2f945b08-de77-4985-a487-f32e9000c974', 'MAG005', 'CRS0103', '1', 3, '2025-05-13 10:09:11', '2025-05-22 09:21:18'),
-('36fd16b1-bec4-4fe4-b861-297c54a47bf0', 'MAG008', 'CRS0105', '1', 2, '2025-05-21 20:33:53', '2025-05-22 08:09:52'),
-('3e91db4d-ab1a-43c9-9893-cf2314b9d113', 'MAG007', 'CRS0405', '4', 6, '2025-05-21 18:16:30', '2025-05-25 13:53:46'),
-('403ff669-e631-4524-9635-8bf2a34bdf1f', 'MAG005', NULL, '1', 5, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('4dba5bd3-8e87-4b09-95c9-a7783664a615', 'MAG005', 'CRS0505', '5', 2, '2025-05-13 10:09:11', '2025-05-22 09:06:26'),
-('5178fa50-c6c1-4eb2-ab36-68febeb889c2', 'MAG005', NULL, '4', 6, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('54b6df8d-c3df-457c-a497-2e671577430b', 'MAG005', NULL, '5', 4, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('590b6805-601d-49bb-93b6-fc90742ce4f9', 'MAG005', 'CRS0503', '5', 1, '2025-05-13 10:09:11', '2025-05-22 09:54:16'),
-('595de64f-56f8-4a77-bba1-d150706168d4', 'MAG005', 'CRS0103', '1', 4, '2025-05-13 10:09:11', '2025-05-23 17:34:46'),
-('603ba2a7-dd5a-4ae1-9b31-f951dafa0056', 'MAG007', 'CRS0405', '4', 2, '2025-05-21 18:16:30', '2025-05-22 06:37:09'),
-('6132146e-1856-43cd-8f3a-7d0d8814277a', 'MAG007', 'CRS0105', '1', 4, '2025-05-21 18:16:30', '2025-05-25 14:02:11'),
-('69a7b43a-dedc-4764-b64c-1a755ac3d2db', 'MAG007', 'CRS0505', '5', 2, '2025-05-21 18:16:30', '2025-05-22 06:37:08'),
-('6a07c730-65fd-4088-a74a-a9449dd4b85f', 'MAG007', 'CRS0305', '3', 2, '2025-05-21 18:16:30', '2025-05-22 06:37:10'),
-('6af1c32a-7dcd-4227-8884-365f35fa6dab', 'MAG007', 'CRS0205', '2', 4, '2025-05-21 18:16:30', '2025-05-25 14:02:13'),
-('6ced5afa-208f-4423-8b14-f02c7a178934', 'MAG008', 'CRS0201', '2', 4, '2025-05-21 20:33:53', '2025-05-22 08:10:41'),
-('7589d6e4-0776-4d02-81fa-8a22b8a31794', 'MAG008', 'CRS0201', '2', 2, '2025-05-21 20:33:53', '2025-05-22 08:09:53'),
-('78d86981-3341-454b-938c-77e2ef46e3b4', 'MAG007', 'CRS0405', '4', 5, '2025-05-21 18:16:30', '2025-05-25 13:53:37'),
-('795e547c-d847-4867-8ed2-4db4ba746c24', 'MAG008', 'CRS0105', '1', 4, '2025-05-21 20:33:53', '2025-05-22 08:10:40'),
-('79ab2f49-117b-465e-9a35-5e6f4ee44b11', 'MAG007', 'CRS0505', '5', 4, '2025-05-21 18:16:30', '2025-05-25 14:02:18'),
-('7efe3d66-9f9c-4835-8643-5f6b536ce446', 'MAG008', 'CRS0401', '4', 2, '2025-05-21 20:33:53', '2025-05-22 08:09:56'),
-('852d4ed4-ccbe-4ecf-8e4a-c0f2fc968a99', 'MAG007', 'CRS0305', '3', 3, '2025-05-21 18:16:30', '2025-05-21 19:08:38'),
-('9131f336-6616-49f8-9620-690ff8c206a9', 'MAG008', 'CRS0105', '1', 1, '2025-05-21 20:33:53', '2025-05-21 20:34:06'),
-('95ddcbb0-a7a9-4b2c-8a0c-628b84c441d6', 'MAG008', 'CRS0501', '5', 3, '2025-05-21 20:33:53', '2025-05-22 08:10:12'),
-('978ca3cf-1fdc-4eac-bd2d-2d5e4f5ee9e3', 'MAG005', 'CRS0204', '2', 1, '2025-05-13 10:09:11', '2025-05-21 18:08:15'),
-('9c9703be-82a7-4bf8-a954-7c08e04898c6', 'MAG008', 'CRS0201', '2', 3, '2025-05-21 20:33:53', '2025-05-22 08:10:05'),
-('9dcb87ff-7a60-45fe-8c83-6b7133e80d27', 'MAG005', NULL, '3', 6, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('a11c7e11-7767-498a-ba5c-c586070a7499', 'MAG008', 'CRS0105', '1', 3, '2025-05-21 20:33:53', '2025-05-22 08:10:04'),
-('a433cb91-13be-4529-b72a-f130160a605b', 'MAG007', 'CRS0305', '3', 6, '2025-05-21 18:16:30', '2025-05-25 13:53:43'),
-('a5c3e772-a93f-4114-97a1-3515fdf6971a', 'MAG008', 'CRS0401', '4', 6, '2025-05-21 20:33:53', '2025-05-22 08:11:19'),
-('a64ceaf4-c48f-4b68-be2d-e4d7d6db51c2', 'MAG007', 'CRS0105', '1', 5, '2025-05-21 18:16:30', '2025-05-25 13:53:33'),
-('ab0d73d1-7eba-434e-8329-070754b03f03', 'MAG007', 'CRS0405', '4', 1, '2025-05-21 18:16:30', '2025-05-21 20:10:17'),
-('ac0cb2ce-c70c-4d41-b369-204148889254', 'MAG008', 'CRS0301', '3', 4, '2025-05-21 20:33:53', '2025-05-22 08:10:42'),
-('b44c645f-9c60-44e3-b3a4-db1603f2c93b', 'MAG007', 'CRS0305', '3', 5, '2025-05-21 18:16:30', '2025-05-25 13:53:35'),
-('b5651a14-e43f-4375-8c96-4e7ccaa3973d', 'MAG005', NULL, '5', 5, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('b96d36ab-d525-442d-b76e-817fde7951ef', 'MAG007', 'CRS0205', '2', 6, '2025-05-21 18:16:30', '2025-05-25 13:53:42'),
-('bc62d206-acef-40e9-9743-f9990548c060', 'MAG008', 'CRS0501', '5', 1, '2025-05-21 20:33:53', '2025-05-22 08:09:44'),
-('c2717cde-dec8-45d8-aafe-ea805d5bdcdd', 'MAG005', 'CRS0402', '4', 1, '2025-05-13 10:09:11', '2025-05-21 18:08:09'),
-('c547dff3-a16a-46c7-aac3-d0bc05bd5bd2', 'MAG005', NULL, '3', 5, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('c83cab73-8a73-4017-b646-676cab195a58', 'MAG007', 'CRS0205', '2', 3, '2025-05-21 18:16:30', '2025-05-21 19:08:37'),
-('c9eb9969-b39a-43cb-a26a-1d4a733aaa83', 'MAG005', NULL, '4', 4, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('ce3da8d1-9fd6-4dfa-9674-2e5c04d05428', 'MAG008', 'CRS0105', '1', 6, '2025-05-21 20:33:53', '2025-05-22 08:11:11'),
-('d207e2c8-1cf6-45bb-8f5e-70e39765c55b', 'MAG007', 'CRS0305', '3', 1, '2025-05-21 18:16:30', '2025-05-25 13:13:04'),
-('d48247a8-2b50-423e-bf8f-93c614ca2606', 'MAG008', 'CRS0201', '2', 6, '2025-05-21 20:33:53', '2025-05-22 08:11:13'),
-('d57fd51a-39fb-4f1f-9003-7536bbd66bc4', 'MAG008', 'CRS0501', '5', 5, '2025-05-21 20:33:53', '2025-05-22 08:11:01'),
-('d6b6e194-e569-44a6-b85e-6018ad5edd52', 'MAG005', 'CRS0204', '2', 2, '2025-05-13 10:09:11', '2025-05-22 09:06:06'),
-('d732f4a2-d35f-4bf2-afbc-edb733f19768', 'MAG007', 'CRS0505', '5', 6, '2025-05-21 18:16:30', '2025-05-25 13:53:47'),
-('dd00fd3c-3765-42b6-8d68-5b77c08aad25', 'MAG008', 'CRS0105', '1', 5, '2025-05-21 20:33:53', '2025-05-22 08:10:55'),
-('dd9a4021-ff4e-4b55-9fb8-9e1de1dc66c1', 'MAG007', 'CRS0205', '2', 2, '2025-05-21 18:16:30', '2025-05-22 06:37:11'),
-('dde39727-68c9-4368-90e9-823ced6dd72e', 'MAG007', 'CRS0305', '3', 4, '2025-05-21 18:16:30', '2025-05-25 14:02:14'),
-('df0a64e6-8000-41cc-8246-96fe975937ca', 'MAG008', 'CRS0301', '3', 6, '2025-05-21 20:33:53', '2025-05-22 08:11:14'),
-('df2a2ad2-0538-44f9-9d39-c827fbf19f4d', 'MAG008', 'CRS0401', '4', 5, '2025-05-21 20:33:53', '2025-05-22 08:11:00'),
-('e7ff6160-b236-4a9f-8f79-822cc9bad427', 'MAG007', 'CRS0505', '5', 5, '2025-05-21 18:16:30', '2025-05-21 19:09:09'),
-('e84e340c-6fae-4013-a20e-7e20a46ad3d6', 'MAG007', 'CRS0105', '1', 6, '2025-05-21 18:16:30', '2025-05-25 13:53:41'),
-('f4d7a22d-8ff8-4b76-8e35-ed62bc591ba4', 'MAG007', 'CRS0105', '1', 1, '2025-05-21 18:16:30', '2025-05-25 13:13:27'),
-('f63f1967-15ae-458c-af0a-9d73d7f9ddb2', 'MAG008', 'CRS0401', '4', 3, '2025-05-21 20:33:53', '2025-05-22 08:10:11'),
-('f684d90c-1908-4bb5-a850-50db46639bbf', 'MAG008', 'CRS0201', '2', 1, '2025-05-21 20:33:53', '2025-05-22 08:09:40'),
-('f77abb7c-8c32-4e8d-a696-fb4b52878852', 'MAG005', NULL, '2', 4, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('f8e119a7-5147-4350-b23f-efee4efb0861', 'MAG005', NULL, '2', 6, '2025-05-13 10:09:11', '2025-05-13 10:09:11'),
-('f9f2fae8-009e-4aa9-b1c3-c17c9d1ab7cb', 'MAG007', 'CRS0505', '5', 3, '2025-05-21 18:16:30', '2025-05-21 19:08:40'),
-('fa2314f7-621f-4828-84da-ff73ce29860b', 'MAG005', 'CRS0205', '2', 3, '2025-05-13 10:09:11', '2025-05-23 10:12:05'),
-('faa8fc51-501e-4531-81fb-c899709ba7c1', 'MAG008', 'CRS0401', '4', 4, '2025-05-21 20:33:53', '2025-05-22 08:10:43'),
-('fd4bd3df-23c4-4660-9571-44f39dfbe372', 'MAG007', 'CRS0205', '2', 5, '2025-05-21 18:16:30', '2025-05-25 13:53:34');
+('17822ee4-d0ae-41f0-b0b6-bd7461b8ac78', 'MAG004', 'CRS1005', '10', 4, '2025-05-31 17:35:55', '2025-05-31 18:37:11'),
+('186d5e44-c859-4a34-8fe5-3d0a729fc1d1', 'MAG003', NULL, '5', 2, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('1cee24a6-03c8-4cac-a4f4-cf6e0e2a2a68', 'MAG005', NULL, '5', 3, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('23c43064-da99-4691-8123-c9103c6daf08', 'MAG005', NULL, '1', 2, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('26e9ddd2-21f1-482c-9629-dd957c4ca0ed', 'MAG004', NULL, '10', 3, '2025-05-31 17:35:55', '2025-05-31 18:10:44'),
+('2a20e63f-ecff-4b56-ba0b-aca4b4244fc4', 'MAG003', NULL, '3', 4, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('2c945c3e-77c5-4bed-9936-59cc883bc3dd', 'MAG005', NULL, '5', 2, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('30bcb02a-7f76-4e71-ad3d-3a5fbc00ae4b', 'MAG005', NULL, '4', 3, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('3132784d-636e-4efe-af6d-8aa2fac44639', 'MAG003', NULL, '1', 2, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('370e5d75-8956-4ca6-a3c5-5267288a0e2c', 'MAG003', NULL, '4', 3, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('3b640889-cfd7-4644-a075-7c16564af746', 'MAG003', 'CRS0205', '2', 1, '2025-05-26 05:24:41', '2025-05-26 05:27:06'),
+('3f48fe5f-f7e5-4bab-9d5d-4de382ead085', 'MAG003', 'CRS0505', '5', 1, '2025-05-26 05:24:41', '2025-05-26 05:27:06'),
+('404c6c6f-eca0-4aae-8886-0d653de29926', 'MAG003', NULL, '1', 3, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('40b5aeb7-23de-4cbd-899e-283a7ca78223', 'MAG005', NULL, '4', 1, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('43fcd741-b104-4b40-8b71-c63d5f000f95', 'MAG004', NULL, '9', 3, '2025-05-31 17:35:55', '2025-05-31 18:10:44'),
+('44681428-e6f0-45c7-a842-a439b08e8c29', 'MAG005', NULL, '2', 1, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('44d1e92b-ba3f-4493-8f3b-b2d488464f30', 'MAG004', NULL, '6', 3, '2025-05-31 17:35:55', '2025-05-31 18:10:44'),
+('47cee83d-b2dd-435a-93bc-7c42508fb8ce', 'MAG004', 'CRS0605', '6', 4, '2025-05-31 17:35:55', '2025-05-31 18:37:10'),
+('4803a292-c980-4dcb-8c6f-65554e8c92fe', 'MAG003', NULL, '1', 4, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('4a7dc17f-2b67-4db9-8910-9bcfbe13b54a', 'MAG004', 'CRS0705', '7', 4, '2025-05-31 17:35:55', '2025-05-31 18:37:11'),
+('4c954f5d-0ef4-4f6c-b9b2-0ebc0d4452b3', 'MAG005', NULL, '2', 4, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('4d0dc6db-aa05-444a-843f-c5af51bb101a', 'MAG003', NULL, '3', 3, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('4ff2f4e2-b287-445a-9ec0-bf8043b9dc3f', 'MAG003', NULL, '3', 2, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('501e2f17-b78d-48e2-8294-1d5ed5099877', 'MAG003', NULL, '5', 3, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('5509c088-f3a8-4793-886d-c5cfb504f111', 'MAG004', 'CRS0705', '7', 1, '2025-05-31 17:35:55', '2025-05-31 18:08:37'),
+('55d33a46-18f5-4828-b1c9-4494802a8bb2', 'MAG003', 'CRS0405', '4', 1, '2025-05-26 05:24:41', '2025-05-26 05:27:06'),
+('56948f19-2936-4178-a27a-05c3a3cc72ef', 'MAG003', NULL, '4', 2, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('57ca1681-360a-45cd-b67a-1a44b1113e1a', 'MAG003', NULL, '4', 4, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('61257123-63b9-49a2-8dee-63b272d73d15', 'MAG005', NULL, '1', 3, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('6364039f-9134-410e-9f5f-88f089950ff5', 'MAG003', NULL, '2', 2, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('646974e8-5ad3-41d7-b734-8d7d79e79714', 'MAG005', NULL, '3', 4, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('6911e383-d7a0-49ba-8f4b-2db693c57e49', 'MAG005', NULL, '5', 1, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('69cec309-812f-484e-a7bf-2beaa7cb78b7', 'MAG005', NULL, '1', 1, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('6b299794-57c7-4ce8-b9bd-14f7819dca6d', 'MAG005', NULL, '3', 3, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('6b83e6d7-0d2c-49df-95e7-a907fea408cd', 'MAG004', NULL, '7', 2, '2025-05-31 17:35:55', '2025-05-31 18:20:18'),
+('719a4b82-c510-43d8-b102-46f4da43e4c9', 'MAG005', NULL, '4', 4, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('72324656-57a5-4564-9b95-875665fbc647', 'MAG004', NULL, '7', 3, '2025-05-31 17:35:55', '2025-05-31 18:10:44'),
+('9073d2dc-ec4e-4f69-8b46-f070d465157f', 'MAG004', NULL, '8', 3, '2025-05-31 17:35:55', '2025-05-31 18:10:44'),
+('91f69cfb-9d04-4a27-9b6f-d0f40d6d5aad', 'MAG004', 'CRS0805', '8', 1, '2025-05-31 17:35:55', '2025-05-31 18:08:37'),
+('9423a33e-371c-4c9c-a943-fd54c3fc4206', 'MAG004', 'CRS0805', '8', 4, '2025-05-31 17:35:55', '2025-05-31 18:37:11'),
+('992309ae-0eed-4e9c-a8fa-855d1d449d6f', 'MAG004', NULL, '6', 2, '2025-05-31 17:35:55', '2025-05-31 18:20:18'),
+('9ea3a62f-0b5a-491a-bcf6-116001bf061d', 'MAG004', 'CRS0605', '6', 1, '2025-05-31 17:35:55', '2025-05-31 18:36:31'),
+('a0ea8838-4e0e-4313-af35-b0622c35ad8b', 'MAG003', 'CRS0105', '1', 1, '2025-05-26 05:24:41', '2025-05-26 05:27:06'),
+('a866ae7f-fc10-4c19-b236-3df98743f096', 'MAG003', NULL, '2', 3, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('aa36cdfb-b7bb-4cd4-861c-780e6fc12151', 'MAG003', NULL, '5', 4, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('ab1451ab-a2aa-4259-8923-3bf69445c559', 'MAG004', 'CRS1005', '10', 1, '2025-05-31 17:35:55', '2025-05-31 18:08:37'),
+('b9c48294-62e1-434e-927d-2829658cdfc2', 'MAG005', NULL, '2', 2, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('bbcb299b-aaee-46ea-975d-d46262fbe011', 'MAG005', NULL, '3', 1, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('bc35ddb9-f4c1-4ee9-a289-26b099bc9ebe', 'MAG004', NULL, '8', 2, '2025-05-31 17:35:55', '2025-05-31 18:20:18'),
+('be4ff17d-0668-4f1b-a566-df3cec11a80e', 'MAG005', NULL, '5', 4, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('c8e018b7-06a8-4f80-974d-f8a28ceb4400', 'MAG004', 'CRS0905', '9', 4, '2025-05-31 17:35:55', '2025-05-31 18:37:11'),
+('d559b074-6124-4e07-bbe9-fefdf29e04e0', 'MAG005', NULL, '4', 2, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('db3e6522-6d55-48b6-bcd4-4caf70a780d2', 'MAG005', NULL, '1', 4, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('dcd6afe0-a0ca-4d83-94ed-0de0bb2c15a4', 'MAG004', NULL, '10', 2, '2025-05-31 17:35:55', '2025-05-31 18:20:18'),
+('dfd9fa6d-2ca7-4f5a-b355-aa3c60b9747a', 'MAG004', 'CRS0905', '9', 1, '2025-05-31 17:35:55', '2025-05-31 18:08:37'),
+('e6cb3365-c5e5-44ed-b5ce-10aec7a2e074', 'MAG005', NULL, '2', 3, '2025-05-31 17:51:55', '2025-05-31 17:51:55'),
+('ea1de38a-4da6-4afa-a582-b52b43dfb28d', 'MAG003', 'CRS0305', '3', 1, '2025-05-26 05:24:41', '2025-05-26 05:27:06'),
+('ed5a165d-0d9a-4bd1-b5c5-e41f86bb15bf', 'MAG004', NULL, '9', 2, '2025-05-31 17:35:55', '2025-05-31 18:20:18'),
+('edc6c990-a55c-4ea1-b575-4d669f273c2f', 'MAG003', NULL, '2', 4, '2025-05-26 05:24:41', '2025-05-26 05:24:41'),
+('f1263a39-d7ec-40c3-bef4-9a361661e748', 'MAG005', NULL, '3', 2, '2025-05-31 17:51:55', '2025-05-31 17:51:55');
 
 -- --------------------------------------------------------
 
@@ -339,15 +311,11 @@ CREATE TABLE `interview` (
 --
 
 INSERT INTO `interview` (`interview_id`, `pelamar_id`, `user_id`, `kualifikasi_skor`, `komunikasi_skor`, `sikap_skor`, `total_skor`, `jadwal`, `status_seleksi`, `qualifikasi_criteria_id`, `komunikasi_criteria_id`, `sikap_criteria_id`, `created_at`, `updated_at`) VALUES
-('INT001', 'PL001', 1, 4, 4, 4, 4.00, '2025-05-01 00:00:00', 'Pending', NULL, NULL, NULL, '2025-04-20 05:00:00', '2025-05-06 11:03:27'),
-('INT002', 'PL002', 2, 5, 5, 5, 5.00, '2025-05-02 00:00:00', 'Pending', NULL, NULL, NULL, '2025-04-20 05:00:00', '2025-05-06 11:03:40'),
-('INT005', 'PL011', 2, 0, 0, 0, 0.00, '2025-05-12 10:35:00', 'Tes Kemampuan', NULL, NULL, NULL, '2025-05-11 19:14:41', '2025-05-11 19:15:45'),
-('INT008', 'PL009', 2, 0, 0, 0, 0.00, '2025-05-12 11:00:00', 'Tes Kemampuan', NULL, NULL, NULL, '2025-05-11 19:58:32', '2025-05-11 20:00:14'),
-('INT010', 'PL005', 4, 5, 5, 5, 5.00, '2025-05-15 01:30:00', 'Tes Kemampuan', NULL, NULL, NULL, '2025-05-13 10:26:12', '2025-05-24 18:55:43'),
-('INT012', 'PL010', 4, 5, 5, 5, 5.00, '2025-05-15 07:30:00', 'Pending', NULL, NULL, NULL, '2025-05-13 16:12:04', '2025-05-24 19:23:23'),
-('INT013', 'PL014', 1, 3, 3, 2, 2.67, '2025-05-14 14:30:00', 'Pending', NULL, NULL, NULL, '2025-05-13 23:10:33', '2025-05-13 23:11:45'),
-('INT014', 'PL015', 2, 0, 0, 0, 0.00, '2025-05-17 20:30:00', 'Tes Kemampuan', NULL, NULL, NULL, '2025-05-17 05:09:24', '2025-05-17 05:09:59'),
-('INT015', 'PL003', 1, 0, 0, 0, 0.00, '2025-05-19 23:30:00', 'Tes Kemampuan', NULL, NULL, NULL, '2025-05-19 08:05:21', '2025-05-19 08:08:43');
+('INT003', 'PL002', 1, 3, 2, 2, 2.33, '2025-05-26 04:36:00', 'Tes Kemampuan', 'INT_CRIT_JOB004_1', 'INT_CRIT_JOB004_2', 'INT_CRIT_JOB004_3', '2025-05-25 21:33:29', '2025-05-31 17:55:43'),
+('INT004', 'PL004', 1, 5, 3, 5, 4.33, '2025-05-26 12:21:00', 'Pending', 'INT_CRIT_JOB001_1', 'INT_CRIT_JOB001_2', 'INT_CRIT_JOB001_3', '2025-05-26 05:18:50', '2025-05-26 05:22:59'),
+('INT005', 'PL003', 5, 0, 0, 0, 0.00, '2025-05-27 19:44:00', 'Pending', 'INT_CRIT_JOB002_1', 'INT_CRIT_JOB002_2', 'INT_CRIT_JOB002_3', '2025-05-27 12:41:11', '2025-05-31 17:34:20'),
+('INT007', '1wAvO0ar7z', 5, 0, 0, 0, 0.00, '2025-05-30 04:14:00', 'Pending', 'INT_CRIT_JOB003_1', 'INT_CRIT_JOB003_2', 'INT_CRIT_JOB003_3', '2025-05-29 21:10:34', '2025-05-31 17:28:20'),
+('INT008', 'PL001', 1, 5, 5, 5, 5.00, '2025-06-01 00:40:00', 'Tes Kemampuan', 'INT_CRIT_JOB001_1', 'INT_CRIT_JOB001_2', 'INT_CRIT_JOB001_3', '2025-05-31 17:37:23', '2025-05-31 17:55:29');
 
 -- --------------------------------------------------------
 
@@ -425,7 +393,82 @@ INSERT INTO `interview_rating_scales` (`id`, `criteria_id`, `rating_level`, `nam
 ('INT_RS_012', 'INT_CRIT_JOB001_3', 2, 'Kurang', 'Kandidat menunjukkan sikap kurang profesional atau kurang motivasi', '2025-05-24 18:31:19', '2025-05-24 18:31:19'),
 ('INT_RS_013', 'INT_CRIT_JOB001_3', 3, 'Cukup', 'Kandidat menunjukkan sikap profesional dasar dan motivasi yang cukup', '2025-05-24 18:31:19', '2025-05-24 18:31:19'),
 ('INT_RS_014', 'INT_CRIT_JOB001_3', 4, 'Baik', 'Kandidat menunjukkan sikap profesional yang baik dan motivasi yang jelas', '2025-05-24 18:31:19', '2025-05-24 18:31:19'),
-('INT_RS_015', 'INT_CRIT_JOB001_3', 5, 'Sangat Baik', 'Kandidat menunjukkan sikap sangat profesional, sangat termotivasi, dan kepribadian yang sangat cocok untuk posisi', '2025-05-24 18:31:19', '2025-05-24 18:31:19');
+('INT_RS_015', 'INT_CRIT_JOB001_3', 5, 'Sangat Baik', 'Kandidat menunjukkan sikap sangat profesional, sangat termotivasi, dan kepribadian yang sangat cocok untuk posisi', '2025-05-24 18:31:19', '2025-05-24 18:31:19'),
+('INT_RS_016', 'INT_CRIT_JOB002_1', 1, 'Sangat Kurang', 'Kandidat tidak memiliki kualifikasi dan pengalaman yang relevan dengan posisi Steward', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_017', 'INT_CRIT_JOB002_1', 2, 'Kurang', 'Kandidat memiliki sedikit kualifikasi atau pengalaman yang relevan, namun tidak memadai', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_018', 'INT_CRIT_JOB002_1', 3, 'Cukup', 'Kandidat memiliki kualifikasi dan pengalaman dasar yang cukup untuk posisi Steward', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_019', 'INT_CRIT_JOB002_1', 4, 'Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang baik dan relevan dengan posisi Steward', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_020', 'INT_CRIT_JOB002_1', 5, 'Sangat Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang sangat baik, melebihi persyaratan posisi Steward', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_021', 'INT_CRIT_JOB002_2', 1, 'Sangat Kurang', 'Kandidat memiliki kesulitan dalam berkomunikasi, tidak dapat menyampaikan ide dengan jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_022', 'INT_CRIT_JOB002_2', 2, 'Kurang', 'Kandidat berkomunikasi dengan kejelasan minimal, sering kesulitan menyampaikan ide', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_023', 'INT_CRIT_JOB002_2', 3, 'Cukup', 'Kandidat dapat berkomunikasi dengan cukup jelas dan dapat menyampaikan ide-ide dasar', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_024', 'INT_CRIT_JOB002_2', 4, 'Baik', 'Kandidat berkomunikasi dengan baik, dapat menyampaikan ide dengan jelas dan terstruktur', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_025', 'INT_CRIT_JOB002_2', 5, 'Sangat Baik', 'Kandidat berkomunikasi dengan sangat baik, menyampaikan ide dengan jelas, terstruktur, dan persuasif', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_026', 'INT_CRIT_JOB002_3', 1, 'Sangat Kurang', 'Kandidat menunjukkan sikap tidak profesional atau tidak tertarik pada posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_027', 'INT_CRIT_JOB002_3', 2, 'Kurang', 'Kandidat menunjukkan sikap kurang profesional atau kurang motivasi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_028', 'INT_CRIT_JOB002_3', 3, 'Cukup', 'Kandidat menunjukkan sikap profesional dasar dan motivasi yang cukup', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_029', 'INT_CRIT_JOB002_3', 4, 'Baik', 'Kandidat menunjukkan sikap profesional yang baik dan motivasi yang jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_030', 'INT_CRIT_JOB002_3', 5, 'Sangat Baik', 'Kandidat menunjukkan sikap sangat profesional, sangat termotivasi, dan kepribadian yang sangat cocok untuk posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_031', 'INT_CRIT_JOB003_1', 1, 'Sangat Kurang', 'Kandidat tidak memiliki kualifikasi dan pengalaman yang relevan dengan posisi Cook Helper', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_032', 'INT_CRIT_JOB003_1', 2, 'Kurang', 'Kandidat memiliki sedikit kualifikasi atau pengalaman yang relevan, namun tidak memadai', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_033', 'INT_CRIT_JOB003_1', 3, 'Cukup', 'Kandidat memiliki kualifikasi dan pengalaman dasar yang cukup untuk posisi Cook Helper', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_034', 'INT_CRIT_JOB003_1', 4, 'Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang baik dan relevan dengan posisi Cook Helper', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_035', 'INT_CRIT_JOB003_1', 5, 'Sangat Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang sangat baik, melebihi persyaratan posisi Cook Helper', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_036', 'INT_CRIT_JOB003_2', 1, 'Sangat Kurang', 'Kandidat memiliki kesulitan dalam berkomunikasi, tidak dapat menyampaikan ide dengan jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_037', 'INT_CRIT_JOB003_2', 2, 'Kurang', 'Kandidat berkomunikasi dengan kejelasan minimal, sering kesulitan menyampaikan ide', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_038', 'INT_CRIT_JOB003_2', 3, 'Cukup', 'Kandidat dapat berkomunikasi dengan cukup jelas dan dapat menyampaikan ide-ide dasar', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_039', 'INT_CRIT_JOB003_2', 4, 'Baik', 'Kandidat berkomunikasi dengan baik, dapat menyampaikan ide dengan jelas dan terstruktur', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_040', 'INT_CRIT_JOB003_2', 5, 'Sangat Baik', 'Kandidat berkomunikasi dengan sangat baik, menyampaikan ide dengan jelas, terstruktur, dan persuasif', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_041', 'INT_CRIT_JOB003_3', 1, 'Sangat Kurang', 'Kandidat menunjukkan sikap tidak profesional atau tidak tertarik pada posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_042', 'INT_CRIT_JOB003_3', 2, 'Kurang', 'Kandidat menunjukkan sikap kurang profesional atau kurang motivasi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_043', 'INT_CRIT_JOB003_3', 3, 'Cukup', 'Kandidat menunjukkan sikap profesional dasar dan motivasi yang cukup', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_044', 'INT_CRIT_JOB003_3', 4, 'Baik', 'Kandidat menunjukkan sikap profesional yang baik dan motivasi yang jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_045', 'INT_CRIT_JOB003_3', 5, 'Sangat Baik', 'Kandidat menunjukkan sikap sangat profesional, sangat termotivasi, dan kepribadian yang sangat cocok untuk posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_046', 'INT_CRIT_JOB004_1', 1, 'Sangat Kurang', 'Kandidat tidak memiliki kualifikasi dan pengalaman yang relevan dengan posisi Pastry Chef', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_047', 'INT_CRIT_JOB004_1', 2, 'Kurang', 'Kandidat memiliki sedikit kualifikasi atau pengalaman yang relevan, namun tidak memadai', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_048', 'INT_CRIT_JOB004_1', 3, 'Cukup', 'Kandidat memiliki kualifikasi dan pengalaman dasar yang cukup untuk posisi Pastry Chef', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_049', 'INT_CRIT_JOB004_1', 4, 'Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang baik dan relevan dengan posisi Pastry Chef', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_050', 'INT_CRIT_JOB004_1', 5, 'Sangat Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang sangat baik, melebihi persyaratan posisi Pastry Chef', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_051', 'INT_CRIT_JOB004_2', 1, 'Sangat Kurang', 'Kandidat memiliki kesulitan dalam berkomunikasi, tidak dapat menyampaikan ide dengan jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_052', 'INT_CRIT_JOB004_2', 2, 'Kurang', 'Kandidat berkomunikasi dengan kejelasan minimal, sering kesulitan menyampaikan ide', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_053', 'INT_CRIT_JOB004_2', 3, 'Cukup', 'Kandidat dapat berkomunikasi dengan cukup jelas dan dapat menyampaikan ide-ide dasar', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_054', 'INT_CRIT_JOB004_2', 4, 'Baik', 'Kandidat berkomunikasi dengan baik, dapat menyampaikan ide dengan jelas dan terstruktur', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_055', 'INT_CRIT_JOB004_2', 5, 'Sangat Baik', 'Kandidat berkomunikasi dengan sangat baik, menyampaikan ide dengan jelas, terstruktur, dan persuasif', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_056', 'INT_CRIT_JOB004_3', 1, 'Sangat Kurang', 'Kandidat menunjukkan sikap tidak profesional atau tidak tertarik pada posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_057', 'INT_CRIT_JOB004_3', 2, 'Kurang', 'Kandidat menunjukkan sikap kurang profesional atau kurang motivasi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_058', 'INT_CRIT_JOB004_3', 3, 'Cukup', 'Kandidat menunjukkan sikap profesional dasar dan motivasi yang cukup', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_059', 'INT_CRIT_JOB004_3', 4, 'Baik', 'Kandidat menunjukkan sikap profesional yang baik dan motivasi yang jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_060', 'INT_CRIT_JOB004_3', 5, 'Sangat Baik', 'Kandidat menunjukkan sikap sangat profesional, sangat termotivasi, dan kepribadian yang sangat cocok untuk posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_061', 'INT_CRIT_JOB005_1', 1, 'Sangat Kurang', 'Kandidat tidak memiliki kualifikasi dan pengalaman yang relevan dengan posisi Barista', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_062', 'INT_CRIT_JOB005_1', 2, 'Kurang', 'Kandidat memiliki sedikit kualifikasi atau pengalaman yang relevan, namun tidak memadai', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_063', 'INT_CRIT_JOB005_1', 3, 'Cukup', 'Kandidat memiliki kualifikasi dan pengalaman dasar yang cukup untuk posisi Barista', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_064', 'INT_CRIT_JOB005_1', 4, 'Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang baik dan relevan dengan posisi Barista', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_065', 'INT_CRIT_JOB005_1', 5, 'Sangat Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang sangat baik, melebihi persyaratan posisi Barista', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_066', 'INT_CRIT_JOB005_2', 1, 'Sangat Kurang', 'Kandidat memiliki kesulitan dalam berkomunikasi, tidak dapat menyampaikan ide dengan jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_067', 'INT_CRIT_JOB005_2', 2, 'Kurang', 'Kandidat berkomunikasi dengan kejelasan minimal, sering kesulitan menyampaikan ide', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_068', 'INT_CRIT_JOB005_2', 3, 'Cukup', 'Kandidat dapat berkomunikasi dengan cukup jelas dan dapat menyampaikan ide-ide dasar', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_069', 'INT_CRIT_JOB005_2', 4, 'Baik', 'Kandidat berkomunikasi dengan baik, dapat menyampaikan ide dengan jelas dan terstruktur', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_070', 'INT_CRIT_JOB005_2', 5, 'Sangat Baik', 'Kandidat berkomunikasi dengan sangat baik, menyampaikan ide dengan jelas, terstruktur, dan persuasif', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_071', 'INT_CRIT_JOB005_3', 1, 'Sangat Kurang', 'Kandidat menunjukkan sikap tidak profesional atau tidak tertarik pada posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_072', 'INT_CRIT_JOB005_3', 2, 'Kurang', 'Kandidat menunjukkan sikap kurang profesional atau kurang motivasi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_073', 'INT_CRIT_JOB005_3', 3, 'Cukup', 'Kandidat menunjukkan sikap profesional dasar dan motivasi yang cukup', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_074', 'INT_CRIT_JOB005_3', 4, 'Baik', 'Kandidat menunjukkan sikap profesional yang baik dan motivasi yang jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_075', 'INT_CRIT_JOB005_3', 5, 'Sangat Baik', 'Kandidat menunjukkan sikap sangat profesional, sangat termotivasi, dan kepribadian yang sangat cocok untuk posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_076', 'INT_CRIT_JOB006_1', 1, 'Sangat Kurang', 'Kandidat tidak memiliki kualifikasi dan pengalaman yang relevan dengan posisi Cleaning Service', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_077', 'INT_CRIT_JOB006_1', 2, 'Kurang', 'Kandidat memiliki sedikit kualifikasi atau pengalaman yang relevan, namun tidak memadai', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_078', 'INT_CRIT_JOB006_1', 3, 'Cukup', 'Kandidat memiliki kualifikasi dan pengalaman dasar yang cukup untuk posisi Cleaning Service', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_079', 'INT_CRIT_JOB006_1', 4, 'Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang baik dan relevan dengan posisi Cleaning Service', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_080', 'INT_CRIT_JOB006_1', 5, 'Sangat Baik', 'Kandidat memiliki kualifikasi dan pengalaman yang sangat baik, melebihi persyaratan posisi Cleaning Service', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_081', 'INT_CRIT_JOB006_2', 1, 'Sangat Kurang', 'Kandidat memiliki kesulitan dalam berkomunikasi, tidak dapat menyampaikan ide dengan jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_082', 'INT_CRIT_JOB006_2', 2, 'Kurang', 'Kandidat berkomunikasi dengan kejelasan minimal, sering kesulitan menyampaikan ide', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_083', 'INT_CRIT_JOB006_2', 3, 'Cukup', 'Kandidat dapat berkomunikasi dengan cukup jelas dan dapat menyampaikan ide-ide dasar', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_084', 'INT_CRIT_JOB006_2', 4, 'Baik', 'Kandidat berkomunikasi dengan baik, dapat menyampaikan ide dengan jelas dan terstruktur', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_085', 'INT_CRIT_JOB006_2', 5, 'Sangat Baik', 'Kandidat berkomunikasi dengan sangat baik, menyampaikan ide dengan jelas, terstruktur, dan persuasif', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_086', 'INT_CRIT_JOB006_3', 1, 'Sangat Kurang', 'Kandidat menunjukkan sikap tidak profesional atau tidak tertarik pada posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_087', 'INT_CRIT_JOB006_3', 2, 'Kurang', 'Kandidat menunjukkan sikap kurang profesional atau kurang motivasi', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_088', 'INT_CRIT_JOB006_3', 3, 'Cukup', 'Kandidat menunjukkan sikap profesional dasar dan motivasi yang cukup', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_089', 'INT_CRIT_JOB006_3', 4, 'Baik', 'Kandidat menunjukkan sikap profesional yang baik dan motivasi yang jelas', '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('INT_RS_090', 'INT_CRIT_JOB006_3', 5, 'Sangat Baik', 'Kandidat menunjukkan sikap sangat profesional, sangat termotivasi, dan kepribadian yang sangat cocok untuk posisi', '2025-05-25 20:42:34', '2025-05-25 20:42:34');
 
 -- --------------------------------------------------------
 
@@ -446,12 +489,12 @@ CREATE TABLE `job` (
 --
 
 INSERT INTO `job` (`job_id`, `nama_job`, `deskripsi`, `created_at`, `updated_at`) VALUES
-('JOB001', 'Cooks', 'Bertanggung jawab untuk memasak hidangan utama, mengelola proses memasak, dan memastikan kualitas makanan. Syarat: Pria, usia maks. 35 tahun', '2025-04-19 22:00:00', '2025-05-23 13:29:42'),
-('JOB002', 'Steward', 'Bertanggung jawab untuk kebersihan peralatan dapur, setup meja, dan mendukung operasional dapur dan restoran. Syarat: Pria, usia maks. 25 tahun', '2025-04-19 22:00:00', '2025-05-23 13:29:42'),
-('JOB003', 'Cook Helper', 'Membantu persiapan bahan masakan, mendukung chef dalam proses memasak, dan menjaga kebersihan area kerja. Syarat: Pria, usia maks. 25 tahun', '2025-04-19 22:00:00', '2025-05-23 13:29:42'),
-('JOB004', 'Pastry Chef', 'Membuat berbagai jenis kue, pastry, dessert, dan roti. Bertanggung jawab atas semua produk bakery dan patisserie. Syarat: Pria, usia maks. 25 tahun', '2025-04-19 22:00:00', '2025-05-23 13:29:42'),
-('JOB005', 'Barista', 'Membuat dan menyajikan berbagai jenis kopi, minuman panas dan dingin, serta memberikan pelayanan yang ramah kepada pelanggan. Syarat: Pria/wanita, usia maks. 25 tahun', '2025-04-19 22:00:00', '2025-05-23 13:29:42'),
-('JOB006', 'Cleaning Service', 'Menjaga kebersihan seluruh area restoran, sanitasi fasilitas, dan memastikan lingkungan kerja yang bersih dan nyaman. Syarat: Pria/wanita, usia maks. 30 tahun', '2025-04-19 22:00:00', '2025-05-23 13:29:42');
+('JOB001', 'Cooks', 'Bertanggung jawab untuk memasak hidangan utama, mengelola proses memasak, dan memastikan kualitas makanan.', '2025-04-19 22:00:00', '2025-05-31 17:59:26'),
+('JOB002', 'Steward', 'Bertanggung jawab untuk kebersihan peralatan dapur, setup meja, dan mendukung operasional dapur dan restoran.', '2025-04-19 22:00:00', '2025-05-31 17:59:32'),
+('JOB003', 'Cook Helper', 'Membantu persiapan bahan masakan, mendukung chef dalam proses memasak, dan menjaga kebersihan area kerja.', '2025-04-19 22:00:00', '2025-05-31 17:59:42'),
+('JOB004', 'Pastry Chef', 'Membuat berbagai jenis kue, pastry, dessert, dan roti. Bertanggung jawab atas semua produk bakery dan patisserie.', '2025-04-19 22:00:00', '2025-05-31 17:59:50'),
+('JOB005', 'Barista', 'Membuat dan menyajikan berbagai jenis kopi, minuman panas dan dingin, serta memberikan pelayanan yang ramah kepada pelanggan.', '2025-04-19 22:00:00', '2025-05-31 17:59:58'),
+('JOB006', 'Cleaning Service', 'Menjaga kebersihan seluruh area restoran, sanitasi fasilitas, dan memastikan lingkungan kerja yang bersih dan nyaman.', '2025-04-19 22:00:00', '2025-05-31 18:00:12');
 
 -- --------------------------------------------------------
 
@@ -476,11 +519,9 @@ CREATE TABLE `magang` (
 --
 
 INSERT INTO `magang` (`magang_id`, `pelamar_id`, `user_id`, `total_skor`, `rank`, `status_seleksi`, `jadwal_mulai`, `created_at`, `updated_at`) VALUES
-('MAG001', 'PL001', 1, 0.00, 1, 'Lulus', NULL, '2025-04-20 05:00:00', '2025-05-12 11:04:16'),
-('MAG002', 'PL002', 2, 0.00, NULL, 'Pending', NULL, '2025-04-20 05:00:00', '2025-04-20 12:25:02'),
-('MAG005', 'PL011', 2, 1.19, 3, 'Sedang Berjalan', '2025-05-14 01:30:00', '2025-05-13 10:09:11', '2025-05-25 14:02:56'),
-('MAG007', 'PL005', 2, 5.00, 1, 'Sedang Berjalan', '2025-05-22 02:30:00', '2025-05-21 18:16:30', '2025-05-25 14:02:56'),
-('MAG008', 'PL015', 2, 2.20, 2, 'Sedang Berjalan', '2025-05-22 05:00:00', '2025-05-21 20:33:53', '2025-05-25 14:02:56');
+('MAG003', 'PL004', 1, 0.10, 1, 'Sedang Berjalan', '2025-05-26 13:30:00', '2025-05-26 05:24:40', '2025-05-26 05:27:06'),
+('MAG004', 'PL002', 5, 0.50, 1, 'Sedang Berjalan', '2025-06-01 02:00:00', '2025-05-31 17:35:55', '2025-05-31 18:37:11'),
+('MAG005', 'PL001', 5, 0.00, NULL, 'Sedang Berjalan', '2025-06-01 02:00:00', '2025-05-31 17:51:55', '2025-05-31 17:51:55');
 
 -- --------------------------------------------------------
 
@@ -501,7 +542,9 @@ CREATE TABLE `migrations` (
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '2025_05_06_180017_create_sessions_table', 1),
 (2, '2025_05_06_180113_create_cache_table', 2),
-(3, '2025_05_13_190513_update_evaluasi_mingguan_magang_table_make_rating_nullable', 3);
+(3, '2025_05_13_190513_update_evaluasi_mingguan_magang_table_make_rating_nullable', 3),
+(4, '2014_10_12_000000_create_users_table', 4),
+(6, '2023_10_10_000000_add_role_to_users_table', 5);
 
 -- --------------------------------------------------------
 
@@ -523,7 +566,7 @@ CREATE TABLE `pelamar` (
   `tempat_pengalaman` varchar(100) DEFAULT NULL,
   `deskripsi_tempat` text DEFAULT NULL,
   `berkas_cv` varchar(255) DEFAULT NULL,
-  `status_seleksi` enum('Pending','Interview','Sedang Berjalan') DEFAULT 'Pending',
+  `status_seleksi` enum('Pending','Interview','Sedang Berjalan','Tes Kemampuan','Magang','Selesai') DEFAULT 'Pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -533,20 +576,20 @@ CREATE TABLE `pelamar` (
 --
 
 INSERT INTO `pelamar` (`pelamar_id`, `periode_id`, `job_id`, `nama`, `email`, `nomor_wa`, `tgl_lahir`, `alamat`, `pendidikan`, `lama_pengalaman`, `tempat_pengalaman`, `deskripsi_tempat`, `berkas_cv`, `status_seleksi`, `created_at`, `updated_at`) VALUES
-('PL001', 'PER001', 'JOB001', 'John Doe', 'john.doe@example.com', '08123456789', '1990-01-01', 'Jakarta', 'S1', 5, 'PT. ABC', 'Pengalaman kerja di perusahaan besar.', 'cv_johndoe.pdf', 'Sedang Berjalan', '2025-04-20 05:00:00', '2025-05-08 18:00:45'),
-('PL002', 'PER001', 'JOB002', 'Jane Smith', '  jane.smith@example.com', '08123456789', '1990-01-01', 'Jakarta', 'S1', 5, 'PT. ABC', 'Pengalaman kerja di perusahaan besar.', 'cv_janesmith.pdf', 'Pending', '2025-04-20 05:00:00', '2025-04-20 12:25:02'),
-('PL003', 'PER002', 'JOB003', 'Alice Johnson', 'alice.johnson@example.com', '08123456789', '1990-01-01', 'Jakarta', 'S1', 5, 'PT. ABC', 'Pengalaman kerja di perusahaan besar.', 'cv_alicejohnson.pdf', 'Interview', '2025-04-20 05:00:00', '2025-05-19 08:05:21'),
-('PL004', 'PER001', 'JOB002', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-14', 'Komp mahdani hafairt blok a no 1', 'SMA', 2, NULL, NULL, NULL, 'Pending', '2025-05-07 13:05:49', '2025-05-07 13:05:49'),
-('PL005', 'PER002', 'JOB001', 'Fahri An', 'fahriabangpadang@gmail.com', '085272127188', '2025-05-14', 'Komp mahdani hafairt blok a no 1', 'D3', 4, 'wqeqwe', '111', '/storage/cv_files/PL005_CV.pdf', 'Sedang Berjalan', '2025-05-07 13:17:36', '2025-05-21 18:16:30'),
-('PL009', 'PER002', 'JOB003', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-14', 'Komp mahdani hafairt blok a no 1', 'D3', 9, 'wqeqwe', 'gdfsgsdfgsg', 'cv_files/PL009_CV.pdf', 'Interview', '2025-05-08 18:04:49', '2025-05-13 16:35:30'),
-('PL010', 'PER002', 'JOB001', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-14', 'Komp mahdani hafairt blok a no 1', 'D3', 9, 'wqeqwe', 'gdfsgsdfgsg', 'cv_files/PL010_CV.pdf', 'Interview', '2025-05-10 12:12:42', '2025-05-13 16:12:04'),
-('PL011', 'PER002', 'JOB001', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-14', 'Komp mahdani hafairt blok a no 1', 'SMA', 4, 'wqeqwe', '1', 'cv_files/PL011_CV.docx', 'Sedang Berjalan', '2025-05-11 19:13:22', '2025-05-13 10:09:11'),
-('PL012', 'PER002', 'JOB004', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-14', 'Komp mahdani hafairt blok a no 1', 'SMA', 1, 'wqeqwe', '1', 'cv_files/PL012_CV.docx', 'Pending', '2025-05-11 19:13:56', '2025-05-25 12:04:58'),
-('PL013', 'PER002', 'JOB005', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-14', 'Komp mahdani hafairt blok a no 1', 'D3', 3, 'wqeqwe', '1', 'cv_files/PL013_CV.pdf', 'Pending', '2025-05-11 19:50:27', '2025-05-23 10:29:51'),
-('PL014', 'PER002', 'JOB001', 'ari', 'aridedekpadang@gmail.com', '085272127188', '2025-05-14', 'qwe', 'SMA', 4, 'wqeqwe', 'qweq', 'cv_files/PL014_CV.pdf', 'Interview', '2025-05-13 16:21:43', '2025-05-13 23:10:33'),
-('PL015', 'PER002', 'JOB001', 'radhika rasidi', 'rasidiradhika11@gmail.com', '085272127188', '2025-05-01', 'Komp mahdani hafairt blok a no 1', 'SMA', 10, 'rumah', 'membantu orang tua', 'cv_files/PL015_CV.pdf', 'Sedang Berjalan', '2025-05-17 05:09:05', '2025-05-21 20:33:53'),
-('PL016', 'PER002', 'JOB005', 'sadawdawd', 'fahriandikasanjaya@gmail.com', '085272127188', '2025-05-05', 'Komp mahdani hafairt blok a no 1', 'SMA', 2, 'rumah', '2342424', 'cv_files/PL016_CV.docx', 'Pending', '2025-05-23 10:33:09', '2025-05-23 10:33:09'),
-('PL017', 'PER002', 'JOB002', 'sadawdawd', 'fahriandikasanjaya@gmail.com', '085272127188', '2025-05-05', 'qwe', 'D3', 2, '123', '123', 'cv_files/PL017_CV.docx', 'Pending', '2025-05-23 11:03:03', '2025-05-23 11:03:03');
+('1DIITCGDVZ', 'PER001', 'JOB005', 'fikran elyafit', 'fikranelyafit@gmail.com', '12e', '2025-05-30', 'Komp mahdani hafairt blok a no 1', 'D3', 4, 'unandq', 'wqeqwe', 'cv_files/1DIITCGDVZ_CV.docx', 'Pending', '2025-05-29 20:44:14', '2025-05-29 20:44:14'),
+('1wAvO0ar7z', 'PER001', 'JOB003', 'falahusna', 'falahusna04@gmail.com', '12e', '2025-05-30', 'qwe', 'S2', 4, 'rumah', 'membnatu orng tua', 'cv_files/1wAvO0ar7z_CV.docx', 'Interview', '2025-05-29 21:07:59', '2025-05-31 17:28:20'),
+('3OWhETr9Dm', 'PER001', 'JOB004', 'Fahri Andika Sanjaya', 'fahriandikasanjaya@gmail.com', '085272127188', '2025-05-13', 'qwe', 'S1', 2, 'unand', '231', 'cv_files/3OWhETr9Dm_CV.docx', 'Pending', '2025-05-29 17:43:13', '2025-05-29 17:43:13'),
+('bghJ3tq6pE', 'PER001', 'JOB005', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-30', 'Komp mahdani hafairt blok a no 1', 'S2', 4, 'efwefwe', 'werwerwef', 'cv_files/bghJ3tq6pE_CV.docx', 'Pending', '2025-05-29 17:53:33', '2025-05-29 17:53:33'),
+('bx0Q0vHjXV', 'PER001', 'JOB002', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-13', 'qwe', 'D3', 3, 'unand', 'qweweq', 'cv_files/bx0Q0vHjXV_CV.docx', 'Pending', '2025-05-29 17:49:02', '2025-05-29 17:49:02'),
+('DjKLKp7H0v', 'PER001', 'JOB002', 'Fahri Andika Sanjaya', 'fahriandikasanjaya@gmail.com', '085272127188', '2025-05-13', 'qwe', 'D3', 3, 'unand', '2131', 'cv_files/DjKLKp7H0v_CV.docx', 'Pending', '2025-05-29 17:38:02', '2025-05-29 17:38:02'),
+('mQINI3MWLs', 'PER001', 'JOB003', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-13', 'Komp mahdani hafairt blok a no 1', 'S3', 3, 'unandq', 'qwrwq', 'cv_files/mQINI3MWLs_CV.docx', 'Pending', '2025-05-29 17:51:23', '2025-05-29 17:51:23'),
+('PL001', 'PER001', 'JOB001', 'Fahri Andika Sanjaya', 'aridedekpadang@gmail.com', '085272127188', '2025-05-05', 'Komp mahdani hafairt blok a no 1', 'S3', 1, '123', '21', 'cv_files/PL001_CV.pdf', 'Magang', '2025-05-25 18:27:36', '2025-05-31 17:51:55'),
+('PL002', 'PER001', 'JOB004', 'radhika rasidi', 'rasidiradhika111@gmail.com', '085272127188', '2025-05-05', 'Komp mahdani hafairt blok a no 1', 'D3', 3, '123', '213123', 'cv_files/PL002_CV.docx', 'Magang', '2025-05-25 18:28:19', '2025-05-31 17:35:55'),
+('PL003', 'PER001', 'JOB002', 'Fahri Andika Sanjaya', 'fahriandikasanjaya@gmail.com', '12e', '2025-05-26', 'Komp mahdani hafairt blok a no 1', 'S3', 1, '12e1', '12e1', 'cv_files/PL003_CV.docx', 'Interview', '2025-05-25 18:28:44', '2025-05-31 17:34:20'),
+('PL004', 'PER002', 'JOB001', 'Fahri Andika Sanjaya', 'fahriandikasanjaya@gmail.com', '12e', '2025-05-26', 'ppp', 'S3', 1, '12e1', 'kmkn', 'cv_files/PL004_CV.pdf', 'Magang', '2025-05-26 05:15:50', '2025-05-26 05:24:40'),
+('PL005', 'PER001', 'JOB003', 'Fahri Andika Sanjaya', 'fahriandikasanjaya@gmail.com', '085272127188', '2025-05-30', 'Komp mahdani hafairt blok a no 1', 'S3', 19, 'wada', 'awdawd', 'cv_files/PL005_CV.docx', 'Pending', '2025-05-29 14:59:21', '2025-05-29 14:59:21'),
+('PL006', 'PER001', 'JOB004', 'Fahri Andika Sanjaya', 'fahriandikasanjaya@gmail.com', '085272127188', '2025-05-13', 'Komp mahdani hafairt blok a no 1', 'D3', 2, 'unand', 'dfs', 'cv_files/PL006_CV.docx', 'Pending', '2025-05-29 17:23:00', '2025-05-29 17:23:00'),
+('PL008', 'PER001', 'JOB002', 'Fahri Andika Sanjaya', 'fahriandikasanjaya@gmail.com', '085272127188', '2025-05-13', '213', 'S2', 4, 'unand', '123', 'cv_files/PL008_CV.docx', 'Pending', '2025-05-29 17:34:34', '2025-05-29 17:34:34');
 
 -- --------------------------------------------------------
 
@@ -570,10 +613,8 @@ CREATE TABLE `periode` (
 --
 
 INSERT INTO `periode` (`periode_id`, `nama_periode`, `tanggal_mulai`, `tanggal_selesai`, `deskripsi`, `created_at`, `updated_at`, `durasi_minggu_magang`) VALUES
-('PER001', 'Periode 1', '2025-04-20', '2025-05-20', 'Periode pertama untuk rekrutmen.', '2025-04-20 05:00:00', '2025-05-06 18:08:21', 4),
-('PER002', 'Periode 2', '2025-06-01', '2025-07-01', 'Periode kedua untuk rekrutmen.', '2025-04-20 05:00:00', '2025-05-25 10:42:47', 6),
-('PER003', 'Periode 3', '2025-05-01', '2025-05-08', NULL, '2025-05-13 15:11:19', '2025-05-13 15:11:19', 2),
-('PER004', 'PERIODE 4', '2025-05-23', '2025-05-31', '213', '2025-05-23 14:09:00', '2025-05-23 14:09:00', 3);
+('PER001', 'Periode 1', '2025-05-26', '2025-07-26', 'wefwef', '2025-05-25 18:26:19', '2025-05-25 21:56:58', 4),
+('PER002', 'pp', '2025-05-26', '2025-05-29', 'ppok', '2025-05-26 05:14:37', '2025-05-26 05:14:37', 4);
 
 -- --------------------------------------------------------
 
@@ -593,16 +634,15 @@ CREATE TABLE `periode_job` (
 --
 
 INSERT INTO `periode_job` (`periode_id`, `job_id`, `created_at`, `updated_at`) VALUES
-('PER001', 'JOB001', '2025-04-20 05:00:00', '2025-04-20 12:25:02'),
-('PER001', 'JOB002', '2025-04-20 05:00:00', '2025-04-20 12:25:02'),
-('PER001', 'JOB006', '2025-05-11 15:25:43', '2025-05-11 15:25:43'),
-('PER002', 'JOB001', '2025-05-11 19:12:54', '2025-05-11 19:12:54'),
-('PER002', 'JOB002', '2025-05-11 19:12:54', '2025-05-11 19:12:54'),
-('PER002', 'JOB003', '2025-04-20 05:00:00', '2025-04-20 12:25:02'),
-('PER002', 'JOB004', '2025-04-20 05:00:00', '2025-04-20 12:25:02'),
-('PER002', 'JOB005', '2025-05-11 15:07:34', '2025-05-11 15:07:34'),
-('PER003', 'JOB004', '2025-05-13 15:11:19', '2025-05-13 15:11:19'),
-('PER004', 'JOB002', '2025-05-23 14:09:00', '2025-05-23 14:09:00');
+('PER001', 'JOB001', '2025-05-25 18:26:19', '2025-05-25 18:26:19'),
+('PER001', 'JOB002', '2025-05-25 18:26:19', '2025-05-25 18:26:19'),
+('PER001', 'JOB003', '2025-05-25 18:26:19', '2025-05-25 18:26:19'),
+('PER001', 'JOB004', '2025-05-25 18:26:19', '2025-05-25 18:26:19'),
+('PER001', 'JOB005', '2025-05-25 18:26:19', '2025-05-25 18:26:19'),
+('PER001', 'JOB006', '2025-05-25 18:26:19', '2025-05-25 18:26:19'),
+('PER002', 'JOB001', '2025-05-26 05:14:37', '2025-05-26 05:14:37'),
+('PER002', 'JOB002', '2025-05-26 05:14:37', '2025-05-26 05:14:37'),
+('PER002', 'JOB006', '2025-05-26 05:14:37', '2025-05-26 05:14:37');
 
 -- --------------------------------------------------------
 
@@ -650,7 +690,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('21S2h057V88yDaHdI0rXTy7ivseeqwi7oRtSeSdb', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoidE50cktpTmJ4UlRYekxsbXg0QWZLU1pPUTBXZDEwZXZEbzNlWUFXQiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9tYWdhbmciO31zOjM6InVybCI7YTowOnt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mjt9', 1748182041);
+('fjB9fyqxpYDziUdP5kQjHCAoSrGYBS60HTmgnQiT', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoicGVIZUJnSDhmd25XRnNkamloZjZUUG8xWjFWVXNYREJLTHFwYlgyZSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9mb3Jnb3QtcGFzc3dvcmQiO319', 1748882118);
 
 -- --------------------------------------------------------
 
@@ -676,13 +716,9 @@ CREATE TABLE `tes_kemampuan` (
 --
 
 INSERT INTO `tes_kemampuan` (`tes_id`, `user_id`, `pelamar_id`, `catatan`, `jadwal`, `skor`, `status_seleksi`, `criteria_id`, `created_at`, `updated_at`) VALUES
-('TES001', 1, 'PL001', 'Tes kemampuan memasak dasar.', '2025-05-10 00:00:00', 85, 'Pending', NULL, '2025-04-20 05:00:00', '2025-04-20 12:25:02'),
-('TES002', 2, 'PL002', 'Tes kemampuan memasak dasar.', '2025-05-11 00:00:00', 80, 'Pending', NULL, '2025-04-20 05:00:00', '2025-04-20 12:25:02'),
-('TES006', 2, 'PL011', NULL, '2025-05-12 10:30:00', 0, 'Magang', NULL, '2025-05-11 19:15:45', '2025-05-13 10:09:11'),
-('TES010', 2, 'PL009', NULL, '2025-05-12 11:30:00', 0, 'Lulus', NULL, '2025-05-11 20:00:14', '2025-05-13 16:51:50'),
-('TES012', 2, 'PL005', '1w12w', '2025-05-15 01:30:00', 100, 'Magang', NULL, '2025-05-13 10:27:39', '2025-05-24 08:36:26'),
-('TES013', 2, 'PL015', NULL, '2025-05-17 20:30:00', 0, 'Magang', NULL, '2025-05-17 05:09:59', '2025-05-21 20:33:53'),
-('TES014', 1, 'PL003', NULL, '2025-05-19 23:30:00', 0, 'Pending', NULL, '2025-05-19 08:08:43', '2025-05-19 08:08:43');
+('TES006', 1, 'PL004', NULL, '2025-05-26 12:28:00', 94, 'Magang', 'TES_CRIT_JOB001', '2025-05-26 05:23:21', '2025-05-26 05:24:40'),
+('TES007', 5, 'PL002', 'awdwad', '2025-06-17 03:32:00', 85, 'Magang', 'TES_CRIT_JOB004', '2025-05-31 17:32:13', '2025-05-31 17:56:52'),
+('TES008', 5, 'PL001', NULL, '2025-06-01 03:41:00', 75, 'Magang', 'TES_CRIT_JOB001', '2025-05-31 17:41:50', '2025-05-31 17:56:45');
 
 -- --------------------------------------------------------
 
@@ -740,7 +776,32 @@ INSERT INTO `tes_kemampuan_rating_scales` (`id`, `criteria_id`, `rating_level`, 
 ('TES_RS_002', 'TES_CRIT_JOB001', 2, 'Kurang', 'Kandidat menunjukkan kemampuan dasar yang minimal, masih memerlukan banyak pelatihan', 60, 69, '2025-05-24 18:31:19', '2025-05-24 18:31:19'),
 ('TES_RS_003', 'TES_CRIT_JOB001', 3, 'Cukup', 'Kandidat menunjukkan kemampuan yang cukup, membutuhkan beberapa pelatihan tambahan', 70, 79, '2025-05-24 18:31:19', '2025-05-24 18:31:19'),
 ('TES_RS_004', 'TES_CRIT_JOB001', 4, 'Baik', 'Kandidat menunjukkan kemampuan yang baik, siap untuk posisi dengan sedikit pelatihan', 80, 89, '2025-05-24 18:31:19', '2025-05-24 18:31:19'),
-('TES_RS_005', 'TES_CRIT_JOB001', 5, 'Sangat Baik', 'Kandidat menunjukkan kemampuan yang sangat baik, siap untuk posisi tanpa pelatihan tambahan', 90, 100, '2025-05-24 18:31:19', '2025-05-24 18:31:19');
+('TES_RS_005', 'TES_CRIT_JOB001', 5, 'Sangat Baik', 'Kandidat menunjukkan kemampuan yang sangat baik, siap untuk posisi tanpa pelatihan tambahan', 90, 100, '2025-05-24 18:31:19', '2025-05-24 18:31:19'),
+('TES_RS_006', 'TES_CRIT_JOB002', 1, 'Tidak Lulus', 'Kandidat tidak menunjukkan kemampuan dasar sebagai steward yang diperlukan', 0, 59, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_007', 'TES_CRIT_JOB002', 2, 'Kurang', 'Kandidat menunjukkan kemampuan dasar yang minimal, masih memerlukan banyak pelatihan', 60, 69, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_008', 'TES_CRIT_JOB002', 3, 'Cukup', 'Kandidat menunjukkan kemampuan yang cukup, membutuhkan beberapa pelatihan tambahan', 70, 79, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_009', 'TES_CRIT_JOB002', 4, 'Baik', 'Kandidat menunjukkan kemampuan yang baik, siap untuk posisi dengan sedikit pelatihan', 80, 89, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_010', 'TES_CRIT_JOB002', 5, 'Sangat Baik', 'Kandidat menunjukkan kemampuan yang sangat baik, siap untuk posisi tanpa pelatihan tambahan', 90, 100, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_011', 'TES_CRIT_JOB003', 1, 'Tidak Lulus', 'Kandidat tidak menunjukkan kemampuan dasar sebagai cook helper yang diperlukan', 0, 59, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_012', 'TES_CRIT_JOB003', 2, 'Kurang', 'Kandidat menunjukkan kemampuan dasar yang minimal, masih memerlukan banyak pelatihan', 60, 69, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_013', 'TES_CRIT_JOB003', 3, 'Cukup', 'Kandidat menunjukkan kemampuan yang cukup, membutuhkan beberapa pelatihan tambahan', 70, 79, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_014', 'TES_CRIT_JOB003', 4, 'Baik', 'Kandidat menunjukkan kemampuan yang baik, siap untuk posisi dengan sedikit pelatihan', 80, 89, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_015', 'TES_CRIT_JOB003', 5, 'Sangat Baik', 'Kandidat menunjukkan kemampuan yang sangat baik, siap untuk posisi tanpa pelatihan tambahan', 90, 100, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_016', 'TES_CRIT_JOB004', 1, 'Tidak Lulus', 'Kandidat tidak menunjukkan kemampuan dasar pastry yang diperlukan', 0, 59, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_017', 'TES_CRIT_JOB004', 2, 'Kurang', 'Kandidat menunjukkan kemampuan dasar yang minimal, masih memerlukan banyak pelatihan', 60, 69, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_018', 'TES_CRIT_JOB004', 3, 'Cukup', 'Kandidat menunjukkan kemampuan yang cukup, membutuhkan beberapa pelatihan tambahan', 70, 79, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_019', 'TES_CRIT_JOB004', 4, 'Baik', 'Kandidat menunjukkan kemampuan yang baik, siap untuk posisi dengan sedikit pelatihan', 80, 89, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_020', 'TES_CRIT_JOB004', 5, 'Sangat Baik', 'Kandidat menunjukkan kemampuan yang sangat baik, siap untuk posisi tanpa pelatihan tambahan', 90, 100, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_021', 'TES_CRIT_JOB005', 1, 'Tidak Lulus', 'Kandidat tidak menunjukkan kemampuan dasar barista yang diperlukan', 0, 59, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_022', 'TES_CRIT_JOB005', 2, 'Kurang', 'Kandidat menunjukkan kemampuan dasar yang minimal, masih memerlukan banyak pelatihan', 60, 69, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_023', 'TES_CRIT_JOB005', 3, 'Cukup', 'Kandidat menunjukkan kemampuan yang cukup, membutuhkan beberapa pelatihan tambahan', 70, 79, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_024', 'TES_CRIT_JOB005', 4, 'Baik', 'Kandidat menunjukkan kemampuan yang baik, siap untuk posisi dengan sedikit pelatihan', 80, 89, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_025', 'TES_CRIT_JOB005', 5, 'Sangat Baik', 'Kandidat menunjukkan kemampuan yang sangat baik, siap untuk posisi tanpa pelatihan tambahan', 90, 100, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_026', 'TES_CRIT_JOB006', 1, 'Tidak Lulus', 'Kandidat tidak menunjukkan kemampuan dasar cleaning service yang diperlukan', 0, 59, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_027', 'TES_CRIT_JOB006', 2, 'Kurang', 'Kandidat menunjukkan kemampuan dasar yang minimal, masih memerlukan banyak pelatihan', 60, 69, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_028', 'TES_CRIT_JOB006', 3, 'Cukup', 'Kandidat menunjukkan kemampuan yang cukup, membutuhkan beberapa pelatihan tambahan', 70, 79, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_029', 'TES_CRIT_JOB006', 4, 'Baik', 'Kandidat menunjukkan kemampuan yang baik, siap untuk posisi dengan sedikit pelatihan', 80, 89, '2025-05-25 20:42:34', '2025-05-25 20:42:34'),
+('TES_RS_030', 'TES_CRIT_JOB006', 5, 'Sangat Baik', 'Kandidat menunjukkan kemampuan yang sangat baik, siap untuk posisi tanpa pelatihan tambahan', 90, 100, '2025-05-25 20:42:34', '2025-05-25 20:42:34');
 
 -- --------------------------------------------------------
 
@@ -762,24 +823,18 @@ CREATE TABLE `total_skor_minggu_magang` (
 --
 
 INSERT INTO `total_skor_minggu_magang` (`id`, `magang_id`, `minggu_ke`, `total_skor`, `created_at`, `updated_at`) VALUES
-('0a14ccfd-fc31-4c08-a5a2-d5c5ba5521fd', 'MAG005', 1, 0.33, '2025-05-13 13:18:48', '2025-05-25 14:02:56'),
-('170662ca-f243-42a5-b42e-173edbf54856', 'MAG008', 4, 0.42, '2025-05-21 20:34:06', '2025-05-25 14:02:56'),
-('1c76fb7d-cd87-44a3-bb24-4228f39ed488', 'MAG007', 2, 1.00, '2025-05-21 18:16:37', '2025-05-25 14:02:56'),
-('2a3f3798-9116-4072-8ab5-74b5e3abcbd3', 'MAG005', 6, 0.00, '2025-05-13 13:22:02', '2025-05-25 14:02:56'),
-('2a9ce14a-12a5-4dff-85c6-ef60dd7ff31d', 'MAG007', 1, 1.00, '2025-05-21 18:16:37', '2025-05-25 14:02:56'),
-('2f493b53-43bd-4b7f-8327-c148938c519b', 'MAG007', 4, 1.00, '2025-05-21 18:16:37', '2025-05-25 14:02:56'),
-('371beab9-8e6e-408a-aa6e-1b93f290b23a', 'MAG008', 3, 0.58, '2025-05-21 20:34:06', '2025-05-25 14:02:56'),
-('427d5bc5-71ad-4226-b3cf-f25ea5b4b788', 'MAG008', 2, 0.42, '2025-05-21 20:34:06', '2025-05-25 14:02:56'),
-('5779b58c-8480-4bcc-bb99-806bba1bde36', 'MAG007', 6, 1.00, '2025-05-21 18:16:37', '2025-05-25 14:02:56'),
-('5f0c2559-f8d0-4ca4-b7e1-e8f3596bebd8', 'MAG005', 3, 0.66, '2025-05-13 13:22:02', '2025-05-25 14:02:56'),
-('6e46653f-314c-490d-80bf-a5ff6f0b4e71', 'MAG005', 5, 0.00, '2025-05-13 13:22:02', '2025-05-25 14:02:56'),
-('ac5c3881-2cfb-438f-8c93-cb47af15512c', 'MAG007', 5, 1.00, '2025-05-21 18:16:37', '2025-05-25 14:02:56'),
-('beb913f7-0af8-474e-b114-724c8d6e275f', 'MAG008', 5, 0.42, '2025-05-21 20:34:06', '2025-05-25 14:02:56'),
-('c46fc6b0-0620-48fd-b3f7-51f27cd16039', 'MAG008', 6, 0.42, '2025-05-21 20:34:06', '2025-05-25 14:02:56'),
-('d9a8e96e-298f-4d94-954d-73f45632e55c', 'MAG005', 2, 0.93, '2025-05-13 13:19:31', '2025-05-25 14:02:56'),
-('db992240-4852-47c5-9832-8196945af4c1', 'MAG008', 1, 0.42, '2025-05-21 20:34:02', '2025-05-25 14:02:56'),
-('eeb809dd-9561-437a-b366-71649c5f7052', 'MAG007', 3, 1.00, '2025-05-21 18:16:37', '2025-05-25 14:02:56'),
-('f573c245-2f03-459c-ab33-01a80e3d397f', 'MAG005', 4, 0.21, '2025-05-13 13:22:02', '2025-05-25 14:02:56');
+('0e63a501-337e-4e21-9072-7adb44c61690', 'MAG004', 4, 1.00, '2025-05-31 17:46:38', '2025-06-02 16:26:22'),
+('2073d5c2-e5fd-488c-8b85-af3ee7bf0481', 'MAG003', 1, 1.00, '2025-05-26 05:26:11', '2025-05-26 05:27:15'),
+('36cfaa5f-0182-402a-8583-4fa2383742b2', 'MAG004', 3, 0.00, '2025-05-31 17:46:38', '2025-06-02 16:26:22'),
+('397181a9-ec26-4c5a-886c-9e78ed45f488', 'MAG005', 3, 0.00, '2025-05-31 17:53:32', '2025-06-02 16:26:22'),
+('5a7b0afe-5644-4391-94b7-583890088b2c', 'MAG004', 2, 0.00, '2025-05-31 17:46:38', '2025-06-02 16:26:22'),
+('5c52cd61-d331-4613-92ee-fc2de0b6151f', 'MAG005', 1, 0.00, '2025-05-31 17:53:32', '2025-06-02 16:30:26'),
+('659bcfcc-ed2a-48c2-9edc-f5c920b245f0', 'MAG003', 3, 0.00, '2025-05-26 05:26:11', '2025-05-26 05:27:10'),
+('7daea05c-9370-40c4-9929-f7a725ea736a', 'MAG005', 4, 0.00, '2025-05-31 17:53:32', '2025-06-02 16:26:22'),
+('9a3d4f85-be11-417c-9674-4511024ad10c', 'MAG003', 2, 0.00, '2025-05-26 05:26:11', '2025-05-26 05:27:10'),
+('af096535-0747-4412-b5c8-888415b5ac0a', 'MAG003', 4, 0.00, '2025-05-26 05:26:11', '2025-05-26 05:27:11'),
+('d0528416-8ec1-427b-aacc-50f1b36beddc', 'MAG004', 1, 1.00, '2025-05-31 17:46:38', '2025-06-02 16:26:22'),
+('ebf60d15-fc8f-4f36-a514-cf382759970d', 'MAG005', 2, 0.00, '2025-05-31 17:53:32', '2025-06-02 16:26:22');
 
 -- --------------------------------------------------------
 
@@ -791,8 +846,8 @@ CREATE TABLE `user` (
   `user_id` int(11) NOT NULL,
   `username` varchar(25) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `role` enum('admin','cook','pastry') NOT NULL DEFAULT 'admin',
   `email` varchar(50) NOT NULL,
-  `role` varchar(50) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `remember_token` varchar(100) DEFAULT NULL
@@ -802,11 +857,12 @@ CREATE TABLE `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`user_id`, `username`, `password`, `email`, `role`, `created_at`, `updated_at`, `remember_token`) VALUES
-(1, 'hr_jiwaraga', '$2y$12$WIVHFZyu8TJYnMWSJo/3Z..t0IIyAbbk4mZ8daCy9SVKcmk9C3z5C', 'jiwaraga@perusahaan.com', 'hr', '2025-04-20 05:00:00', '2025-05-10 20:27:06', 'aruokd3rMkYBnOP0x4dowiF4dw9zAfk5sz2rDNBDFwyfa7JsrmI7VITxai3M'),
-(2, 'cook', '$2y$12$3EqqNgvpwx.97vgLhkv3Q.jxLjCgYKxm2hLhY6pqQE7ZimrS5e0/u', 'cook@perusahaan.com', 'cook', '2025-04-20 05:00:00', '2025-05-25 12:16:03', '5sHGvqtbgFIVSOtzGIO4yHEgtGRUVu5DOkkZUJS1YwhrGI79zCTfDcqEpkt4'),
-(3, 'pastry', '$2y$12$CmjDs5.XIqyWOBo77busku86IE74V1Eg4Jn5TBlADww77Q71QU./m', 'pastry@perusahaan.com', 'pastry', '2025-04-20 05:00:00', '2025-05-08 23:40:59', 'FBB5Fg7HVKmYnvIyq0reutAWrdpVMKQLgOdTGp6s1KfZ5iRioc9swTBQ7nEM'),
-(4, 'fahri', 'ugytfty', 'fahriandikasanjaya@gmail.com', 'hr', '2025-05-23 17:02:57', '2025-05-23 17:02:57', NULL);
+INSERT INTO `user` (`user_id`, `username`, `password`, `role`, `email`, `created_at`, `updated_at`, `remember_token`) VALUES
+(1, 'hr_jiwaraga', '$2y$12$WIVHFZyu8TJYnMWSJo/3Z..t0IIyAbbk4mZ8daCy9SVKcmk9C3z5C', 'admin', 'jiwaraga@perusahaan.com', '2025-04-20 05:00:00', '2025-05-10 20:27:06', 'aruokd3rMkYBnOP0x4dowiF4dw9zAfk5sz2rDNBDFwyfa7JsrmI7VITxai3M'),
+(2, 'cook', '$2y$12$3EqqNgvpwx.97vgLhkv3Q.jxLjCgYKxm2hLhY6pqQE7ZimrS5e0/u', 'cook', 'cook@perusahaan.com', '2025-04-20 05:00:00', '2025-06-02 16:34:35', 'WQxXN1KTZJeiiGMqR1jfhqMYTLsDfKdgdH8UtBnOpZLU0iD5Bne8UXDRKhKI'),
+(3, 'pastry', '$2y$12$CmjDs5.XIqyWOBo77busku86IE74V1Eg4Jn5TBlADww77Q71QU./m', 'pastry', 'pastry@perusahaan.com', '2025-04-20 05:00:00', '2025-06-02 16:28:50', 'PV2jRPeK9B11NOualMtIHoYDCKL32DtOvP3MccGY3ePZzSLy3O3VdZsUSWWH'),
+(4, 'fahri', 'ugytfty', 'admin', 'fahriandikasanjaya@gmail.com', '2025-05-23 17:02:57', '2025-05-23 17:02:57', NULL),
+(5, 'admin', '$2y$12$/apcfmEP4.yyxVaJbiYJQOdApg5ag2vCGuHIr3AFzCOm/EFZEm2Ai', 'admin', 'admin@example.com', '2025-05-25 15:11:01', '2025-06-02 16:30:14', 'EKB9nxaBpjcqt20z8O4zOrCeNE21uak5anSJJT6ein3O6oxBpY3AlJtfdHil');
 
 --
 -- Indexes for dumped tables
@@ -984,13 +1040,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
