@@ -20,25 +20,33 @@
                         <span class="transition-all duration-300">Dashboard</span>
                     </x-nav-link>
 
-                    <x-nav-link :href="route('job.index')" :active="request()->routeIs('job.*')" class="group transition-all duration-300 flex items-center px-3">
-                        <i class="fas fa-briefcase mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
-                        <span class="transition-all duration-300">Jobs</span>
-                    </x-nav-link>
-                    <x-nav-link :href="route('periode.index')" :active="request()->routeIs('periode.*')" class="group transition-all duration-300 flex items-center px-3">
-                        <i class="fas fa-calendar-alt mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
-                        <span class="transition-all duration-300">Periods</span>
-                    </x-nav-link>
-                    <x-nav-link :href="route('criteria.index')" :active="request()->routeIs('criteria.*')" class="group transition-all duration-300 flex items-center px-3">
-                        <i class="fas fa-briefcase mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
-                        <span class="transition-all duration-300">Criteria</span>
-                    </x-nav-link>
                     <x-nav-link :href="route('pelamar.index')" :active="request()->routeIs('pelamar.*')" class="group transition-all duration-300 flex items-center px-3">
                         <i class="fas fa-user-friends mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
                         <span class="transition-all duration-300">Applicants</span>
                     </x-nav-link>
+
+                    <x-nav-link :href="route('interview.index')" :active="request()->routeIs('interview.*')" class="group transition-all duration-300 flex items-center px-3">
+                        <i class="fas fa-comments mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
+                        <span class="transition-all duration-300">Interviews</span>
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('tes-kemampuan.index')" :active="request()->routeIs('tes-kemampuan.*')" class="group transition-all duration-300 flex items-center px-3">
+                        <i class="fas fa-tasks mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
+                        <span class="transition-all duration-300">Skill Tests</span>
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('magang.index')" :active="request()->routeIs('magang.*')" class="group transition-all duration-300 flex items-center px-3">
+                        <i class="fas fa-user-graduate mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
+                        <span class="transition-all duration-300">Internships</span>
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('evaluasi.index')" :active="request()->routeIs('evaluasi.*')" class="group transition-all duration-300 flex items-center px-3">
+                        <i class="fas fa-chart-line mr-1.5 text-gray-400 group-hover:text-indigo-600 transition-all duration-300"></i>
+                        <span class="transition-all duration-300">Evaluations</span>
+                    </x-nav-link>
                     @endif
 
-                    
+
 
                     @if(Auth::user()->role === 'pastry' || Auth::user()->role === 'cook')
                     <x-nav-link :href="route('evaluasi.index')" :active="request()->routeIs('evaluasi.*')" class="group transition-all duration-300 flex items-center px-3">
@@ -58,21 +66,17 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('interview.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
-                                <i class="fas fa-comments mr-2 text-gray-400"></i>
-                                Interviews
+                            <x-dropdown-link :href="route('job.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
+                                <i class="fas fa-briefcase mr-2 text-gray-400"></i>
+                                Jobs
                             </x-dropdown-link>
-                            <x-dropdown-link :href="route('tes-kemampuan.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
-                                <i class="fas fa-tasks mr-2 text-gray-400"></i>
-                                Skill Tests
+                            <x-dropdown-link :href="route('periode.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
+                                <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
+                                Periods
                             </x-dropdown-link>
-                            <x-dropdown-link :href="route('magang.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
-                                <i class="fas fa-user-graduate mr-2 text-gray-400"></i>
-                                Internships
-                            </x-dropdown-link>
-                            <x-dropdown-link :href="route('evaluasi.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
-                                <i class="fas fa-chart-line mr-2 text-gray-400"></i>
-                                Evaluations
+                            <x-dropdown-link :href="route('criteria.index')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
+                                <i class="fas fa-briefcase mr-2 text-gray-400"></i>
+                                Criteria
                             </x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
@@ -104,12 +108,12 @@
                         </div>
 
                         <!-- Profile Link -->
-                        @if(Auth::user()->role === 'admin')
+                        {{-- @if(Auth::user()->role === 'admin')
                         <x-dropdown-link :href="route('dashboard')" class="flex items-center px-4 py-2 text-sm transition-all duration-300 hover:bg-indigo-50">
                             <i class="fas fa-user-cog mr-2 text-gray-400"></i>
                             Profile
                         </x-dropdown-link>
-                        @endif
+                        @endif --}}
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
@@ -145,33 +149,55 @@
                 Dashboard
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('job.index')" :active="request()->routeIs('job.*')" class="flex items-center">
-                <i class="fas fa-briefcase mr-2 w-5 text-indigo-600"></i>
-                Jobs
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('periode.index')" :active="request()->routeIs('periode.*')" class="flex items-center">
-                <i class="fas fa-calendar-alt mr-2 w-5 text-indigo-600"></i>
-                Periods
-            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('pelamar.index')" :active="request()->routeIs('pelamar.*')" class="flex items-center">
                 <i class="fas fa-user-friends mr-2 w-5 text-indigo-600"></i>
                 Applicants
             </x-responsive-nav-link>
+
             <x-responsive-nav-link :href="route('interview.index')" :active="request()->routeIs('interview.*')" class="flex items-center">
                 <i class="fas fa-comments mr-2 w-5 text-indigo-600"></i>
                 Interviews
             </x-responsive-nav-link>
+
             <x-responsive-nav-link :href="route('tes-kemampuan.index')" :active="request()->routeIs('tes-kemampuan.*')" class="flex items-center">
                 <i class="fas fa-tasks mr-2 w-5 text-indigo-600"></i>
                 Skill Tests
             </x-responsive-nav-link>
-            @endif
+
+            <x-responsive-nav-link :href="route('magang.index')" :active="request()->routeIs('magang.*')" class="flex items-center">
+                <i class="fas fa-user-graduate mr-2 w-5 text-indigo-600"></i>
+                Internships
+            </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('evaluasi.index')" :active="request()->routeIs('evaluasi.*')" class="flex items-center">
                 <i class="fas fa-chart-line mr-2 w-5 text-indigo-600"></i>
                 Evaluations
             </x-responsive-nav-link>
+
+            <!-- More menu for responsive -->
+            <div class="pt-2 mt-2 border-t border-gray-200">
+                <div class="px-4 py-1 text-xs uppercase tracking-wider font-semibold text-gray-500">More</div>
+                <x-responsive-nav-link :href="route('job.index')" :active="request()->routeIs('job.*')" class="flex items-center">
+                    <i class="fas fa-briefcase mr-2 w-5 text-indigo-600"></i>
+                    Jobs
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('periode.index')" :active="request()->routeIs('periode.*')" class="flex items-center">
+                    <i class="fas fa-calendar-alt mr-2 w-5 text-indigo-600"></i>
+                    Periods
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('criteria.index')" :active="request()->routeIs('criteria.*')" class="flex items-center">
+                    <i class="fas fa-briefcase mr-2 w-5 text-indigo-600"></i>
+                    Criteria
+                </x-responsive-nav-link>
+            </div>
+            @endif
+
+            @if(Auth::user()->role === 'pastry' || Auth::user()->role === 'cook')
+            <x-responsive-nav-link :href="route('evaluasi.index')" :active="request()->routeIs('evaluasi.*')" class="flex items-center">
+                <i class="fas fa-chart-line mr-2 w-5 text-indigo-600"></i>
+                Evaluations
+            </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
@@ -189,12 +215,12 @@
 
             <div class="mt-3 space-y-1 border-t border-gray-200 pt-2">
                 <!-- Profile Link -->
-                @if(Auth::user()->role === 'admin')
+                {{-- @if(Auth::user()->role === 'admin')
                 <x-responsive-nav-link :href="route('dashboard')" class="flex items-center">
                     <i class="fas fa-user-cog mr-2 w-5 text-indigo-600"></i>
                     Profile
                 </x-responsive-nav-link>
-                @endif
+                @endif --}}
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
