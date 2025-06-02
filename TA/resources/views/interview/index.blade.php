@@ -14,10 +14,49 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Stats Overview -->
             @php
-                $totalInterviews = $interviews->count();
-                $pendingInterviews = $interviews->where('status_seleksi', 'Pending')->count();
-                $failedInterviews = $interviews->where('status_seleksi', 'Tidak Lulus')->count();
-                $passedInterviews = $interviews->where('status_seleksi', 'Tes Kemampuan')->count();
+                // Create a query with the same filters as in the controller
+                $query = App\Models\Interview::query();
+
+                // Apply filters for accurate stats
+                if (request()->filled('periode_id')) {
+                    $query->whereHas('pelamar', function($q) {
+                        $q->where('periode_id', request('periode_id'));
+                    });
+                } else if (!request()->has('periode_id')) {
+                    $latestPeriode = App\Models\Periode::orderBy('tanggal_mulai', 'desc')->first();
+                    if ($latestPeriode) {
+                        $query->whereHas('pelamar', function($q) use ($latestPeriode) {
+                            $q->where('periode_id', $latestPeriode->periode_id);
+                        });
+                    }
+                }
+
+                // Filter by selected jobs
+                if (request()->filled('jobs') && is_array(request('jobs'))) {
+                    $query->whereHas('pelamar', function($q) {
+                        $q->whereIn('job_id', request('jobs'));
+                    });
+                }
+
+                // Filter by search term
+                if (request()->filled('search')) {
+                    $searchTerm = request('search');
+                    $query->whereHas('pelamar', function($q) use ($searchTerm) {
+                        $q->where('nama', 'LIKE', "%{$searchTerm}%");
+                    });
+                }
+
+                // Apply status filters same as the main query, but don't limit stats by status when showing statuses
+                if (request()->filled('statuses') && is_array(request('statuses'))) {
+                    // Don't filter by status for the stats counters
+                    // Stats counters will show full counts for all statuses
+                }
+
+                // Now get the filtered counts for stats
+                $totalInterviews = $query->count();
+                $pendingInterviews = (clone $query)->where('status_seleksi', 'Pending')->count();
+                $failedInterviews = (clone $query)->where('status_seleksi', 'Tidak Lulus')->count();
+                $passedInterviews = (clone $query)->where('status_seleksi', 'Tes Kemampuan')->count();
             @endphp
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -98,6 +137,7 @@
                                                 $sortBy = request('sort_by', 'total_skor');
                                                 $sortDir = request('sort_dir', 'desc');
                                                 $selectedJobs = request('jobs', []);
+                                                $selectedStatuses = request('statuses', []);
                                             @endphp
                                             <option value="" {{ $selectedPeriodeId === '' ? 'selected' : '' }}>All Periods</option>
                                             @foreach(App\Models\Periode::orderBy('tanggal_mulai', 'desc')->get() as $periode)
@@ -169,6 +209,37 @@
                                         @endif
                                     </div>
                                 </div>
+
+                                <!-- Status Filter -->
+                                <div class="transform transition duration-200 hover:-translate-y-1 md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Interview Status</label>
+                                    <div class="grid grid-cols-3 gap-3 p-3 bg-white rounded-md border border-gray-200">
+                                        <div class="flex items-center">
+                                            <input id="status_pending" name="statuses[]" type="checkbox" value="Pending"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                {{ in_array('Pending', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                            <label for="status_pending" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                <i class="fas fa-clock text-yellow-500 mr-1"></i> Pending
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="status_failed" name="statuses[]" type="checkbox" value="Tidak Lulus"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                {{ in_array('Tidak Lulus', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                            <label for="status_failed" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                <i class="fas fa-times-circle text-red-500 mr-1"></i> Failed
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="status_test" name="statuses[]" type="checkbox" value="Tes Kemampuan"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                {{ in_array('Tes Kemampuan', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                            <label for="status_test" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                <i class="fas fa-tasks text-purple-500 mr-1"></i> Skill Test
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Name Search -->
@@ -187,7 +258,7 @@
                                     <i class="fas fa-search mr-2"></i> Apply Filters
                                 </button>
 
-                                @if(request()->has('periode_id') || request()->has('sort_by') || !empty($selectedJobs))
+                                @if(request()->has('periode_id') || request()->has('sort_by') || !empty($selectedJobs) || !empty($selectedStatuses))
                                     <a href="{{ route('interview.index') }}" class="ml-2 inline-flex items-center px-4 py-2 bg-gray-200 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                         <i class="fas fa-undo mr-2"></i> Reset Filters
                                     </a>
