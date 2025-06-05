@@ -20,6 +20,7 @@ use App\Mail\SkillTestPassed;
 use App\Mail\SkillTestFailed;
 use App\Mail\MagangInvitation;
 use App\Mail\ContractDiscussionScheduled;
+use Illuminate\Support\Facades\DB;
 
 class TesKemampuanController extends Controller
 {
@@ -155,94 +156,99 @@ class TesKemampuanController extends Controller
         // Combine date and time into a single datetime field
         $jadwalDateTime = $request->jadwal_tanggal . ' ' . $request->jadwal_waktu . ':00';
 
-        // Generate a unique ID using a more robust approach
+        // Start a database transaction
+        DB::beginTransaction();
+
         try {
-            // Find the highest ID numerically by extracting the number part
-            $maxId = TesKemampuan::selectRaw('CAST(SUBSTRING(tes_id, 4) AS UNSIGNED) as id_num')
-                ->orderBy('id_num', 'desc')
-                ->first();
-
-            $nextId = $maxId ? $maxId->id_num + 1 : 1;
-            $tesId = 'TES' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
-
-            // Double-check that this ID doesn't already exist
-            while (TesKemampuan::where('tes_id', $tesId)->exists()) {
-                $nextId++;
-                $tesId = 'TES' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
-            }
-        } catch (\Exception $e) {
-            // Fallback to a UUID-based approach if there's an issue
-            $tesId = 'TES' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
-
-            // Ensure this UUID-based ID is unique
-            while (TesKemampuan::where('tes_id', $tesId)->exists()) {
-                $tesId = 'TES' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
-            }
-        }
-
-        // Get the pelamar's job and find appropriate criteria if not provided
-        $pelamar = Pelamar::with('job')->findOrFail($request->pelamar_id);
-
-        // If no criteria ID is provided, try to find the default one for this job
-        $criteriaId = $request->criteria_id;
-
-        if (!$criteriaId && $pelamar->job_id) {
-            $defaultCriteria = TesKemampuanCriteria::where('job_id', $pelamar->job_id)
-                ->where('name', 'Kemampuan Teknis')
-                ->first();
-
-            if ($defaultCriteria) {
-                $criteriaId = $defaultCriteria->criteria_id;
-            }
-        }
-
-        $tesKemampuan = new TesKemampuan();
-        $tesKemampuan->tes_id = $tesId;
-        $tesKemampuan->pelamar_id = $request->pelamar_id;
-        $tesKemampuan->user_id = $request->user_id;
-        $tesKemampuan->skor = $request->skor;
-        $tesKemampuan->catatan = $request->catatan;
-        $tesKemampuan->jadwal = $jadwalDateTime;
-        $tesKemampuan->status_seleksi = $request->status_seleksi;
-        $tesKemampuan->criteria_id = $criteriaId;
-        $tesKemampuan->save();
-
-        // Update the pelamar status to "Tes Kemampuan"
-        $pelamar->status_seleksi = 'Tes Kemampuan';
-        $pelamar->save();
-
-        if ($request->has('update_interview_status') && $request->update_interview_status === 'yes') {
-            // Find and update the interview for this applicant
-            $interview = Interview::where('pelamar_id', $request->pelamar_id)->first();
-            if ($interview) {
-                $interview->status_seleksi = 'Tes Kemampuan';
-                $interview->save();
-            }
-        }
-
-        // Send email notification if requested
-        $successMessage = 'Skill test scheduled successfully';
-
-        if ($request->has('send_email') && $request->send_email == '1') {
-            $pelamar = Pelamar::findOrFail($request->pelamar_id);
-
-            $emailSent = true;
+            // Generate a unique ID using a more robust approach
             try {
-                Mail::to($pelamar->email)->send(new SkillTestScheduled($pelamar, $tesKemampuan));
+                // Find the highest ID numerically by extracting the number part
+                $maxId = TesKemampuan::selectRaw('CAST(SUBSTRING(tes_id, 4) AS UNSIGNED) as id_num')
+                    ->orderBy('id_num', 'desc')
+                    ->first();
+
+                $nextId = $maxId ? $maxId->id_num + 1 : 1;
+                $tesId = 'TES' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+
+                // Double-check that this ID doesn't already exist
+                while (TesKemampuan::where('tes_id', $tesId)->exists()) {
+                    $nextId++;
+                    $tesId = 'TES' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+                }
             } catch (\Exception $e) {
-                Log::error('Failed to send skill test email: ' . $e->getMessage());
-                $emailSent = false;
+                // Fallback to a UUID-based approach if there's an issue
+                $tesId = 'TES' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+
+                // Ensure this UUID-based ID is unique
+                while (TesKemampuan::where('tes_id', $tesId)->exists()) {
+                    $tesId = 'TES' . substr(str_replace('-', '', Str::uuid()->toString()), 0, 7);
+                }
             }
 
-            if ($emailSent) {
+            // Get the pelamar's job and find appropriate criteria if not provided
+            $pelamar = Pelamar::with('job')->findOrFail($request->pelamar_id);
+
+            // If no criteria ID is provided, try to find the default one for this job
+            $criteriaId = $request->criteria_id;
+
+            if (!$criteriaId && $pelamar->job_id) {
+                $defaultCriteria = TesKemampuanCriteria::where('job_id', $pelamar->job_id)
+                    ->where('name', 'Kemampuan Teknis')
+                    ->first();
+
+                if ($defaultCriteria) {
+                    $criteriaId = $defaultCriteria->criteria_id;
+                }
+            }
+
+            $tesKemampuan = new TesKemampuan();
+            $tesKemampuan->tes_id = $tesId;
+            $tesKemampuan->pelamar_id = $request->pelamar_id;
+            $tesKemampuan->user_id = $request->user_id;
+            $tesKemampuan->skor = $request->skor;
+            $tesKemampuan->catatan = $request->catatan;
+            $tesKemampuan->jadwal = $jadwalDateTime;
+            $tesKemampuan->status_seleksi = $request->status_seleksi;
+            $tesKemampuan->criteria_id = $criteriaId;
+            $tesKemampuan->save();
+
+            // Update the pelamar status to "Tes Kemampuan"
+            $pelamar->status_seleksi = 'Tes Kemampuan';
+            $pelamar->save();
+
+            if ($request->has('update_interview_status') && $request->update_interview_status === 'yes') {
+                // Find and update the interview for this applicant
+                $interview = Interview::where('pelamar_id', $request->pelamar_id)->first();
+                if ($interview) {
+                    $interview->status_seleksi = 'Tes Kemampuan';
+                    $interview->save();
+                }
+            }
+
+            // Send email notification if requested
+            $successMessage = 'Skill test scheduled successfully';
+
+            if ($request->has('send_email') && $request->send_email == '1') {
+                // Send email within the transaction
+                Mail::to($pelamar->email)->send(new SkillTestScheduled($pelamar, $tesKemampuan));
                 $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
-            } else {
-                $successMessage .= '. Email notification could not be sent.';
             }
-        }
 
-        return redirect()->route('interview.index')
-            ->with('success', $successMessage);
+            // If everything is successful, commit the transaction
+            DB::commit();
+
+            return redirect()->route('interview.index')
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            // If anything fails, rollback the transaction
+            DB::rollBack();
+
+            Log::error('Failed to create skill test: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error creating skill test: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     public function show(TesKemampuan $tesKemampuan)
@@ -351,133 +357,136 @@ class TesKemampuanController extends Controller
             'rating_scale' => $request->rating_scale
         ]);
 
-        $tesKemampuan->pelamar_id = $request->pelamar_id;
-        $tesKemampuan->user_id = $request->user_id;
-        $tesKemampuan->catatan = $request->catatan;
-        $tesKemampuan->jadwal = $request->jadwal;
+        // Start a database transaction
+        DB::beginTransaction();
 
-        // Update criteria ID if provided
-        if ($request->filled('criteria_id')) {
-            $tesKemampuan->criteria_id = $request->criteria_id;
-        }
+        try {
+            $tesKemampuan->pelamar_id = $request->pelamar_id;
+            $tesKemampuan->user_id = $request->user_id;
+            $tesKemampuan->catatan = $request->catatan;
+            $tesKemampuan->jadwal = $request->jadwal;
 
-        // Directly update the score from the input
-        $tesKemampuan->skor = $request->skor;
-
-        // If a rating scale is selected, validate the score is within the range
-        if ($request->filled('rating_scale')) {
-            $ratingScale = TesKemampuanRatingScale::findOrFail($request->rating_scale);
-
-            // Validate score is within the rating scale range
-            if ($request->skor < $ratingScale->min_score || $request->skor > $ratingScale->max_score) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['skor' => "Score must be between {$ratingScale->min_score} and {$ratingScale->max_score} for the selected rating scale"]);
+            // Update criteria ID if provided
+            if ($request->filled('criteria_id')) {
+                $tesKemampuan->criteria_id = $request->criteria_id;
             }
-        }
 
-        // Jangan ubah status jika tidak perlu
-        if ($request->filled('status_seleksi')) {
-            $tesKemampuan->status_seleksi = $request->status_seleksi;
-        }
+            // Directly update the score from the input
+            $tesKemampuan->skor = $request->skor;
 
-        // Log before save
-        \Illuminate\Support\Facades\Log::info('Before saving TesKemampuan:', [
-            'tes_id' => $tesKemampuan->tes_id,
-            'skor' => $tesKemampuan->skor,
-            'criteria_id' => $tesKemampuan->criteria_id
-        ]);
+            // If a rating scale is selected, validate the score is within the range
+            if ($request->filled('rating_scale')) {
+                $ratingScale = TesKemampuanRatingScale::findOrFail($request->rating_scale);
 
-        $saved = $tesKemampuan->save();
-
-        // Log after save
-        \Illuminate\Support\Facades\Log::info('After saving TesKemampuan:', [
-            'tes_id' => $tesKemampuan->tes_id,
-            'skor' => $tesKemampuan->skor,
-            'criteria_id' => $tesKemampuan->criteria_id,
-            'saved' => $saved
-        ]);
-
-        // If status is changed to Magang, create/update Magang record
-        if ($request->filled('status_seleksi') && $request->status_seleksi === 'Magang') {
-            $pelamar = Pelamar::findOrFail($request->pelamar_id);
-
-            // Create or update the Magang record
-            $magang = Magang::firstOrNew(['pelamar_id' => $pelamar->pelamar_id]);
-
-            // Only set these values if it's a new record
-            if (!$magang->exists) {
-                // Generate a unique ID for new magang records
-                $lastMagang = Magang::orderBy('magang_id', 'desc')->first();
-
-                if ($lastMagang) {
-                    // Extract the numeric part and increment
-                    $lastId = intval(substr($lastMagang->magang_id, 3));
-                    $newId = 'MAG' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
-                } else {
-                    // If no existing magang, start with MAG001
-                    $newId = 'MAG001';
-                }
-
-                $magang->magang_id = $newId;
-                $magang->user_id = $request->user_id;
-                $magang->status_seleksi = 'Sedang Berjalan';
-
-                // Set default start date to today if not provided
-                if (!$magang->jadwal_mulai) {
-                    $magang->jadwal_mulai = now();
+                // Validate score is within the rating scale range
+                if ($request->skor < $ratingScale->min_score || $request->skor > $ratingScale->max_score) {
+                    DB::rollBack();
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors(['skor' => "Score must be between {$ratingScale->min_score} and {$ratingScale->max_score} for the selected rating scale"]);
                 }
             }
 
-            $magang->save();
-
-            // Update pelamar status
-            $pelamar->status_seleksi = 'Sedang Berjalan';
-            $pelamar->save();
-
-            // Determine which email to send based on test status
-            $emailType = null;
-            $emailSent = false;
-
-            if ($tesKemampuan->status_seleksi === 'Lulus' || $tesKemampuan->status_seleksi === 'Magang') {
-                $emailType = 'passed';
-                try {
-                    Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan, $magang));
-                    $emailSent = true;
-                } catch (\Exception $e) {
-                    Log::error('Failed to send test passed email: ' . $e->getMessage());
-                }
-            } elseif ($tesKemampuan->status_seleksi === 'Tidak Lulus') {
-                $emailType = 'failed';
-                try {
-                    Mail::to($pelamar->email)->send(new SkillTestFailed($pelamar, $tesKemampuan));
-                    $emailSent = true;
-                } catch (\Exception $e) {
-                    Log::error('Failed to send test failed email: ' . $e->getMessage());
-                }
+            // Jangan ubah status jika tidak perlu
+            if ($request->filled('status_seleksi')) {
+                $tesKemampuan->status_seleksi = $request->status_seleksi;
             }
 
-            if ($request->has('redirect') && $request->redirect === 'show') {
-                $successMessage = 'Test status updated successfully';
+            // Log before save
+            \Illuminate\Support\Facades\Log::info('Before saving TesKemampuan:', [
+                'tes_id' => $tesKemampuan->tes_id,
+                'skor' => $tesKemampuan->skor,
+                'criteria_id' => $tesKemampuan->criteria_id
+            ]);
 
-                if ($emailType) {
-                    if ($emailSent) {
-                        $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+            $saved = $tesKemampuan->save();
+
+            // Log after save
+            \Illuminate\Support\Facades\Log::info('After saving TesKemampuan:', [
+                'tes_id' => $tesKemampuan->tes_id,
+                'skor' => $tesKemampuan->skor,
+                'criteria_id' => $tesKemampuan->criteria_id,
+                'saved' => $saved
+            ]);
+
+            // If status is changed to Magang, create/update Magang record
+            if ($request->filled('status_seleksi') && $request->status_seleksi === 'Magang') {
+                $pelamar = Pelamar::findOrFail($request->pelamar_id);
+
+                // Create or update the Magang record
+                $magang = Magang::firstOrNew(['pelamar_id' => $pelamar->pelamar_id]);
+
+                // Only set these values if it's a new record
+                if (!$magang->exists) {
+                    // Generate a unique ID for new magang records
+                    $lastMagang = Magang::orderBy('magang_id', 'desc')->first();
+
+                    if ($lastMagang) {
+                        // Extract the numeric part and increment
+                        $lastId = intval(substr($lastMagang->magang_id, 3));
+                        $newId = 'MAG' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
                     } else {
-                        $successMessage .= '. Email notification could not be sent.';
+                        // If no existing magang, start with MAG001
+                        $newId = 'MAG001';
+                    }
+
+                    $magang->magang_id = $newId;
+                    $magang->user_id = $request->user_id;
+                    $magang->status_seleksi = 'Sedang Berjalan';
+
+                    // Set default start date to today if not provided
+                    if (!$magang->jadwal_mulai) {
+                        $magang->jadwal_mulai = now();
                     }
                 }
 
-                return redirect()->route('tes-kemampuan.show', $tesKemampuan)->with('success', $successMessage);
+                $magang->save();
+
+                // Update pelamar status
+                $pelamar->status_seleksi = 'Sedang Berjalan';
+                $pelamar->save();
+
+                // Determine which email to send based on test status
+                $successMessage = 'Test status updated successfully';
+
+                if ($tesKemampuan->status_seleksi === 'Lulus' || $tesKemampuan->status_seleksi === 'Magang') {
+                    Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan, $magang));
+                    $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+                } elseif ($tesKemampuan->status_seleksi === 'Tidak Lulus') {
+                    Mail::to($pelamar->email)->send(new SkillTestFailed($pelamar, $tesKemampuan));
+                    $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+                }
+
+                // Commit the transaction
+                DB::commit();
+
+                if ($request->has('redirect') && $request->redirect === 'show') {
+                    return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                        ->with('success', $successMessage);
+                }
+            } else {
+                // Commit the transaction
+                DB::commit();
             }
-        }
 
-        // Check if we were redirected from the show page
-        if ($request->has('redirect') && $request->redirect === 'show') {
-            return redirect()->route('tes-kemampuan.show', $tesKemampuan)->with('success', 'Test status updated successfully');
-        }
+            // Check if we were redirected from the show page
+            if ($request->has('redirect') && $request->redirect === 'show') {
+                return redirect()->route('tes-kemampuan.show', $tesKemampuan)
+                    ->with('success', 'Test status updated successfully');
+            }
 
-        return redirect()->route('tes-kemampuan.index')->with('success', 'Tes Kemampuan updated successfully');
+            return redirect()->route('tes-kemampuan.index')
+                ->with('success', 'Tes Kemampuan updated successfully');
+
+        } catch (\Exception $e) {
+            // If anything fails, rollback the transaction
+            DB::rollBack();
+
+            Log::error('Failed to update skill test: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error updating skill test: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     public function destroy(TesKemampuan $tesKemampuan)
@@ -589,38 +598,35 @@ class TesKemampuanController extends Controller
     public function markAsFailed(TesKemampuan $tesKemampuan)
     {
         try {
+            // Start a database transaction
+            DB::beginTransaction();
+
             // Update the test status
             $tesKemampuan->status_seleksi = 'Tidak Lulus';
             $tesKemampuan->save();
-
 
             $pelamar = $tesKemampuan->pelamar;
             $pelamar->status_seleksi = 'Selesai';
             $pelamar->save();
 
-            // Send email notification
-            $pelamar = $tesKemampuan->pelamar;
-            $emailSent = true;
+            // Send email notification within the transaction
+            Mail::to($pelamar->email)->send(new SkillTestFailed($pelamar, $tesKemampuan));
 
-            try {
-                Mail::to($pelamar->email)->send(new SkillTestFailed($pelamar, $tesKemampuan));
-            } catch (\Exception $e) {
-                Log::error('Failed to send skill test result email: ' . $e->getMessage());
-                $emailSent = false;
-            }
-
+            // Prepare success message
             $successMessage = 'Test status has been updated to Failed';
+            $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
 
-            if ($emailSent) {
-                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
-            } else {
-                $successMessage .= '. Email notification could not be sent.';
-            }
+            // If everything is successful, commit the transaction
+            DB::commit();
 
             return redirect()->route('tes-kemampuan.show', $tesKemampuan)
                 ->with('success', $successMessage);
 
         } catch (\Exception $e) {
+            // If anything fails, rollback the transaction
+            DB::rollBack();
+
+            Log::error('Failed to update test status: ' . $e->getMessage());
             return redirect()->route('tes-kemampuan.show', $tesKemampuan)
                 ->with('error', 'Failed to update test status: ' . $e->getMessage());
         }
@@ -681,38 +687,35 @@ class TesKemampuanController extends Controller
     public function markAsPassed(TesKemampuan $tesKemampuan)
     {
         try {
+            // Start a database transaction
+            DB::beginTransaction();
+
             // Update the test status
             $tesKemampuan->status_seleksi = 'Lulus';
             $tesKemampuan->save();
-
 
             $pelamar = $tesKemampuan->pelamar;
             $pelamar->status_seleksi = 'Selesai';
             $pelamar->save();
 
-            // Send email notification
-            $pelamar = $tesKemampuan->pelamar;
-            $emailSent = true;
+            // Send email notification within the transaction
+            Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan, null));
 
-            try {
-                Mail::to($pelamar->email)->send(new SkillTestPassed($pelamar, $tesKemampuan, null));
-            } catch (\Exception $e) {
-                Log::error('Failed to send skill test passed email: ' . $e->getMessage());
-                $emailSent = false;
-            }
-
+            // Prepare success message
             $successMessage = 'Test status has been updated to Passed';
+            $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
 
-            if ($emailSent) {
-                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
-            } else {
-                $successMessage .= '. Email notification could not be sent.';
-            }
+            // If everything is successful, commit the transaction
+            DB::commit();
 
             return redirect()->route('tes-kemampuan.show', $tesKemampuan)
                 ->with('success', $successMessage);
 
         } catch (\Exception $e) {
+            // If anything fails, rollback the transaction
+            DB::rollBack();
+
+            Log::error('Failed to update test status: ' . $e->getMessage());
             return redirect()->route('tes-kemampuan.show', $tesKemampuan)
                 ->with('error', 'Failed to update test status: ' . $e->getMessage());
         }
@@ -733,6 +736,9 @@ class TesKemampuanController extends Controller
         ]);
 
         try {
+            // Start a database transaction
+            DB::beginTransaction();
+
             // Update test status to Passed
             $tesKemampuan->status_seleksi = 'Lulus';
             $tesKemampuan->save();
@@ -747,29 +753,24 @@ class TesKemampuanController extends Controller
                 $request->discussion_date . ' ' . $request->discussion_time . ':00'
             );
 
-            // Send email notification
-            $pelamar = $tesKemampuan->pelamar;
-            $emailSent = true;
+            // Send email notification within the transaction
+            Mail::to($pelamar->email)->send(new ContractDiscussionScheduled($pelamar, $tesKemampuan, $discussionDateTime));
 
-            try {
-                Mail::to($pelamar->email)->send(new ContractDiscussionScheduled($pelamar, $tesKemampuan, $discussionDateTime));
-            } catch (\Exception $e) {
-                Log::error('Failed to send contract discussion email: ' . $e->getMessage());
-                $emailSent = false;
-            }
-
+            // Prepare success message
             $successMessage = 'Test status updated to Passed and contract discussion scheduled for ' . $discussionDateTime->format('d F Y H:i');
+            $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
 
-            if ($emailSent) {
-                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
-            } else {
-                $successMessage .= '. Email notification could not be sent.';
-            }
+            // If everything is successful, commit the transaction
+            DB::commit();
 
             return redirect()->route('tes-kemampuan.show', $tesKemampuan)
                 ->with('success', $successMessage);
 
         } catch (\Exception $e) {
+            // If anything fails, rollback the transaction
+            DB::rollBack();
+
+            Log::error('Failed to schedule contract discussion: ' . $e->getMessage());
             return redirect()->route('tes-kemampuan.show', $tesKemampuan)
                 ->with('error', 'Failed to schedule contract discussion: ' . $e->getMessage());
         }
