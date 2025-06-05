@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
-                <i class="fas fa-vial text-purple-600 mr-2"></i> {{ __('Skill Test Details') }}
+                <i class="fas fa-tasks text-purple-600 mr-2"></i> {{ __('Skill Test Details') }}
             </h2>
             <div>
                 @php

@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
-                <i class="fas fa-vial text-indigo-600 mr-2"></i> {{ __('Skill Test Management') }}
+                <i class="fas fa-tasks text-indigo-600 mr-2"></i> {{ __('Skill Test Management') }}
             </h2>
             {{-- <a href="{{ route('tes-kemampuan.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-600 hover:to-purple-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
-                <i class="fas fa-vial mr-2"></i> Schedule New Test
+                <i class="fas fa-tasks mr-2"></i> Schedule New Test
             </a> --}}
         </div>
     </x-slot>
@@ -61,7 +61,7 @@
                 <!-- Total Tests -->
                 <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-lg shadow-sm p-4 flex items-center transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                     <div class="rounded-full h-12 w-12 flex items-center justify-center bg-purple-100 text-purple-600 mr-4">
-                        <i class="fas fa-vial text-xl"></i>
+                        <i class="fas fa-tasks text-xl"></i>
                     </div>
                     <div>
                         <p class="text-gray-500 text-sm">Total Tests</p>

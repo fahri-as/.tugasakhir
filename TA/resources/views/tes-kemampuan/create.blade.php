@@ -1,7 +1,7 @@
-<x-crud-layout title="Schedule New Skill Test" icon="fa-vial">
+<x-crud-layout title="Schedule New Skill Test" icon="fa-tasks">
     <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg border border-purple-100 shadow-sm">
         <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
-            <i class="fas fa-vial text-purple-600 mr-2"></i> Skill Test Details
+            <i class="fas fa-tasks text-purple-600 mr-2"></i> Skill Test Details
         </h3>
 
         <form action="{{ route('tes-kemampuan.store') }}" method="POST" class="space-y-6">
