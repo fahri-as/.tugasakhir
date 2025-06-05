@@ -92,7 +92,7 @@
                         <i class="fas fa-tasks text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-gray-500 text-sm">Skill Test</p>
+                        <p class="text-gray-500 text-sm">In Skill Test</p>
                         <p class="text-2xl font-semibold text-gray-800">{{ $tesKemampuanApplicants }}</p>
                     </div>
                 </div>
