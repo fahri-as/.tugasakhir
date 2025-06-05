@@ -450,42 +450,59 @@ public function index(Request $request)
         // Calculate total score as average of the three scores
         $interview->total_skor = ($interview->kualifikasi_skor + $interview->komunikasi_skor + $interview->sikap_skor) / 3;
 
-        $interview->save();
-
-        // Check if we should update the applicant's status
-        if ($request->has('pelamar_status')) {
-            $pelamar = Pelamar::findOrFail($request->pelamar_id);
-            $pelamar->status_seleksi = $request->pelamar_status;
-            $pelamar->save();
-        }
-
         // Check if email notification should be sent for failed interviews
         if ($request->has('send_email') && $request->send_email == '1' && $request->status_seleksi == 'Tidak Lulus') {
             $pelamar = Pelamar::findOrFail($request->pelamar_id);
 
-            $emailSent = true;
             try {
+                // Use database transaction to ensure data update and email sending succeed or fail together
+                DB::beginTransaction();
+
+                // Save the interview update
+                $interview->save();
+
+                // Check if we should update the applicant's status
+                if ($request->has('pelamar_status')) {
+                    $pelamar->status_seleksi = $request->pelamar_status;
+                    $pelamar->save();
+                }
+
+                // Send the email within the transaction
                 Mail::to($pelamar->email)->send(new InterviewFailed($pelamar, $interview));
-            } catch (\Exception $e) {
-                Log::error('Failed to send interview failed email: ' . $e->getMessage());
-                $emailSent = false;
-            }
 
-            // Customize the success message
-            $redirectPath = $request->has('redirect') && $request->redirect === 'show'
-                          ? route('interview.show', $interview)
-                          : route('interview.index');
+                // If all operations succeed, commit the transaction
+                DB::commit();
 
-            if ($emailSent) {
+                // Customize the success message
+                $redirectPath = $request->has('redirect') && $request->redirect === 'show'
+                            ? route('interview.show', $interview)
+                            : route('interview.show', $interview);
+
                 return redirect($redirectPath)
                     ->with('success', 'Interview updated successfully. Email notification has been sent to ' . $pelamar->email);
-            } else {
-                return redirect($redirectPath)
-                    ->with('success', 'Interview updated successfully. Email notification could not be sent.');
-            }
-        }
 
-        return redirect()->route('interview.index')->with('success', 'Interview updated successfully');
+            } catch (\Exception $e) {
+                // If anything fails, rollback the transaction
+                DB::rollBack();
+
+                Log::error('Failed to update interview and send email: ' . $e->getMessage());
+
+                return redirect()->back()->with('error',
+                    'Failed to update interview. Please try again later. Error: ' . $e->getMessage());
+            }
+        } else {
+            // No email to send, just update the data
+            $interview->save();
+
+            // Check if we should update the applicant's status
+            if ($request->has('pelamar_status')) {
+                $pelamar = Pelamar::findOrFail($request->pelamar_id);
+                $pelamar->status_seleksi = $request->pelamar_status;
+                $pelamar->save();
+            }
+
+            return redirect()->route('interview.show', $interview)->with('success', 'Interview updated successfully');
+        }
     }
 
     public function destroy(Interview $interview)
