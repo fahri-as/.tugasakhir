@@ -18,7 +18,8 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100">
             <div class="transform hover:scale-105 transition-transform duration-300">
                 <a href="/" class="flex items-center justify-center">
-                    <x-application-logo class="w-24 h-24 fill-current text-gray-600" />
+                    {{-- <x-application-logo class="w-24 h-24 fill-current text-gray-600" />
+                    <span class="ml-2 font-bold text-gray-800 text-lg">JIWARAGA</span> --}}
                 </a>
             </div>
 

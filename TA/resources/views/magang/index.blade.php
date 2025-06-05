@@ -196,6 +196,14 @@
                                                     <i class="fas fa-check-circle text-purple-500 mr-1"></i> Completed
                                                 </label>
                                             </div>
+                                            <div class="flex items-center">
+                                                <input id="status_rejected" name="statuses[]" type="checkbox" value="Tidak Lulus"
+                                                    class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                    {{ in_array('Tidak Lulus', (array)$selectedStatuses) ? 'checked' : '' }}>
+                                                <label for="status_rejected" class="ml-2 text-sm font-medium text-gray-700 flex items-center">
+                                                    <i class="fas fa-times-circle text-red-500 mr-1"></i> Rejected
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
