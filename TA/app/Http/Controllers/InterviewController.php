@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\InterviewScheduled;
 use App\Mail\InterviewFailed;
+use Illuminate\Support\Facades\DB;
 
 class InterviewController extends Controller
 {
@@ -198,35 +199,40 @@ public function index(Request $request)
 
         $interview->status_seleksi = 'Pending'; // Default status
 
-        $interview->save();
-
-        // Update the pelamar status to Interview
-        // Use findOrFail to get a single model, not a collection
-        $pelamar = Pelamar::findOrFail($request->pelamar_id);
-        $pelamar->status_seleksi = 'Interview';
-        $pelamar->save();
-
-        // Send email notification to the applicant
-        $emailSent = true;
+        // Use database transaction to ensure both operations succeed or fail together
         try {
+            DB::beginTransaction();
+
+            // First save the interview
+            $interview->save();
+
+            // Update the pelamar status to Interview
+            $pelamar->status_seleksi = 'Interview';
+            $pelamar->save();
+
+            // Then try to send the email
             Mail::to($pelamar->email)->send(new InterviewScheduled($pelamar, $interview));
+
+            // If everything is successful, commit the transaction
+            DB::commit();
+
+            $successMessage = 'Interview scheduled successfully for ' . $pelamar->nama . ' on ' .
+                   date('d F Y', strtotime($request->jadwal_tanggal)) . ' at ' .
+                   date('H:i', strtotime($request->jadwal_waktu)) .
+                   '. Email notification has been sent to ' . $pelamar->email;
+
+            return redirect()->route('pelamar.show', $request->pelamar_id)
+                ->with('success', $successMessage);
+
         } catch (\Exception $e) {
-            Log::error('Failed to send interview email: ' . $e->getMessage());
-            $emailSent = false;
+            // If anything fails, rollback the transaction
+            DB::rollBack();
+
+            Log::error('Failed to schedule interview: ' . $e->getMessage());
+
+            return redirect()->back()->with('error',
+                'Failed to schedule interview. Please try again later. Error: ' . $e->getMessage());
         }
-
-        $successMessage = 'Interview scheduled successfully for ' . $pelamar->nama . ' on ' .
-               date('d F Y', strtotime($request->jadwal_tanggal)) . ' at ' .
-               date('H:i', strtotime($request->jadwal_waktu));
-
-        if ($emailSent) {
-            $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
-        } else {
-            $successMessage .= '. Email notification could not be sent.';
-        }
-
-        return redirect()->route('pelamar.show', $request->pelamar_id)
-            ->with('success', $successMessage);
     }
 
     public function store(Request $request)
