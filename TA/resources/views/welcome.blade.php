@@ -250,7 +250,7 @@
                 z-index: 10;
                 text-align: center;
                 max-width: 1200px;
-                padding: 0 2rem;
+                padding: 2rem 2rem 0;
                 animation: heroFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
@@ -273,6 +273,7 @@
                 border: 1px solid rgba(249, 115, 22, 0.2);
                 padding: 0.5rem 1.5rem;
                 border-radius: 50px;
+                margin-top: 1rem;
                 margin-bottom: 2rem;
                 animation: pulse 3s ease-in-out infinite;
             }
@@ -379,6 +380,7 @@
                 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
                 gap: 2rem;
                 margin-top: 4rem;
+                margin-bottom: 3rem;
                 perspective: 1000px;
             }
 
