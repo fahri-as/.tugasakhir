@@ -7,7 +7,7 @@
             <div>
                 @if($interview->status_seleksi !== 'Tes Kemampuan')
                     <button id="scheduleTestBtn" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md {{ $interview->status_seleksi === 'Tes Kemampuan' ? 'hidden' : '' }}">
-                        <i class="fas fa-vial mr-2"></i> Schedule Skill Test
+                        <i class="fas fa-tasks mr-2"></i> Schedule Skill Test
                     </button>
                     @if($interview->status_seleksi === 'Tidak Lulus')
                         <form action="{{ route('interview.update', $interview) }}" method="POST" class="inline" id="resetForm">
@@ -305,7 +305,7 @@
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div class="mt-3 text-center">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center justify-center">
-                    <i class="fas fa-vial text-indigo-500 mr-2"></i> Schedule Skill Test
+                    <i class="fas fa-tasks text-indigo-500 mr-2"></i> Schedule Skill Test
                 </h3>
                 <div class="mt-2 px-7 py-3">
                     <form id="skillTestForm" action="{{ route('tes-kemampuan.store') }}" method="POST">

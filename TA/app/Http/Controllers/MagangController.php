@@ -293,32 +293,27 @@ class MagangController extends Controller
                 }
             }
 
-            // Send email notification if requested
+            // Prepare success message
             $successMessage = 'Internship scheduled successfully. Weekly evaluations have been created.';
 
+            // Send email notification if requested
             if ($request->has('send_email') && $request->send_email == '1') {
-                $emailSent = true;
-                try {
-                    Mail::to($pelamar->email)->send(new InternshipScheduled($pelamar, $magang, $tesKemampuan));
-                } catch (\Exception $e) {
-                    Log::error('Failed to send internship schedule email: ' . $e->getMessage());
-                    $emailSent = false;
-                }
-
-                if ($emailSent) {
-                    $successMessage .= ' Email notification has been sent to ' . $pelamar->email;
-                } else {
-                    $successMessage .= ' Email notification could not be sent.';
-                }
+                // Send the email (this will throw an exception if it fails)
+                Mail::to($pelamar->email)->send(new InternshipScheduled($pelamar, $magang, $tesKemampuan));
+                $successMessage .= ' Email notification has been sent to ' . $pelamar->email;
             }
 
+            // If everything is successful, commit the transaction
             DB::commit();
 
             return redirect()->route('tes-kemampuan.show', $tesKemampuan)
                 ->with('success', $successMessage);
 
         } catch (\Exception $e) {
+            // If anything fails, rollback the transaction
             DB::rollBack();
+
+            Log::error('Error scheduling internship: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Error scheduling internship: ' . $e->getMessage());
         }
@@ -956,6 +951,9 @@ class MagangController extends Controller
     public function markAsPassed(Request $request, Magang $magang)
     {
         try {
+            // Start database transaction
+            DB::beginTransaction();
+
             // Update the internship status
             $magang->status_seleksi = 'Lulus';
             $magang->save();
@@ -974,32 +972,29 @@ class MagangController extends Controller
                 );
             }
 
-            // Send email notification
-            $emailSent = true;
+            // Send email notification within the transaction
+            Mail::to($pelamar->email)->send(new InternshipPassed($pelamar, $magang, $discussionDateTime));
 
-            try {
-                Mail::to($pelamar->email)->send(new InternshipPassed($pelamar, $magang, $discussionDateTime));
-            } catch (\Exception $e) {
-                Log::error('Failed to send internship passed email: ' . $e->getMessage());
-                $emailSent = false;
-            }
-
+            // Prepare success message
             $successMessage = 'Internship status has been updated to Passed';
 
             if ($discussionDateTime) {
                 $successMessage .= ' and contract discussion scheduled for ' . $discussionDateTime->format('d F Y H:i');
             }
 
-            if ($emailSent) {
-                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
-            } else {
-                $successMessage .= '. Email notification could not be sent.';
-            }
+            $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
+
+            // If everything is successful, commit the transaction
+            DB::commit();
 
             return redirect()->route('magang.show', $magang)
                 ->with('success', $successMessage);
 
         } catch (\Exception $e) {
+            // If anything fails, rollback the transaction
+            DB::rollBack();
+
+            Log::error('Failed to update internship status: ' . $e->getMessage());
             return redirect()->route('magang.show', $magang)
                 ->with('error', 'Failed to update internship status: ' . $e->getMessage());
         }
@@ -1014,6 +1009,9 @@ class MagangController extends Controller
     public function markAsFailed(Magang $magang)
     {
         try {
+            // Start database transaction
+            DB::beginTransaction();
+
             // Update the internship status
             $magang->status_seleksi = 'Tidak Lulus';
             $magang->save();
@@ -1023,28 +1021,24 @@ class MagangController extends Controller
             $pelamar->status_seleksi = 'Selesai';
             $pelamar->save();
 
-            // Send email notification
-            $emailSent = true;
+            // Send email notification within the transaction
+            Mail::to($pelamar->email)->send(new InternshipFailed($pelamar, $magang));
 
-            try {
-                Mail::to($pelamar->email)->send(new InternshipFailed($pelamar, $magang));
-            } catch (\Exception $e) {
-                Log::error('Failed to send internship failed email: ' . $e->getMessage());
-                $emailSent = false;
-            }
-
+            // Prepare success message
             $successMessage = 'Internship status has been updated to Failed';
+            $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
 
-            if ($emailSent) {
-                $successMessage .= '. Email notification has been sent to ' . $pelamar->email;
-            } else {
-                $successMessage .= '. Email notification could not be sent.';
-            }
+            // If everything is successful, commit the transaction
+            DB::commit();
 
             return redirect()->route('magang.show', $magang)
                 ->with('success', $successMessage);
 
         } catch (\Exception $e) {
+            // If anything fails, rollback the transaction
+            DB::rollBack();
+
+            Log::error('Failed to update internship status: ' . $e->getMessage());
             return redirect()->route('magang.show', $magang)
                 ->with('error', 'Failed to update internship status: ' . $e->getMessage());
         }
