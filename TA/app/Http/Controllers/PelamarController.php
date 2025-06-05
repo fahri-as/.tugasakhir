@@ -105,70 +105,80 @@ public function index(Request $request)
             'status_seleksi' => 'nullable|in:Pending,Interview,Tes Kemampuan,Magang,Sedang Berjalan,Selesai' // Updated validation for status_seleksi
         ]);
 
-        // Generate random unique ID using database transaction to prevent race conditions
-        $newId = DB::transaction(function () {
-            $isUnique = false;
-            $uniqueId = '';
-
-            while (!$isUnique) {
-                // Generate a random alphanumeric string (10 characters)
-                $uniqueId = Str::random(10);
-
-                // Check if this ID already exists
-                $exists = Pelamar::where('pelamar_id', $uniqueId)->exists();
-
-                if (!$exists) {
-                    $isUnique = true;
-                }
-            }
-
-            return $uniqueId;
-        });
-
-        // Prepare data for creation
-        $data = $request->except('berkas_cv');
-        $data['pelamar_id'] = $newId;
-
-        // Set default status_seleksi if not provided
-        if (!isset($data['status_seleksi'])) {
-            $data['status_seleksi'] = 'Pending';
+        // Validasi file CV
+        if (!$request->hasFile('berkas_cv')) {
+            return redirect()->back()->with('error', 'CV file is required.')->withInput();
         }
 
-        // Handle CV file upload
-        if ($request->hasFile('berkas_cv')) {
-            $file = $request->file('berkas_cv');
-            $fileName = $newId . '_CV.' . $file->getClientOriginalExtension();
+        $file = $request->file('berkas_cv');
+        $fileExtension = $file->getClientOriginalExtension();
 
-            // Make sure the directory exists
-            $directory = public_path('cv_files');
-            if (!File::exists($directory)) {
-                File::makeDirectory($directory, 0755, true);
-            }
-
-            // Move the file directly to the public directory
-            $file->move($directory, $fileName);
-
-            // Store the relative path
-            $data['berkas_cv'] = 'cv_files/' . $fileName;
-        }
-
-        $pelamar = Pelamar::create($data);
-
-        // Send confirmation email to the applicant
         try {
-            Mail::to($pelamar->email)->send(new ApplicationSubmitted($pelamar));
+            // Use transaction for the entire process to ensure consistency
+            return DB::transaction(function () use ($request, $file, $fileExtension) {
+                // Generate random unique ID
+                $isUnique = false;
+                $newId = '';
+
+                while (!$isUnique) {
+                    // Generate a random alphanumeric string (10 characters)
+                    $newId = Str::random(10);
+
+                    // Check if this ID already exists
+                    $exists = Pelamar::where('pelamar_id', $newId)->exists();
+
+                    if (!$exists) {
+                        $isUnique = true;
+                    }
+                }
+
+                // Prepare data for creation
+                $data = $request->except('berkas_cv');
+                $data['pelamar_id'] = $newId;
+
+                // Set default status_seleksi if not provided
+                if (!isset($data['status_seleksi'])) {
+                    $data['status_seleksi'] = 'Pending';
+                }
+
+                // Tentukan nama file berdasarkan ID
+                $fileName = $newId . '_CV.' . $fileExtension;
+                $filePath = 'cv_files/' . $fileName;
+                $data['berkas_cv'] = $filePath; // Set path di data
+
+                // Simpan data pelamar ke database
+                $pelamar = Pelamar::create($data);
+
+                // Kirim email setelah data tersimpan
+                Mail::to($pelamar->email)->send(new ApplicationSubmitted($pelamar));
+
+                // Jika semua operasi database dan email berhasil, baru simpan file CV
+                $directory = public_path('cv_files');
+                if (!File::exists($directory)) {
+                    File::makeDirectory($directory, 0755, true);
+                }
+
+                // Simpan file CV ke direktori
+                $file->move($directory, $fileName);
+
+                // Check if request is coming from public route or admin area
+                if ($request->route()->getName() === 'pelamar.public.store' || !Auth::check()) {
+                    return redirect('/')->with('success', 'Application submitted successfully! Your application ID is: ' . $newId . '. A confirmation email has been sent to your email address.');
+                }
+
+                // Otherwise, redirect to admin area
+                return redirect()->route('pelamar.index')->with('success', 'Pelamar created successfully with ID: ' . $newId);
+            });
         } catch (\Exception $e) {
-            // Log the error but continue (don't prevent registration if email fails)
-            Log::error('Failed to send application confirmation email: ' . $e->getMessage());
-        }
+            Log::error('Failed to create applicant: ' . $e->getMessage());
 
-        // Check if request is coming from public route or admin area
-        if ($request->route()->getName() === 'pelamar.public.store' || !Auth::check()) {
-            return redirect('/')->with('success', 'Application submitted successfully! Your application ID is: ' . $newId . '. A confirmation email has been sent to your email address.');
-        }
+            // Check if it's a mail-specific exception to provide better feedback
+            if (strpos($e->getMessage(), 'mail') !== false || strpos($e->getMessage(), 'email') !== false) {
+                return redirect()->back()->with('error', 'Failed to submit application: Unable to send confirmation email. Please check your email address and try again later.')->withInput();
+            }
 
-        // Otherwise, redirect to admin area
-        return redirect()->route('pelamar.index')->with('success', 'Pelamar created successfully with ID: ' . $newId);
+            return redirect()->back()->with('error', 'Failed to submit application. Please try again later.')->withInput();
+        }
     }
 
     public function show(Pelamar $pelamar)
