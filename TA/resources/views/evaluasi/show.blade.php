@@ -101,9 +101,9 @@
                                     {{ $evaluasi->magang->status_seleksi }}
                                 </span>
                             </div>
-                            <a href="{{ route('magang.show', $evaluasi->magang) }}" class="block w-full text-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-2 px-4 rounded-md hover:from-indigo-600 hover:to-purple-700 transition duration-150 transform hover:scale-105 text-sm font-medium">
+                            {{-- <a href="{{ route('magang.show', $evaluasi->magang) }}" class="block w-full text-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-2 px-4 rounded-md hover:from-indigo-600 hover:to-purple-700 transition duration-150 transform hover:scale-105 text-sm font-medium">
                                 <i class="fas fa-external-link-alt mr-1"></i> View Full Intern Detail
-                            </a>
+                            </a> --}}
                         </div>
                     </div>
                 </div>
@@ -491,9 +491,9 @@
                     </button>
                 </form>
 
-                <a href="{{ route('evaluasi.index', ['periode_id' => $evaluasi->magang->pelamar->periode_id ?? '']) }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-purple-600 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
+                {{-- <a href="{{ route('evaluasi.index', ['periode_id' => $evaluasi->magang->pelamar->periode_id ?? '']) }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-purple-600 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
                     <i class="fas fa-list mr-2"></i> View All Evaluations
-                </a>
+                </a> --}}
 
                 <button onclick="refreshSmartData()" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
                     <i class="fas fa-sync-alt mr-2"></i> Refresh Analysis
