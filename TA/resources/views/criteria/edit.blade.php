@@ -37,9 +37,11 @@
                                     <select id="job_id" name="job_id" class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('job_id') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror" required>
                                         <option value="">Select a job position</option>
                                         @foreach($jobs as $job)
-                                            <option value="{{ $job->job_id }}" {{ (old('job_id', $criterion->job_id) == $job->job_id) ? 'selected' : '' }}>
-                                                {{ $job->nama_job }}
-                                            </option>
+                                            @if($job->job_id == 'JOB001' || $job->job_id == 'JOB004')
+                                                <option value="{{ $job->job_id }}" {{ (old('job_id', $criterion->job_id) == $job->job_id) ? 'selected' : '' }}>
+                                                    {{ $job->nama_job }}
+                                                </option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 </div>
