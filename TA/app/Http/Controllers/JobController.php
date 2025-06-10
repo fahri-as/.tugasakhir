@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Job;
+use App\Models\InterviewCriteria;
+use App\Models\TesKemampuanCriteria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class JobController extends Controller
 {
@@ -41,7 +44,14 @@ class JobController extends Controller
         $data = $request->all();
         $data['job_id'] = $newId;
 
-        Job::create($data);
+        // Create the job
+        $job = Job::create($data);
+
+        // Create interview criteria automatically
+        $this->createInterviewCriteria($job->job_id);
+
+        // Create test capability criteria automatically
+        $this->createTesKemampuanCriteria($job->job_id);
 
         return redirect()->route('jobs.index')->with('success', 'Job created successfully with ID: ' . $newId);
     }
@@ -76,5 +86,58 @@ class JobController extends Controller
 
         $job->delete();
         return redirect()->route('jobs.index')->with('success', 'Job deleted successfully');
+    }
+
+    /**
+     * Create standard interview criteria for a job
+     */
+    private function createInterviewCriteria($jobId)
+    {
+        $criteria = [
+            [
+                'name' => 'Kualifikasi',
+                'code' => 'KL',
+                'description' => 'Penilaian kesesuaian latar belakang, pendidikan, dan pengalaman kandidat dengan posisi yang dilamar',
+                'weight' => 0.4000
+            ],
+            [
+                'name' => 'Komunikasi',
+                'code' => 'KM',
+                'description' => 'Penilaian kemampuan komunikasi, penyampaian ide, dan interaksi selama wawancara',
+                'weight' => 0.3000
+            ],
+            [
+                'name' => 'Sikap',
+                'code' => 'SK',
+                'description' => 'Penilaian sikap profesional, motivasi, dan kepribadian kandidat',
+                'weight' => 0.3000
+            ]
+        ];
+
+        foreach ($criteria as $item) {
+            InterviewCriteria::create([
+                'criteria_id' => 'INT_CRIT_' . $jobId . '_' . (array_search($item, $criteria) + 1),
+                'job_id' => $jobId,
+                'name' => $item['name'],
+                'code' => $item['code'],
+                'description' => $item['description'],
+                'weight' => $item['weight']
+            ]);
+        }
+    }
+
+    /**
+     * Create standard test capability criteria for a job
+     */
+    private function createTesKemampuanCriteria($jobId)
+    {
+        TesKemampuanCriteria::create([
+            'criteria_id' => 'TES_CRIT_' . $jobId,
+            'job_id' => $jobId,
+            'name' => 'Kemampuan Teknis',
+            'code' => 'KT',
+            'description' => 'Penilaian kemampuan teknis sesuai dengan posisi yang dilamar',
+            'weight' => 1.0000
+        ]);
     }
 }
