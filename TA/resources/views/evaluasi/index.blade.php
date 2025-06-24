@@ -202,7 +202,13 @@
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach($allInterns as $intern)
+                                        @php
+                                        // Sort interns by job position
+                                        $sortedInterns = $allInterns->sortBy(function($intern) {
+                                            return $intern->pelamar->job->nama_job ?? 'ZZZ'; // ZZZ to put null values at the end
+                                        });
+                                    @endphp
+                                    @foreach($sortedInterns as $intern)
                                             @php
                                                 // Filter interns based on user role
                                                 $jobId = $intern->pelamar->job->job_id ?? '';
@@ -1130,6 +1136,13 @@
                     return true;
                 });
             }
+
+            // Sort interns by job position
+            interns.sort((a, b) => {
+                const jobA = a.job || '';
+                const jobB = b.job || '';
+                return jobA.localeCompare(jobB);
+            });
 
             if (!interns || interns.length === 0) {
                 // Show no interns message
