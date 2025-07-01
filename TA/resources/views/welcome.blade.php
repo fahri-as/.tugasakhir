@@ -178,7 +178,9 @@
             .hero-section {
                 min-height: 100vh;
                 padding-top: 80px;
-                background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+                background: url('/images/jiwaragabackground.png');
+                background-size: cover;
+                background-position: center;
                 position: relative;
                 overflow: hidden;
                 display: flex;
@@ -186,11 +188,33 @@
                 justify-content: center;
             }
 
+            /* Add dark overlay for better text visibility */
+            .hero-section::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7); /* Semi-transparent black overlay */
+                z-index: 1;
+            }
+
+            .hero-content {
+                position: relative;
+                z-index: 2; /* Ensure content appears above the overlay */
+                text-align: center;
+                max-width: 1200px;
+                padding: 2rem 2rem 0;
+                animation: heroFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
             /* Animated Background Grid */
             .hero-grid {
                 position: absolute;
                 width: 100%;
                 height: 100%;
+                z-index: 0;
                 background-image:
                     linear-gradient(rgba(249, 115, 22, 0.1) 1px, transparent 1px),
                     linear-gradient(90deg, rgba(249, 115, 22, 0.1) 1px, transparent 1px);
@@ -208,7 +232,8 @@
                 position: absolute;
                 border-radius: 50%;
                 filter: blur(80px);
-                opacity: 0.6;
+                opacity: 0.4;
+                z-index: 0;
                 animation: orbFloat 20s ease-in-out infinite;
             }
 
@@ -243,15 +268,6 @@
                 25% { transform: translate(50px, -50px) scale(1.1); }
                 50% { transform: translate(-30px, 30px) scale(0.9); }
                 75% { transform: translate(30px, 50px) scale(1.05); }
-            }
-
-            .hero-content {
-                position: relative;
-                z-index: 10;
-                text-align: center;
-                max-width: 1200px;
-                padding: 2rem 2rem 0;
-                animation: heroFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             @keyframes heroFadeIn {
@@ -386,7 +402,7 @@
 
             .stat-card {
                 background: rgba(255, 255, 255, 0.05);
-                backdrop-filter: blur(10px);
+                backdrop-filter: blur(50px);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 24px;
                 padding: 2.5rem;
