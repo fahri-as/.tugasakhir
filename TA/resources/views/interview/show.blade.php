@@ -368,16 +368,89 @@
             const timeInput = document.getElementById('test_jadwal_waktu');
             const timeError = document.getElementById('test_time_error');
             const submitBtn = document.getElementById('scheduleTestSubmitBtn');
+            const skillTestForm = document.getElementById('skillTestForm');
 
-            // Set minimum date to today
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            dateInput.setAttribute('min', formattedDate);
+            // Helper function to set default date and time values
+            function setDefaultDateTime() {
+                const today = new Date();
+                const formattedToday = today.toISOString().split('T')[0];
+                dateInput.min = formattedToday;
+                dateInput.value = formattedToday;
+
+                // Set default time (current time + 1 hour, rounded to next 30 minute slot)
+                let defaultHour = today.getHours() + 1;
+                let defaultMinutes = today.getMinutes() < 30 ? 30 : 0;
+
+                // If we're past 30 minutes and we added an hour
+                if (today.getMinutes() >= 30) {
+                    defaultHour += 1;
+                }
+
+                // Adjust for next day if it's late in the day
+                if (defaultHour >= 24) {
+                    defaultHour = 9; // Default to 9 AM next day
+                    defaultMinutes = 0;
+
+                    // Set date to tomorrow
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    dateInput.value = tomorrow.toISOString().split('T')[0];
+                }
+
+                // Format the time as HH:MM
+                const formattedHour = String(defaultHour).padStart(2, '0');
+                const formattedMinutes = String(defaultMinutes).padStart(2, '0');
+                timeInput.value = `${formattedHour}:${formattedMinutes}`;
+            }
+
+            // Function to validate the datetime is in the future
+            function validateDateTime() {
+                const selectedDate = new Date(dateInput.value);
+                const now = new Date();
+
+                // Reset error messages
+                dateError.classList.add('hidden');
+                timeError.classList.add('hidden');
+                submitBtn.disabled = false;
+
+                let isValid = true;
+
+                // Check if date is today
+                if (selectedDate.toDateString() === now.toDateString()) {
+                    // If today, check if time is in the future
+                    if (timeInput.value) {
+                        const [hours, minutes] = timeInput.value.split(':').map(Number);
+                        const selectedTime = new Date();
+                        selectedTime.setHours(hours, minutes, 0, 0);
+
+                        if (selectedTime <= now) {
+                            timeError.classList.remove('hidden');
+                            submitBtn.disabled = true;
+                            isValid = false;
+                        }
+                    }
+                } else if (selectedDate < now && selectedDate.toDateString() !== now.toDateString()) {
+                    // Date is in the past
+                    dateError.classList.remove('hidden');
+                    submitBtn.disabled = true;
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            // Set default values on initial load
+            setDefaultDateTime();
+
+            // Validate on initial load
+            validateDateTime();
 
             // Show modal function
             const showModal = () => {
                 modal.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
+                setDefaultDateTime();
+                validateDateTime();
             };
 
             // Hide modal function
@@ -401,38 +474,17 @@
                 }
             });
 
-            // Validate date is in the future
+            // Add event listeners for date and time changes
             dateInput.addEventListener('change', validateDateTime);
             timeInput.addEventListener('change', validateDateTime);
 
-            function validateDateTime() {
-                const selectedDate = new Date(dateInput.value);
-                const now = new Date();
-
-                // If date is today, check the time too
-                if (selectedDate.toDateString() === now.toDateString()) {
-                    if (timeInput.value) {
-                        const [hours, minutes] = timeInput.value.split(':');
-                        selectedDate.setHours(hours, minutes);
-
-                        if (selectedDate <= now) {
-                            timeError.classList.remove('hidden');
-                            submitBtn.disabled = true;
-                            return;
-                        } else {
-                            timeError.classList.add('hidden');
-                        }
+            // Prevent form submission if validation fails
+            if (skillTestForm) {
+                skillTestForm.addEventListener('submit', function(event) {
+                    if (!validateDateTime()) {
+                        event.preventDefault();
                     }
-                }
-
-                // Check if the date is in the past
-                if (selectedDate.toDateString() < now.toDateString()) {
-                    dateError.classList.remove('hidden');
-                    submitBtn.disabled = true;
-                } else {
-                    dateError.classList.add('hidden');
-                    submitBtn.disabled = false;
-                }
+                });
             }
         });
     </script>
