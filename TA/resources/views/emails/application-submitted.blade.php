@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Application Received</title>
+    <title>Lamaran Diterima</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -56,51 +56,51 @@
 </head>
 <body>
     <div class="header">
-        <h1>Application Received</h1>
+        <h1>Lamaran Diterima</h1>
     </div>
 
     <div class="content">
-        <p>Dear {{ $pelamar->nama }},</p>
+        <p>Yth. {{ $pelamar->nama }},</p>
 
-        <p>Thank you for submitting your application to JIWARAGA Careers. We've successfully received your application and it's now in our system for review.</p>
+        <p>Terima kasih telah mengirimkan lamaran Anda ke JIWARAGA Careers. Kami telah berhasil menerima lamaran Anda dan saat ini sedang dalam proses peninjauan.</p>
 
         <div class="details">
-            <h3>Application Details:</h3>
+            <h3>Detail Lamaran:</h3>
             <p>
-                <strong>Application ID:</strong> {{ $pelamar->pelamar_id }}<br>
-                <strong>Position:</strong> {{ $pelamar->job ? $pelamar->job->nama_job : 'Not specified' }}<br>
-                <strong>Submitted On:</strong> {{ now()->format('l, d F Y') }}
+                <strong>ID Pelamar:</strong> {{ $pelamar->pelamar_id }}<br>
+                <strong>Posisi:</strong> {{ $pelamar->job ? $pelamar->job->nama_job : 'Tidak ditentukan' }}<br>
+                <strong>Tanggal Pengiriman:</strong> {{ now()->format('l, d F Y') }}
             </p>
         </div>
 
-        <p>Your application is currently under review by our recruitment team. We appreciate your interest in joining JIWARAGA and will carefully evaluate your qualifications.</p>
+        <p>Lamaran Anda sedang dalam proses peninjauan oleh tim rekrutmen kami. Kami menghargai ketertarikan Anda untuk bergabung dengan JIWARAGA dan akan mengevaluasi kualifikasi Anda dengan seksama.</p>
 
-        <h3>What's Next?</h3>
+        <h3>Apa Selanjutnya?</h3>
 
-        <p>Our team will review your application and determine if your skills and experience match our current needs. Here's what you can expect:</p>
+        <p>Tim kami akan meninjau lamaran Anda dan menentukan apakah keterampilan dan pengalaman Anda sesuai dengan kebutuhan kami saat ini. Berikut adalah apa yang dapat Anda harapkan:</p>
 
         <div class="steps">
-            <div class="step">1. <strong>Initial Review:</strong> Our recruitment team will review your application (1-2 weeks)</div>
-            <div class="step">2. <strong>Interview Process:</strong> If selected, you'll be invited for an interview</div>
-            <div class="step">3. <strong>Skills Assessment:</strong> You may be asked to complete a skills test</div>
-            <div class="step">4. <strong>Internship Phase:</strong> Selected candidates undergo a training period</div>
-            <div class="step">5. <strong>Final Decision:</strong> Successful candidates receive job offers</div>
+            <div class="step">1. <strong>Peninjauan Awal:</strong> Tim rekrutmen kami akan meninjau lamaran Anda</div>
+            <div class="step">2. <strong>Proses Wawancara:</strong> Jika terpilih, Anda akan diundang untuk wawancara</div>
+            <div class="step">3. <strong>Penilaian Keterampilan:</strong> Anda  akan diminta untuk menyelesaikan tes kemampuan</div>
+            <div class="step">4. <strong>Tahap Magang:</strong> Kandidat terpilih akan menjalani masa pelatihan</div>
+            <div class="step">5. <strong>Keputusan Akhir:</strong> Kandidat yang berhasil akan menerima tawaran kerja</div>
         </div>
 
-        <p>You can track your application status anytime using your Application ID:</p>
+        <p>Anda dapat melacak status lamaran Anda kapan saja menggunakan ID Pelamar Anda:</p>
 
-        <a href="{{ route('applicant.progress.index') }}" class="button">Track Application Status</a>
+        <a href="{{ route('applicant.progress.index') }}" class="button">Lacak Status Lamaran</a>
 
-        <p>If you have any questions about your application or the recruitment process, please don't hesitate to contact our recruitment team at careers@jiwaraga.com.</p>
+        <p>Jika Anda memiliki pertanyaan tentang lamaran Anda atau proses rekrutmen, jangan ragu untuk menghubungi HR kami di jiwaragacareers@gmail.com.</p>
 
-        <p>Thank you for your interest in JIWARAGA. We wish you the best in your application!</p>
+        <p>Terima kasih atas ketertarikan Anda pada JIWARAGA. Kami mengucapkan semoga sukses dalam proses lamaran Anda!</p>
 
-        <p>Best regards,<br>
-        JIWARAGA Careers Team</p>
+        <p>Salam hormat,<br>
+        Tim JIWARAGA Careers</p>
     </div>
 
     <div class="footer">
-        <p>This is an automated email. Please do not reply to this message.</p>
+        <p>Ini adalah email otomatis. Mohon tidak membalas pesan ini.</p>
     </div>
 </body>
 </html>

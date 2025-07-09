@@ -1,24 +1,24 @@
 @component('mail::message')
-# Important Notice Regarding Your Internship
+# Pemberitahuan Penting Mengenai Magang Anda
 
-Dear {{ $pelamar->nama }},
+Yth. {{ $pelamar->nama }},
 
-We regret to inform you that your internship evaluation has concluded and **you have not met the required criteria** to successfully complete the program.
+Dengan berat hati kami informasikan bahwa evaluasi magang Anda telah selesai dan **Anda belum memenuhi kriteria yang diperlukan** untuk menyelesaikan program dengan berhasil.
 
-## Internship Details
-- **Position**: {{ $pelamar->job ? $pelamar->job->nama_job : 'Not specified' }}
-- **Period**: {{ $pelamar->periode ? $pelamar->periode->nama_periode : 'Not specified' }}
+## Detail Magang
+- **Posisi**: {{ $pelamar->job ? $pelamar->job->nama_job : 'Tidak ditentukan' }}
+- **Periode**: {{ $pelamar->periode ? $pelamar->periode->nama_periode : 'Tidak ditentukan' }}
 
-While this outcome may be disappointing, please consider it a learning opportunity. Each experience, regardless of its outcome, contributes to personal and professional growth. We encourage you to reflect on the feedback provided during your time with us and use it to strengthen your skills for future opportunities.
+Meskipun hasil ini mungkin mengecewakan, mohon anggap ini sebagai kesempatan untuk belajar. Setiap pengalaman, terlepas dari hasilnya, berkontribusi pada pertumbuhan pribadi dan profesional. Kami mendorong Anda untuk merefleksikan umpan balik yang diberikan selama waktu Anda bersama kami dan menggunakannya untuk memperkuat keterampilan Anda untuk kesempatan di masa depan.
 
 @component('mail::button', ['url' => config('app.url')])
-Visit Our Website
+Kunjungi Website Kami
 @endcomponent
 
-If you have any questions regarding this decision or would like to receive detailed feedback on your performance, please don't hesitate to contact our Human Resources department.
+Jika Anda memiliki pertanyaan mengenai keputusan ini atau ingin menerima umpan balik mendetail tentang kinerja Anda, jangan ragu untuk menghubungi departemen Sumber Daya Manusia kami.
 
-We appreciate the time and effort you invested during your internship period and wish you success in your future endeavors.
+Kami menghargai waktu dan upaya yang Anda berikan selama periode magang dan mendoakan kesuksesan untuk Anda di masa depan.
 
-Best regards,
-{{ config('app.name') }} Team
+Salam hormat,
+Tim {{ config('app.name') }}
 @endcomponent

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Contract Discussion Schedule</title>
+    <title>Jadwal Diskusi Kontrak</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,49 +40,49 @@
 </head>
 <body>
     <div class="header">
-        <h1>Contract Discussion Schedule</h1>
+        <h1>Jadwal Diskusi Kontrak</h1>
     </div>
 
     <div class="content">
-        <p>Dear {{ $pelamar->nama }},</p>
+        <p>Yth. {{ $pelamar->nama }},</p>
 
-        <p>Congratulations on successfully passing your skill test for the <strong>{{ $pelamar->job->nama_job }}</strong> position! We're pleased to invite you to a contract discussion session to finalize the next steps in your employment process.</p>
+        <p>Selamat atas keberhasilan Anda dalam melewati tes kemampuan untuk posisi <strong>{{ $pelamar->job->nama_job }}</strong>! Kami dengan senang hati mengundang Anda untuk sesi diskusi kontrak guna memfinalisasi langkah selanjutnya dalam proses penerimaan kerja Anda.</p>
 
         <div class="details">
-            <h2>Contract Discussion Details:</h2>
+            <h2>Detail Diskusi Kontrak:</h2>
             <p>
-                <strong>Position:</strong> {{ $pelamar->job->nama_job }}<br>
-                <strong>Date:</strong> {{ $discussionDate->format('l, d F Y') }}<br>
-                <strong>Time:</strong> {{ $discussionDate->format('H:i') }} WIB<br>
-                <strong>Location:</strong> Our office at Jl. Veteran No.15, Purus, Kec. Padang Bar., Kota Padang, Sumatera Barat 25115. https://g.co/kgs/8NRXWuK<br>
+                <strong>Posisi:</strong> {{ $pelamar->job->nama_job }}<br>
+                <strong>Tanggal:</strong> {{ $discussionDate->format('l, d F Y') }}<br>
+                <strong>Waktu:</strong> {{ $discussionDate->format('H:i') }} WIB<br>
+                <strong>Lokasi:</strong> Kantor kami di Jl. Veteran No.15, Purus, Kec. Padang Bar., Kota Padang, Sumatera Barat 25115. https://g.co/kgs/8NRXWuK<br>
             </p>
         </div>
 
-        <p>During this meeting, we'll discuss:</p>
+        <p>Selama pertemuan ini, kita akan membahas:</p>
         <ul>
-            <li>Employment contract terms</li>
-            <li>Salary and benefits</li>
-            <li>Work schedule and responsibilities</li>
-            <li>Company policies and expectations</li>
+            <li>Ketentuan kontrak kerja</li>
+            <li>Gaji dan tunjangan</li>
+            <li>Jadwal kerja dan tanggung jawab</li>
+            <li>Kebijakan perusahaan dan ekspektasi</li>
         </ul>
 
-        <p>Please bring the following items to the discussion:</p>
+        <p>Mohon membawa item berikut untuk diskusi:</p>
         <ul>
-            <li>Original ID card (KTP/SIM)</li>
-            <li>Latest educational certificates</li>
-            <li>Any questions you may have about the position</li>
+            <li>Kartu identitas asli (KTP/SIM)</li>
+            <li>Ijazah pendidikan terakhir</li>
+            <li>Pertanyaan yang mungkin Anda miliki tentang posisi tersebut</li>
         </ul>
 
-        <p>Please confirm your attendance by replying to this email or contacting our HR department.</p>
+        <p>Mohon konfirmasi kehadiran Anda dengan membalas email ini atau menghubungi departemen SDM kami.</p>
 
-        <p>We look forward to meeting with you!</p>
+        <p>Kami menantikan pertemuan dengan Anda!</p>
 
-        <p>Best regards,<br>
-        HR Department</p>
+        <p>Salam hormat,<br>
+        Departemen SDM</p>
     </div>
 
     <div class="footer">
-        <p>This is an automated email. Please do not reply directly.</p>
+        <p>Ini adalah email otomatis. Mohon jangan membalas langsung.</p>
     </div>
 </body>
 </html>

@@ -1,33 +1,33 @@
 @component('mail::message')
-# Congratulations, {{ $pelamar->nama }}!
+# Selamat, {{ $pelamar->nama }}!
 
-We are pleased to inform you that you have successfully **completed your internship** with us. Your dedication, hard work, and contributions throughout your time here have been remarkable.
+Dengan senang hati kami informasikan bahwa Anda telah berhasil **menyelesaikan masa magang** bersama kami. Dedikasi, kerja keras, dan kontribusi Anda selama waktu di sini sangat luar biasa.
 
-## Internship Details
-- **Position**: {{ $pelamar->job ? $pelamar->job->nama_job : 'Not specified' }}
-- **Period**: {{ $pelamar->periode ? $pelamar->periode->nama_periode : 'Not specified' }}
+## Detail Magang
+- **Posisi**: {{ $pelamar->job ? $pelamar->job->nama_job : 'Tidak ditentukan' }}
+- **Periode**: {{ $pelamar->periode ? $pelamar->periode->nama_periode : 'Tidak ditentukan' }}
 
-Your performance during the internship has been evaluated, and we are happy to share that you have met all the requirements and expectations. This accomplishment represents an important milestone in your professional journey.
+Kinerja Anda selama magang telah dievaluasi, dan kami dengan senang hati memberi tahu bahwa Anda telah memenuhi semua persyaratan dan ekspektasi. Pencapaian ini mewakili tonggak penting dalam perjalanan profesional Anda.
 
 @if($discussionDate)
-## Contract Discussion
-We would like to invite you to a contract discussion meeting to discuss potential employment opportunities:
+## Diskusi Kontrak
+Kami ingin mengundang Anda ke pertemuan diskusi kontrak untuk membahas peluang kerja potensial:
 
-- **Date**: {{ $discussionDate->format('l, d F Y') }}
-- **Time**: {{ $discussionDate->format('H:i') }} WIB
-- **Location**: Our office at Jl. Veteran No.15, Purus, Kec. Padang Bar., Kota Padang, Sumatera Barat 25115
+- **Tanggal**: {{ $discussionDate->format('l, d F Y') }}
+- **Waktu**: {{ $discussionDate->format('H:i') }} WIB
+- **Lokasi**: Kantor kami di Jl. Veteran No.15, Purus, Kec. Padang Bar., Kota Padang, Sumatera Barat 25115
 
-Please bring your ID card, educational certificates, and any questions you may have about the position.
+Mohon bawa kartu identitas Anda, ijazah pendidikan, dan pertanyaan yang mungkin Anda miliki tentang posisi tersebut.
 @endif
 
 @component('mail::button', ['url' => config('app.url')])
-Visit Our Website
+Kunjungi Website Kami
 @endcomponent
 
-Should you require a certificate of completion or a reference letter, please feel free to contact our Human Resources department. We would be happy to provide any documentation you need for your future endeavors.
+Jika Anda memerlukan sertifikat penyelesaian atau surat referensi, jangan ragu untuk menghubungi departemen Sumber Daya Manusia kami. Kami akan dengan senang hati menyediakan dokumentasi apa pun yang Anda butuhkan untuk masa depan Anda.
 
-Thank you for being part of our team. We wish you every success in your future career!
+Terima kasih telah menjadi bagian dari tim kami. Kami mendoakan kesuksesan untuk Anda dalam karir Anda ke depan!
 
-Best regards,
-{{ config('app.name') }} Team
+Salam hormat,
+Tim {{ config('app.name') }}
 @endcomponent
