@@ -405,18 +405,89 @@
             const openModalBtnInline = document.getElementById('scheduleInterviewBtnInline');
             const closeModalBtn = document.getElementById('cancelInterviewBtn');
             const dateInput = document.getElementById('jadwal_tanggal');
+            const timeInput = document.getElementById('jadwal_waktu');
             const dateError = document.getElementById('date_error');
             const submitBtn = document.getElementById('submitInterviewBtn');
+            const interviewForm = document.getElementById('interviewForm');
 
-            // Set minimum date to today
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            dateInput.setAttribute('min', formattedDate);
+            // Helper function to set default date and time values
+            function setDefaultDateTime() {
+                const today = new Date();
+                const formattedToday = today.toISOString().split('T')[0];
+                dateInput.min = formattedToday;
+                dateInput.value = formattedToday;
+
+                // Set default time (current time + 1 hour, rounded to next 30 minute slot)
+                let defaultHour = today.getHours() + 1;
+                let defaultMinutes = today.getMinutes() < 30 ? 30 : 0;
+
+                // If we're past 30 minutes and we added an hour
+                if (today.getMinutes() >= 30) {
+                    defaultHour += 1;
+                }
+
+                // Adjust for next day if it's late in the day
+                if (defaultHour >= 24) {
+                    defaultHour = 9; // Default to 9 AM next day
+                    defaultMinutes = 0;
+
+                    // Set date to tomorrow
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    dateInput.value = tomorrow.toISOString().split('T')[0];
+                }
+
+                // Format the time as HH:MM
+                const formattedHour = String(defaultHour).padStart(2, '0');
+                const formattedMinutes = String(defaultMinutes).padStart(2, '0');
+                timeInput.value = `${formattedHour}:${formattedMinutes}`;
+            }
+
+            // Function to validate the datetime is in the future
+            function validateDatetime() {
+                const selectedDate = new Date(dateInput.value);
+                const now = new Date();
+
+                // Reset error messages
+                dateError.classList.add('hidden');
+                submitBtn.disabled = false;
+
+                let isValid = true;
+
+                // Check if date is today
+                if (selectedDate.toDateString() === now.toDateString()) {
+                    // If today, check if time is in the future
+                    const [hours, minutes] = timeInput.value.split(':').map(Number);
+                    const selectedTime = new Date();
+                    selectedTime.setHours(hours, minutes, 0, 0);
+
+                    if (selectedTime <= now) {
+                        dateError.classList.remove('hidden');
+                        submitBtn.disabled = true;
+                        isValid = false;
+                    }
+                } else if (selectedDate < now && selectedDate.toDateString() !== now.toDateString()) {
+                    // Date is in the past
+                    dateError.classList.remove('hidden');
+                    submitBtn.disabled = true;
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            // Set default values on initial load
+            setDefaultDateTime();
+
+            // Validate on initial load
+            validateDatetime();
 
             // Show modal function
             const showModal = () => {
                 modal.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
+                setDefaultDateTime();
+                validateDatetime();
             };
 
             // Hide modal function
@@ -444,20 +515,18 @@
                 }
             });
 
-            // Validate date is in the future
-            dateInput.addEventListener('change', function() {
-                const selectedDate = new Date(this.value);
-                const now = new Date();
-                now.setHours(0, 0, 0, 0);
+            // Add event listeners for date and time changes
+            dateInput.addEventListener('change', validateDatetime);
+            timeInput.addEventListener('change', validateDatetime);
 
-                if (selectedDate < now) {
-                    dateError.classList.remove('hidden');
-                    submitBtn.disabled = true;
-                } else {
-                    dateError.classList.add('hidden');
-                    submitBtn.disabled = false;
-                }
-            });
+            // Prevent form submission if validation fails
+            if (interviewForm) {
+                interviewForm.addEventListener('submit', function(event) {
+                    if (!validateDatetime()) {
+                        event.preventDefault();
+                    }
+                });
+            }
         });
     </script>
 </x-app-layout>
