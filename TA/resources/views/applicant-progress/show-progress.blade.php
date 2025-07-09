@@ -1358,9 +1358,9 @@
                             <!-- Internship -->
                             @if($pelamar->magang)
                                 @php
-                                    $isCompleted = $pelamar->magang->status_seleksi === 'Completed';
-                                    $isTerminated = $pelamar->magang->status_seleksi === 'Terminated';
-                                    $isActive = $pelamar->magang->status_seleksi === 'Active';
+                                    $isCompleted = $pelamar->magang->status_seleksi === 'Lulus';
+                                    $isTerminated = $pelamar->magang->status_seleksi === 'Tidak Lulus';
+                                    $isActive = $pelamar->magang->status_seleksi === 'Pending';
                                 @endphp
 
                                 <div class="timeline-item">
