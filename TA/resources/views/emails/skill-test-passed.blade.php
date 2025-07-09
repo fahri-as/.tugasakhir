@@ -74,7 +74,7 @@
 
         <p>Selamat atas keberhasilan Anda dalam tahap ini dan kami berharap dapat segera bekerjasama dengan Anda.</p>
 
-        <p>Untuk informasi lebih lanjut, silakan hubungi HR kami di jiwaragacareers@gmail.com.</p>
+        <p>Jika Anda memiliki pertanyaan atau perlu mengatur ulang jadwal, silakan hubungi HR kami di jiwaragacareers@gmail.com.</p>
 
         <p>Hormat kami,<br>
         Tim JIWARAGA Careers</p>

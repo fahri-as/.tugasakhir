@@ -1,4 +1,4 @@
-@cnt('mail::message')
+@component('mail::message')
 # Pemberitahuan Penting Mengenai Magang Anda
 
 Yth. {{ $pelamar->nama }},

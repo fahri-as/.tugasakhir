@@ -5,45 +5,46 @@
                 <i class="fas fa-comments text-indigo-600 mr-2"></i> {{ __('Interview Details') }}
             </h2>
             <div>
-                @if($interview->status_seleksi !== 'Tes Kemampuan')
+                @if($interview->status_seleksi !== 'Tes Kemampuan' && $interview->status_seleksi !== 'Tidak Lulus')
                     <button id="scheduleTestBtn" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-green-600 hover:to-emerald-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md {{ $interview->status_seleksi === 'Tes Kemampuan' ? 'hidden' : '' }}">
                         <i class="fas fa-tasks mr-2"></i> Schedule Skill Test
                     </button>
-                    @if($interview->status_seleksi === 'Tidak Lulus')
-                        <form action="{{ route('interview.update', $interview) }}" method="POST" class="inline" id="resetForm">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="pelamar_id" value="{{ $interview->pelamar_id }}">
-                            <input type="hidden" name="user_id" value="{{ $interview->user_id }}">
-                            <input type="hidden" name="kualifikasi_skor" value="{{ $interview->kualifikasi_skor }}">
-                            <input type="hidden" name="komunikasi_skor" value="{{ $interview->komunikasi_skor }}">
-                            <input type="hidden" name="sikap_skor" value="{{ $interview->sikap_skor }}">
-                            <input type="hidden" name="jadwal" value="{{ $interview->jadwal->format('Y-m-d\TH:i') }}">
-                            <input type="hidden" name="status_seleksi" value="Pending">
-                            <input type="hidden" name="send_email" value="1">
-                            <input type="hidden" name="pelamar_status" value="Interview">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-yellow-600 hover:to-amber-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
-                                <i class="fas fa-redo-alt mr-2"></i> Reset to Pending
-                            </button>
-                        </form>
-                    @else
-                        <form action="{{ route('interview.update', $interview) }}" method="POST" class="inline" id="failForm">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="pelamar_id" value="{{ $interview->pelamar_id }}">
-                            <input type="hidden" name="user_id" value="{{ $interview->user_id }}">
-                            <input type="hidden" name="kualifikasi_skor" value="{{ $interview->kualifikasi_skor }}">
-                            <input type="hidden" name="komunikasi_skor" value="{{ $interview->komunikasi_skor }}">
-                            <input type="hidden" name="sikap_skor" value="{{ $interview->sikap_skor }}">
-                            <input type="hidden" name="jadwal" value="{{ $interview->jadwal->format('Y-m-d\TH:i') }}">
-                            <input type="hidden" name="status_seleksi" value="Tidak Lulus">
-                            <input type="hidden" name="send_email" value="1">
-                            <input type="hidden" name="pelamar_status" value="Selesai">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-red-600 hover:to-rose-700 active:bg-red-800 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
-                                <i class="fas fa-times-circle mr-2"></i> Mark as Failed
-                            </button>
-                        </form>
-                    @endif
+
+                    <form action="{{ route('interview.update', $interview) }}" method="POST" class="inline" id="failForm">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="pelamar_id" value="{{ $interview->pelamar_id }}">
+                        <input type="hidden" name="user_id" value="{{ $interview->user_id }}">
+                        <input type="hidden" name="kualifikasi_skor" value="{{ $interview->kualifikasi_skor }}">
+                        <input type="hidden" name="komunikasi_skor" value="{{ $interview->komunikasi_skor }}">
+                        <input type="hidden" name="sikap_skor" value="{{ $interview->sikap_skor }}">
+                        <input type="hidden" name="jadwal" value="{{ $interview->jadwal->format('Y-m-d\TH:i') }}">
+                        <input type="hidden" name="status_seleksi" value="Tidak Lulus">
+                        <input type="hidden" name="send_email" value="1">
+                        <input type="hidden" name="pelamar_status" value="Selesai">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-red-600 hover:to-rose-700 active:bg-red-800 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
+                            <i class="fas fa-times-circle mr-2"></i> Mark as Failed
+                        </button>
+                    </form>
+                @endif
+
+                @if($interview->status_seleksi === 'Tidak Lulus')
+                    <form action="{{ route('interview.update', $interview) }}" method="POST" class="inline" id="resetForm">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="pelamar_id" value="{{ $interview->pelamar_id }}">
+                        <input type="hidden" name="user_id" value="{{ $interview->user_id }}">
+                        <input type="hidden" name="kualifikasi_skor" value="{{ $interview->kualifikasi_skor }}">
+                        <input type="hidden" name="komunikasi_skor" value="{{ $interview->komunikasi_skor }}">
+                        <input type="hidden" name="sikap_skor" value="{{ $interview->sikap_skor }}">
+                        <input type="hidden" name="jadwal" value="{{ $interview->jadwal->format('Y-m-d\TH:i') }}">
+                        <input type="hidden" name="status_seleksi" value="Pending">
+                        <input type="hidden" name="send_email" value="1">
+                        <input type="hidden" name="pelamar_status" value="Interview">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-yellow-600 hover:to-amber-700 active:bg-yellow-800 focus:outline-none focus:border-yellow-700 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150 mr-2 transform hover:scale-105 shadow-md">
+                            <i class="fas fa-redo-alt mr-2"></i> Reset to Pending
+                        </button>
+                    </form>
                 @endif
 
                 <a href="{{ route('interview.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 transform hover:scale-105 shadow-md">
