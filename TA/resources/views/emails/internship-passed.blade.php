@@ -24,7 +24,7 @@ Mohon bawa kartu identitas Anda, ijazah pendidikan, dan pertanyaan yang mungkin 
 Kunjungi Website Kami
 @endcomponent
 
-Jika Anda memerlukan sertifikat penyelesaian atau surat referensi, jangan ragu untuk menghubungi departemen Sumber Daya Manusia kami. Kami akan dengan senang hati menyediakan dokumentasi apa pun yang Anda butuhkan untuk masa depan Anda.
+Jika Anda memerlukan sertifikat penyelesaian atau surat referensi, jangan ragu untuk menghubungi HR kami di jiwaragacareers@gmail.com. Kami akan dengan senang hati menyediakan dokumentasi apa pun yang Anda butuhkan untuk masa depan Anda.
 
 Terima kasih telah menjadi bagian dari tim kami. Kami mendoakan kesuksesan untuk Anda dalam karir Anda ke depan!
 

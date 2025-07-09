@@ -73,12 +73,12 @@
             <li>Pertanyaan yang mungkin Anda miliki tentang posisi tersebut</li>
         </ul>
 
-        <p>Mohon konfirmasi kehadiran Anda dengan membalas email ini atau menghubungi departemen SDM kami.</p>
+        <p>Mohon konfirmasi kehadiran Anda dengan membalas email ini atau menghubungi HR kami di jiwaragacareers@gmail.com.</p>
 
         <p>Kami menantikan pertemuan dengan Anda!</p>
 
         <p>Salam hormat,<br>
-        Departemen SDM</p>
+        Tim JIWARAGA Careers</p>
     </div>
 
     <div class="footer">

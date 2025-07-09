@@ -65,7 +65,7 @@
             <li>Dokumen pendukung lainnya</li>
         </ul>
 
-        <p>Jika Anda memiliki pertanyaan atau perlu penjadwalan ulang, silakan hubungi kami segera.</p>
+        <p>Jika Anda memiliki pertanyaan atau perlu penjadwalan ulang, silakan hubungi HR kami di jiwaragacareers@gmail.com.</p>
 
         <p>Kami berharap dapat bertemu dengan Anda segera!</p>
 

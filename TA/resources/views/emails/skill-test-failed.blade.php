@@ -61,7 +61,7 @@
 
         <p>Kami mendorong Anda untuk terus mengembangkan kemampuan dan keterampilan Anda. Hasil ini tidak mencerminkan potensi Anda secara keseluruhan. Kami berharap yang terbaik untuk Anda dan jangan ragu untuk melamar kembali di kesempatan berikutnya yang sesuai dengan kualifikasi Anda.</p>
 
-        <p>Jika Anda memiliki pertanyaan atau membutuhkan klarifikasi lebih lanjut, jangan ragu untuk menghubungi kami.</p>
+        <p>Jika Anda memiliki pertanyaan atau membutuhkan klarifikasi lebih lanjut, jangan ragu untuk menghubungi HR kami di jiwaragacareers@gmail.com.</p>
 
         <p>Terima kasih atas minat Anda bergabung dengan perusahaan kami.</p>
 

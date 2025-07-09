@@ -1,4 +1,4 @@
-@component('mail::message')
+@cnt('mail::message')
 # Pemberitahuan Penting Mengenai Magang Anda
 
 Yth. {{ $pelamar->nama }},
@@ -15,7 +15,7 @@ Meskipun hasil ini mungkin mengecewakan, mohon anggap ini sebagai kesempatan unt
 Kunjungi Website Kami
 @endcomponent
 
-Jika Anda memiliki pertanyaan mengenai keputusan ini atau ingin menerima umpan balik mendetail tentang kinerja Anda, jangan ragu untuk menghubungi departemen Sumber Daya Manusia kami.
+Jika Anda memiliki pertanyaan mengenai keputusan ini atau ingin menerima umpan balik mendetail tentang kinerja Anda, jangan ragu untuk menghubungi HR kami di jiwaragacareers@gmail.com.
 
 Kami menghargai waktu dan upaya yang Anda berikan selama periode magang dan mendoakan kesuksesan untuk Anda di masa depan.
 

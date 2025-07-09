@@ -57,17 +57,17 @@
             </p>
         </div>
 
-        <p>Mohon hadir 15 menit sebelum jadwal yang ditentukan. Pastikan untuk membawa:</p>
-        <ul>
+        <p>Mohon hadir 15 menit sebelum jadwal yang ditentukan.</p>
+        {{-- <ul>
             <li>Kartu identitas (KTP/SIM)</li>
             <li>CV terbaru</li>
             <li>Portfolio karya (jika ada)</li>
             <li>Alat tulis</li>
-        </ul>
+        </ul> --}}
 
         <p>Tes kemampuan akan mencakup pengetahuan dan keterampilan yang relevan dengan posisi yang Anda lamar. Persiapkan diri Anda dengan baik.</p>
 
-        <p>Jika Anda memiliki pertanyaan atau perlu mengatur ulang jadwal, silakan hubungi kami segera.</p>
+        <p>Jika Anda memiliki pertanyaan atau perlu mengatur ulang jadwal, silakan hubungi HR kami di jiwaragacareers@gmail.com.</p>
 
         <p>Hormat kami,<br>
         Departemen HR</p>

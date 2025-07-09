@@ -61,7 +61,7 @@
 
         <p>Kami mendorong Anda untuk terus mengembangkan kemampuan dan keterampilan Anda. Keputusan ini tidak mencerminkan potensi Anda secara keseluruhan, dan kami menyarankan untuk tetap mengikuti peluang karir lain yang mungkin lebih sesuai dengan profil Anda.</p>
 
-        <p>Jika Anda memiliki pertanyaan atau membutuhkan klarifikasi lebih lanjut, jangan ragu untuk menghubungi kami.</p>
+        <p>Jika Anda memiliki pertanyaan atau membutuhkan klarifikasi lebih lanjut, jangan ragu untuk menghubungi HR kami di jiwaragacareers@gmail.com.</p>
 
         <p>Kami mengucapkan terima kasih atas minat Anda bergabung dengan perusahaan kami dan mengharapkan yang terbaik untuk karir Anda ke depan.</p>
 

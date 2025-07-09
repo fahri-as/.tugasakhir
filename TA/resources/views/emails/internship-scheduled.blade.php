@@ -68,7 +68,7 @@
 
         <p>Pada hari pertama, Anda akan bertemu dengan pembimbing magang Anda yang akan memberikan informasi lebih lanjut tentang tugas, tanggung jawab, dan jadwal selama program magang.</p>
 
-        <p>Jika Anda memiliki pertanyaan atau memerlukan informasi tambahan, jangan ragu untuk menghubungi kami.</p>
+        <p>Jika Anda memiliki pertanyaan atau memerlukan informasi tambahan, jangan ragu untuk menghubungi HR kami di jiwaragacareers@gmail.com.</p>
 
         <p>Kami berharap dapat segera bertemu dan bekerja sama dengan Anda.</p>
 
