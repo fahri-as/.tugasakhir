@@ -77,7 +77,7 @@
         <p>Untuk informasi lebih lanjut, silakan hubungi HR kami di jiwaragacareers@gmail.com.</p>
 
         <p>Hormat kami,<br>
-        Departemen HR</p>
+        Tim JIWARAGA Careers</p>
     </div>
 
     <div class="footer">

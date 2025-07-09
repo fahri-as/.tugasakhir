@@ -58,13 +58,13 @@
             </p>
         </div>
 
-        <p>Mohon hadir 30 menit sebelum waktu mulai yang ditentukan untuk orientasi singkat. Pastikan untuk membawa:</p>
-        <ul>
+        <p>Mohon hadir 30 menit sebelum waktu mulai yang ditentukan untuk orientasi singkat.</p>
+        {{-- <ul>
             <li>Kartu identitas (KTP/SIM)</li>
             <li>Surat keterangan dari institusi pendidikan (jika ada)</li>
             <li>Perlengkapan tulis</li>
             <li>Laptop pribadi (opsional)</li>
-        </ul>
+        </ul> --}}
 
         <p>Pada hari pertama, Anda akan bertemu dengan pembimbing magang Anda yang akan memberikan informasi lebih lanjut tentang tugas, tanggung jawab, dan jadwal selama program magang.</p>
 
@@ -73,7 +73,7 @@
         <p>Kami berharap dapat segera bertemu dan bekerja sama dengan Anda.</p>
 
         <p>Hormat kami,<br>
-        Departemen HR</p>
+        Tim JIWARAGA Careers</p>
     </div>
 
     <div class="footer">

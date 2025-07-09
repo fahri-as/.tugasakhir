@@ -66,7 +66,7 @@
         <p>Kami mengucapkan terima kasih atas minat Anda bergabung dengan perusahaan kami dan mengharapkan yang terbaik untuk karir Anda ke depan.</p>
 
         <p>Hormat kami,<br>
-        Departemen HR</p>
+        Tim JIWARAGA Careers</p>
     </div>
 
     <div class="footer">

@@ -70,7 +70,7 @@
         <p>Kami berharap dapat bertemu dengan Anda segera!</p>
 
         <p>Hormat kami,<br>
-        Departemen HR</p>
+        Tim JIWARAGA Careers</p>
     </div>
 
     <div class="footer">
