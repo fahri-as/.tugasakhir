@@ -153,7 +153,9 @@ public function index(Request $request)
                 Mail::to($pelamar->email)->send(new ApplicationSubmitted($pelamar));
 
                 // Jika semua operasi database dan email berhasil, baru simpan file CV
-                $directory = public_path('cv_files');
+                // Langsung gunakan path untuk public_html
+                $directory = base_path('../public_html/cv_files');
+
                 if (!File::exists($directory)) {
                     File::makeDirectory($directory, 0755, true);
                 }
@@ -242,7 +244,8 @@ public function index(Request $request)
         if ($request->hasFile('berkas_cv')) {
             // Delete old file if exists
             if ($pelamar->berkas_cv) {
-                $oldFilePath = public_path($pelamar->berkas_cv);
+                $oldFilePath = base_path('../public_html/' . $pelamar->berkas_cv);
+
                 if (File::exists($oldFilePath)) {
                     File::delete($oldFilePath);
                 }
@@ -252,7 +255,8 @@ public function index(Request $request)
             $fileName = $pelamar->pelamar_id . '_CV.' . $file->getClientOriginalExtension();
 
             // Make sure the directory exists
-            $directory = public_path('cv_files');
+            $directory = base_path('../public_html/cv_files');
+
             if (!File::exists($directory)) {
                 File::makeDirectory($directory, 0755, true);
             }
@@ -273,7 +277,8 @@ public function index(Request $request)
         // Delete CV file if exists
         if ($pelamar->berkas_cv) {
             // Use the same file path structure as in store/update methods
-            $filePath = public_path($pelamar->berkas_cv);
+            $filePath = base_path('../public_html/' . $pelamar->berkas_cv);
+
             if (File::exists($filePath)) {
                 File::delete($filePath);
             }
