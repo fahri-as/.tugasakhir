@@ -1509,9 +1509,7 @@
                     <h4>Resources</h4>
                     <ul class="footer-links">
                         <li><a href="{{ route('applicant.progress.index') }}" class="footer-link">Track Application</a></li>
-                        <li><a href="#" class="footer-link">Career Tips</a></li>
-                        <li><a href="#" class="footer-link">Employee Stories</a></li>
-                        <li><a href="#" class="footer-link">FAQ</a></li>
+                        {{--  --}}
                     </ul>
                 </div>
 
@@ -1520,15 +1518,15 @@
                     <ul class="footer-links">
                         <li class="flex items-center gap-2">
                             <i class="fas fa-envelope text-sm"></i>
-                            careers@jiwaraga.com
+                            jiwaragacareers@gmail.com
                         </li>
                         <li class="flex items-center gap-2">
                             <i class="fas fa-phone text-sm"></i>
-                            +62 21 5555 1234
+                            +62 812-6778-8628
                         </li>
                         <li class="flex items-center gap-2">
                             <i class="fas fa-map-marker-alt text-sm"></i>
-                            Jakarta, Indonesia
+                            Jl. Veteran No.15, Purus, Kec. Padang Bar., Kota Padang, Sumatera Barat 25115
                         </li>
                     </ul>
                 </div>
