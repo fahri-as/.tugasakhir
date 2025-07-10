@@ -1803,7 +1803,10 @@
                                             WhatsApp Number
                                             <span class="form-label-required">*</span>
                                         </label>
-                                        <input type="text" name="nomor_wa" id="nomor_wa" value="{{ old('nomor_wa') }}" class="form-control" placeholder="+62" required>
+                                        <div class="flex">
+                                            <span class="bg-gray-100 flex items-center px-3 border border-r-0 border-gray-300 rounded-l-lg text-gray-600 font-medium">+62</span>
+                                            <input type="text" name="nomor_wa" id="nomor_wa" value="{{ old('nomor_wa') ? (strpos(old('nomor_wa'), '+62') === 0 ? substr(old('nomor_wa'), 3) : old('nomor_wa')) : '' }}" class="form-control rounded-l-none" inputmode="numeric" pattern="[0-9]*" required>
+                                        </div>
                                         @error('nomor_wa')
                                             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                                         @enderror
@@ -2099,8 +2102,17 @@
             // Form Submission
             const form = document.getElementById('applicationForm');
             const submitBtn = document.getElementById('submitBtn');
+            const phoneInput = document.getElementById('nomor_wa');
+
+            // Ensure only numbers are entered in the phone field
+            phoneInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
 
             form.addEventListener('submit', function(e) {
+                // Prepend +62 to phone number before submission
+                phoneInput.value = '+62' + phoneInput.value;
+
                 submitBtn.innerHTML = '<span class="spinner"></span> Processing...';
                 submitBtn.disabled = true;
                 submitBtn.classList.add('loading');
