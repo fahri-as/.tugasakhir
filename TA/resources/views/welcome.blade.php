@@ -506,6 +506,7 @@
                 color: var(--text-secondary);
                 max-width: 600px;
                 margin: 0 auto;
+                line-height: 1.6;
             }
 
             .features-grid {
@@ -755,6 +756,7 @@
                 padding: 0;
                 overflow: hidden;
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+                width: calc(100% - 2rem); /* Ensure padding on mobile */
             }
 
             .form-header {
@@ -799,6 +801,7 @@
                 border-radius: 12px;
                 color: white;
                 font-size: 1.25rem;
+                flex-shrink: 0; /* Prevent icon from shrinking */
             }
 
             .form-group {
@@ -828,6 +831,9 @@
                 color: var(--text-primary);
                 transition: all 0.3s ease;
                 font-size: 1rem;
+                line-height: 1.5; /* Better text spacing */
+                -webkit-appearance: none; /* Remove default styling */
+                appearance: none; /* Standard approach */
             }
 
             .form-control:focus {
@@ -1128,33 +1134,215 @@
                     gap: 1rem;
                 }
 
+                /* Smaller Stats Cards on Mobile */
                 .stats-container {
                     grid-template-columns: repeat(2, 1fr);
-                    gap: 1rem;
+                    gap: 0.75rem;
+                    margin-top: 2.5rem;
+                    margin-bottom: 2rem;
+                    padding: 0 1rem;
                 }
 
+                .stat-card {
+                    padding: 1.5rem 1rem;
+                    border-radius: 16px;
+                }
+
+                .stat-icon {
+                    width: 40px;
+                    height: 40px;
+                    margin-bottom: 1rem;
+                    font-size: 1.125rem;
+                    border-radius: 12px;
+                }
+
+                .stat-number {
+                    font-size: 2rem;
+                    margin-bottom: 0.25rem;
+                }
+
+                .stat-label {
+                    font-size: 0.75rem;
+                    letter-spacing: 0.5px;
+                }
+
+                /* Improved Timeline on Mobile */
                 .timeline-line,
                 .timeline-progress {
                     left: 20px;
                 }
 
+                .timeline-section {
+                    padding: 5rem 0;
+                }
+
+                .timeline {
+                    padding: 0 1rem 0 2.5rem;
+                }
+
                 .timeline-item {
                     width: 100%;
-                    padding-left: 60px;
+                    padding-left: 40px;
+                    padding-right: 0;
                     text-align: left !important;
+                    margin-bottom: 1.5rem;
                 }
 
                 .timeline-item:nth-child(even) {
                     left: 0;
                 }
 
+                .timeline-item:nth-child(odd) {
+                    padding-right: 0;
+                }
+
                 .timeline-dot {
                     left: 10px !important;
                     right: auto !important;
+                    width: 20px;
+                    height: 20px;
                 }
 
+                .timeline-content {
+                    padding: 1.5rem;
+                    border-radius: 16px;
+                }
+
+                .timeline-number {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 8px;
+                    font-size: 0.875rem;
+                }
+
+                /* Improve timeline text for mobile */
+                .timeline-content h3 {
+                    font-size: 1.125rem;
+                    margin-bottom: 0.5rem;
+                }
+
+                .timeline-content p {
+                    font-size: 0.9rem;
+                    line-height: 1.5;
+                }
+
+                /* Enhanced Form Mobile Styling */
                 .form-container {
+                    padding: 0;
+                    border-radius: 16px;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+                    margin: 0 1rem;
+                }
+
+                .form-body {
+                    padding: 1.5rem 1rem;
+                }
+
+                .form-section-card {
+                    padding: 1.5rem 1rem;
+                    margin-bottom: 1.5rem;
+                    border-radius: 12px;
+                }
+
+                .form-section-header {
+                    gap: 0.75rem;
+                    margin-bottom: 1.5rem;
+                    flex-direction: row;
+                    align-items: center;
+                }
+
+                .form-section-icon {
+                    width: 40px;
+                    height: 40px;
+                    min-width: 40px;
+                    font-size: 1rem;
+                }
+
+                .form-group {
+                    margin-bottom: 1rem;
+                }
+
+                .grid {
+                    gap: 0.75rem !important;
+                }
+
+                .form-control {
+                    padding: 0.75rem;
+                    font-size: 16px; /* Prevent zoom on iOS */
+                    height: 46px;
+                }
+
+                .form-label {
+                    margin-bottom: 0.25rem;
+                    font-size: 0.8rem;
+                }
+
+                textarea.form-control {
+                    min-height: 100px;
+                    padding-top: 0.75rem;
+                }
+
+                /* File upload adjustments */
+                .file-upload-label {
+                    padding: 1.5rem 1rem;
+                }
+
+                .file-upload-icon {
+                    width: 48px;
+                    height: 48px;
+                    font-size: 1.25rem;
+                }
+
+                .btn {
+                    padding: 0.875rem 1.5rem;
+                    font-size: 0.95rem;
+                }
+
+                .section-header {
+                    margin-bottom: 2.5rem;
+                    padding: 0 1rem;
+                }
+
+                /* Improved section titles and subtitles for mobile */
+                .section-title {
+                    font-size: clamp(2rem, 8vw, 2.5rem);
+                    padding: 0 0.5rem;
+                    margin-bottom: 0.75rem;
+                }
+
+                .section-subtitle {
+                    font-size: 1rem;
+                    padding: 0 1rem;
+                    line-height: 1.5;
+                }
+
+                .section-badge {
+                    padding: 0.4rem 1rem;
+                    font-size: 0.8rem;
+                    margin-bottom: 1rem;
+                }
+            }
+
+            /* Additional mobile-specific styles for smaller screens */
+            @media (max-width: 480px) {
+                .stats-container {
+                    grid-template-columns: 1fr;
+                }
+
+                .feature-card {
                     padding: 2rem 1.5rem;
+                }
+
+                .form-header {
+                    padding: 2rem 1.5rem;
+                }
+
+                .form-section-title {
+                    font-size: 1.25rem;
+                }
+
+                .section-title {
+                    font-size: clamp(1.75rem, 6vw, 2.5rem);
                 }
             }
 
@@ -1534,7 +1722,7 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                     <div class="form-group">
                                         <label class="form-label" for="periode_id">
                                             Application Period
@@ -1587,7 +1775,7 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                     <div class="form-group">
                                         <label class="form-label" for="nama">
                                             Full Name
@@ -1657,7 +1845,7 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                     <div class="form-group">
                                         <label class="form-label" for="pendidikan">
                                             Education Level
@@ -1741,7 +1929,7 @@
                             </div>
 
                             <div class="text-center mt-8">
-                                <button type="submit" class="btn btn-primary px-12 py-4 text-lg" id="submitBtn">
+                                <button type="submit" class="btn btn-primary px-8 md:px-12 py-3 md:py-4 text-base md:text-lg w-full md:w-auto" id="submitBtn">
                                     <i class="fas fa-paper-plane mr-2"></i>
                                     Submit Application
                                 </button>
@@ -1916,6 +2104,66 @@
                 submitBtn.innerHTML = '<span class="spinner"></span> Processing...';
                 submitBtn.disabled = true;
                 submitBtn.classList.add('loading');
+            });
+
+            // Improve form UX on mobile devices
+            document.addEventListener('DOMContentLoaded', function() {
+                const formControls = document.querySelectorAll('.form-control');
+
+                // Handle input fields on mobile better
+                formControls.forEach(control => {
+                    // When field gets focus, scroll it into better view on mobile
+                    control.addEventListener('focus', function() {
+                        if (window.innerWidth <= 768) {
+                            setTimeout(() => {
+                                // Scroll the field into view with some padding
+                                const rect = this.getBoundingClientRect();
+                                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                                const targetY = rect.top + scrollTop - 120;
+                                window.scrollTo({
+                                    top: targetY,
+                                    behavior: 'smooth'
+                                });
+                            }, 300); // Small delay to ensure keyboard is open
+                        }
+                    });
+
+                    // Improve select dropdown usability
+                    if (control.tagName === 'SELECT') {
+                        control.addEventListener('click', function() {
+                            if (window.innerWidth <= 768) {
+                                this.size = this.options.length > 5 ? 5 : this.options.length;
+                            }
+                        });
+
+                        control.addEventListener('blur', function() {
+                            this.size = 1;
+                        });
+
+                        control.addEventListener('change', function() {
+                            this.size = 1;
+                        });
+                    }
+                });
+
+                // Adjust date input size on mobile
+                const dateInputs = document.querySelectorAll('input[type="date"]');
+                if (window.innerWidth <= 768) {
+                    dateInputs.forEach(input => {
+                        input.addEventListener('focus', function() {
+                            this.style.fontSize = '16px'; // Prevent zoom on iOS
+                        });
+                    });
+                }
+
+                // Resize textarea when content changes
+                const textareas = document.querySelectorAll('textarea.form-control');
+                textareas.forEach(textarea => {
+                    textarea.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = (this.scrollHeight + 5) + 'px';
+                    });
+                });
             });
 
             // Intersection Observer for Animations
